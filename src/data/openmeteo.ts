@@ -70,52 +70,64 @@ export interface TypicalDay {
 
 const YEARS_BACK = 5;
 
+const shiftYears = (d: string, y: number) => `${Number(d.slice(0, 4)) - y}${d.slice(4)}`;
+
 /**
  * "Typical weather" for dates beyond the forecast horizon: the same calendar
- * dates over recent years from the historical archive, averaged, then shaped
- * into a daytime curve the engine can read like a forecast.
+ * dates over the last five years from the historical archive, averaged, then
+ * shaped into a day the engine can read like a forecast. One request spans all
+ * five years; the free API rate-limits bursts of parallel calls.
  */
 export async function fetchTypical(lat: number, lon: number, dates: string[]): Promise<TypicalDay[]> {
   if (!dates.length) return [];
-  const first = dates[0];
-  const last = dates[dates.length - 1];
-  const shift = (d: string, y: number) => `${Number(d.slice(0, 4)) - y}${d.slice(4)}`;
-  const vars = 'apparent_temperature_max,apparent_temperature_min,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_gusts_10m_max,snowfall_sum';
+  const q = new URLSearchParams({
+    latitude: lat.toFixed(2),
+    longitude: lon.toFixed(2),
+    start_date: shiftYears(dates[0], YEARS_BACK),
+    end_date: shiftYears(dates[dates.length - 1], 1),
+    daily: 'apparent_temperature_max,apparent_temperature_min,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_gusts_10m_max,snowfall_sum',
+    timezone: 'auto',
+  });
+  const res = await fetch(`https://archive-api.open-meteo.com/v1/archive?${q}`);
+  if (!res.ok) throw new Error('Typical weather is unavailable right now');
+  const daily = ((await res.json()) as { daily: Record<string, (number | null)[]> & { time: string[] } }).daily;
+  return typicalFromArchive(daily, dates);
+}
 
-  const years = await Promise.all(
-    Array.from({ length: YEARS_BACK }, (_, i) => i + 1).map(async (back) => {
-      const q = new URLSearchParams({
-        latitude: lat.toFixed(2),
-        longitude: lon.toFixed(2),
-        start_date: shift(first, back),
-        end_date: shift(last, back),
-        daily: vars,
-        timezone: 'auto',
-      });
-      const res = await fetch(`https://archive-api.open-meteo.com/v1/archive?${q}`);
-      if (!res.ok) return null;
-      return ((await res.json()) as { daily: Record<string, (number | null)[]> & { time: string[] } }).daily;
-    }),
-  );
-  const ok = years.filter((y): y is NonNullable<typeof y> => !!y);
-  if (!ok.length) throw new Error('Typical weather is unavailable right now');
-
-  return dates.map((date, i) => {
+/** Averages archive rows that share each target date's month and day. */
+export function typicalFromArchive(daily: Record<string, (number | null)[]> & { time: string[] }, dates: string[]): TypicalDay[] {
+  const rowsByMonthDay = new Map<string, number[]>();
+  daily.time.forEach((t, i) => {
+    const md = t.slice(5);
+    rowsByMonthDay.set(md, [...(rowsByMonthDay.get(md) ?? []), i]);
+  });
+  return dates.flatMap((date) => {
+    const rows = rowsByMonthDay.get(date.slice(5)) ?? rowsByMonthDay.get('02-28') ?? [];
+    if (!rows.length) return [];
     const avg = (k: string) => {
-      const vals = ok.map((y) => y[k]?.[i]).filter((v): v is number => typeof v === 'number');
+      const vals = rows.map((i) => daily[k]?.[i]).filter((v): v is number => typeof v === 'number');
       return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
     };
-    const wetShare = ok.filter((y) => (y.precipitation_sum?.[i] ?? 0) >= 1).length / ok.length;
-    return { date, hours: synthDay(date, avg('apparent_temperature_min'), avg('apparent_temperature_max'), avg('temperature_2m_min'), avg('temperature_2m_max'), {
-      prob: Math.round(wetShare * 100),
-      mm: avg('precipitation_sum'),
-      gusts: avg('wind_gusts_10m_max'),
-      snow: avg('snowfall_sum') > 0.5,
-    }) };
+    const wetShare = rows.filter((i) => (daily.precipitation_sum?.[i] ?? 0) >= 1).length / rows.length;
+    return [
+      {
+        date,
+        hours: synthDay(date, avg('apparent_temperature_min'), avg('apparent_temperature_max'), avg('temperature_2m_min'), avg('temperature_2m_max'), {
+          prob: Math.round(wetShare * 100),
+          mm: avg('precipitation_sum'),
+          gusts: avg('wind_gusts_10m_max'),
+          snow: avg('snowfall_sum') > 0.5,
+        }),
+      },
+    ];
   });
 }
 
-/** Daytime hours (08–21) following a cosine from the morning low to a 15:00 high. */
+/**
+ * Hours 07–23 shaped like a real day: a cosine rise from the early-morning low
+ * to a 15:00 high, then a slower fall through the evening, so a night out on
+ * a typical day reads colder than the afternoon.
+ */
 export function synthDay(
   date: string,
   feelsMin: number,
@@ -124,20 +136,22 @@ export function synthDay(
   tMax: number,
   x: { prob: number; mm: number; gusts: number; snow: boolean },
 ): Hour[] {
-  return Array.from({ length: 14 }, (_, i) => {
-    const hr = 8 + i;
-    const f = 0.5 - 0.5 * Math.cos((Math.PI * Math.min(hr - 6, 9)) / 9);
+  const shape = (hr: number) =>
+    hr <= 15 ? 0.5 - 0.5 * Math.cos((Math.PI * Math.max(0, hr - 6)) / 9) : 0.5 + 0.5 * Math.cos((Math.PI * (hr - 15)) / 15);
+  return Array.from({ length: 17 }, (_, i) => {
+    const hr = 7 + i;
+    const f = shape(hr);
     return {
       time: `${date}T${String(hr).padStart(2, '0')}:00`,
       temp: tMin + (tMax - tMin) * f,
       feels: feelsMin + (feelsMax - feelsMin) * f,
       precipProb: x.prob,
-      precip: x.mm / 14,
+      precip: x.mm / 17,
       snow: x.snow ? 0.1 : 0,
       wind: x.gusts / 2,
       gusts: x.gusts,
       uv: 0,
-      isDay: hr < 18,
+      isDay: hr >= 8 && hr < 17,
       code: x.snow ? 73 : x.prob >= 50 ? 61 : 2,
     };
   });

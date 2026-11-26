@@ -6,8 +6,9 @@ import { href, route, type Tab } from './router';
 import { Today } from './screens/Today';
 import { Week } from './screens/Week';
 import { Settings } from './screens/Settings';
+import { Trip } from './screens/Trip';
 import { ToastHost } from './components/Toast';
-import { SettingsIcon, TodayIcon, WeekIcon } from './components/Icons';
+import { SettingsIcon, TodayIcon, TripIcon, WeekIcon } from './components/Icons';
 
 interface TabDef {
   id: Tab;
@@ -19,6 +20,7 @@ interface TabDef {
 const TAB_DEFS: TabDef[] = [
   { id: 'today', label: 'Today', icon: TodayIcon, screen: Today },
   { id: 'week', label: 'Week', icon: WeekIcon, screen: Week },
+  { id: 'trip', label: 'Trip', icon: TripIcon, screen: Trip },
   { id: 'settings', label: 'Settings', icon: SettingsIcon, screen: Settings },
 ];
 

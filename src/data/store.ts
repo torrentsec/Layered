@@ -39,17 +39,20 @@ export interface Settings {
   installHintSeen?: boolean;
 }
 
-export interface TripDay {
-  date: string;
-  activities: Activity[];
+export interface TripStop {
+  id: string;
+  place: Place;
+  /** First and last local dates at this stop, inclusive. */
+  start: string;
+  end: string;
 }
 
 export interface Trip {
   id: string;
-  place: Place;
-  start: string;
-  end: string;
+  name: string;
+  stops: TripStop[];
   activities: Activity[];
+  /** Packing list ticks, keyed by item id. */
   checked: Record<string, boolean>;
   createdAt: number;
 }

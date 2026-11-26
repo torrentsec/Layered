@@ -594,6 +594,16 @@ p {
   box-shadow: inset 0 -3px 0 var(--ink);
 }
 
+.hourly li.trip-day {
+  width: 76px;
+  background: var(--surface);
+}
+
+.hourly .mini {
+  width: 36px;
+  height: 36px;
+}
+
 .hourly .dot {
   width: 14px;
   height: 14px;
@@ -755,6 +765,9 @@ dialog.sheet[open]::backdrop {
 .field input[type='date'],
 .field input[type='time'],
 .field select {
+  /* Date inputs have a wide intrinsic size on iOS; let the grid decide. */
+  min-width: 0;
+  width: 100%;
   min-height: 44px;
   border-radius: 10px;
   border: 1px solid var(--line);

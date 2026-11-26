@@ -751,6 +751,8 @@ dialog.sheet[open]::backdrop {
 
 .field {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 6px;
   margin: 12px 0;
 }

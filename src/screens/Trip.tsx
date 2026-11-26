@@ -113,7 +113,7 @@ function TripEditor({ initial, onSave, onDelete, onClose }: { initial: TripT; on
             <span class="grow"><strong>{i + 1}. {s.place.name}</strong><span class="sub">{s.place.detail}</span></span>
             <button type="button" class="icon-btn" aria-label={`Remove ${s.place.name}`} onClick={() => setT({ ...t, stops: t.stops.filter((x) => x.id !== s.id) })}>×</button>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '8px' }}>
             <label class="field" style={{ margin: '8px 0 0' }}>
               <span>Arrive</span>
               <input type="date" value={s.start} min={todayIso()} onChange={(e) => e.currentTarget.value && setStop(s.id, { start: e.currentTarget.value })} />

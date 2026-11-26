@@ -4,8 +4,9 @@
 import type { FunctionComponent } from 'preact';
 import { href, route, type Tab } from './router';
 import { Today } from './screens/Today';
+import { Week } from './screens/Week';
 import { ToastHost } from './components/Toast';
-import { TodayIcon } from './components/Icons';
+import { TodayIcon, WeekIcon } from './components/Icons';
 
 interface TabDef {
   id: Tab;
@@ -14,7 +15,10 @@ interface TabDef {
   screen: FunctionComponent;
 }
 
-const TAB_DEFS: TabDef[] = [{ id: 'today', label: 'Today', icon: TodayIcon, screen: Today }];
+const TAB_DEFS: TabDef[] = [
+  { id: 'today', label: 'Today', icon: TodayIcon, screen: Today },
+  { id: 'week', label: 'Week', icon: WeekIcon, screen: Week },
+];
 
 export function App() {
   const r = route.value;

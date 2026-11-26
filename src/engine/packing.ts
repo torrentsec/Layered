@@ -81,3 +81,23 @@ export function packingText(title: string, items: PackItem[], checked: Record<st
   const lines = items.map((i) => `${checked[i.id] ? '[x]' : '[ ]'} ${i.label}${i.qty > 1 ? ` × ${i.qty}` : ''}`);
   return [title, '', ...lines].join('\n');
 }
+
+/**
+ * One outfit for a day covering several activities: the coldest band's layers
+ * and every extra any of them needs. Used for trip days where you might hike
+ * in the afternoon and go out in the evening.
+ */
+export function combineAdvice(list: Advice[]): Advice | null {
+  if (!list.length) return null;
+  const coldest = list.reduce((a, b) => (bandRank(b.band) > bandRank(a.band) || (b.band === a.band && b.effective < a.effective) ? b : a));
+  const seen = new Set<ExtraId>();
+  const extras = list.flatMap((a) => a.extras).filter((e) => (seen.has(e.id) ? false : (seen.add(e.id), true)));
+  // A hood already covers the rain; an umbrella alongside it is clutter.
+  const final = seen.has('hood') ? extras.filter((e) => e.id !== 'umbrella') : extras;
+  return {
+    ...coldest,
+    extras: final,
+    minFeels: Math.min(...list.map((a) => a.minFeels)),
+    maxFeels: Math.max(...list.map((a) => a.maxFeels)),
+  };
+}

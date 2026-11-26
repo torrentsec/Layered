@@ -1,0 +1,16 @@
+node_modules/
+dist/
+dev-dist/
+coverage/
+.wrangler/
+.dev.vars
+.env*
+!.dev.vars.example
+*.local.json
+*.log
+.DS_Store
+
+# local tool config
+CLAUDE.md
+.claude/
+.mcp.json

@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "node_modules/.tmp/cf.tsbuildinfo",
+    "lib": ["ES2022", "WebWorker"],
+    "types": ["@cloudflare/workers-types"]
+  },
+  "include": ["functions", "worker/src", "src/engine", "src/data/units.ts", "src/data/forecast-types.ts"]
+}

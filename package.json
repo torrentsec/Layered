@@ -17,7 +17,8 @@
     "typecheck": "tsc -b --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
-    "icons": "node scripts/icons.mjs"
+    "icons": "node scripts/icons.mjs",
+    "deploy": "wrangler pages deploy dist --project-name layered --branch main"
   },
   "dependencies": {
     "@preact/signals": "^2.11.4",

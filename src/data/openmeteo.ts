@@ -90,12 +90,15 @@ export async function fetchTypical(lat: number, lon: number, dates: string[]): P
   });
   const res = await fetch(`https://archive-api.open-meteo.com/v1/archive?${q}`);
   if (!res.ok) throw new Error('Typical weather is unavailable right now');
-  const daily = ((await res.json()) as { daily: Record<string, (number | null)[]> & { time: string[] } }).daily;
+  const daily = ((await res.json()) as { daily: ArchiveDaily }).daily;
   return typicalFromArchive(daily, dates);
 }
 
+/** Open-Meteo's daily columns: `time` plus one array per variable, with nulls for gaps. */
+export type ArchiveDaily = { time: string[] } & Record<string, readonly unknown[]>;
+
 /** Averages archive rows that share each target date's month and day. */
-export function typicalFromArchive(daily: Record<string, (number | null)[]> & { time: string[] }, dates: string[]): TypicalDay[] {
+export function typicalFromArchive(daily: ArchiveDaily, dates: string[]): TypicalDay[] {
   const rowsByMonthDay = new Map<string, number[]>();
   daily.time.forEach((t, i) => {
     const md = t.slice(5);
@@ -108,7 +111,7 @@ export function typicalFromArchive(daily: Record<string, (number | null)[]> & { 
       const vals = rows.map((i) => daily[k]?.[i]).filter((v): v is number => typeof v === 'number');
       return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
     };
-    const wetShare = rows.filter((i) => (daily.precipitation_sum?.[i] ?? 0) >= 1).length / rows.length;
+    const wetShare = rows.filter((i) => Number(daily.precipitation_sum?.[i] ?? 0) >= 1).length / rows.length;
     return [
       {
         date,

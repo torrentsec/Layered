@@ -23,6 +23,14 @@ export function tempDelta(c: number, u: TempUnit): number {
   return Math.round(v * 10) / 10;
 }
 
+/**
+ * The "dress for" figure rounds down: band edges are whole degrees, so 1.7°
+ * must not read as 2° next to "Bundle up".
+ */
+export function fmtDressFor(c: number, u: TempUnit): string {
+  return `${Math.floor(u === 'f' ? (c * 9) / 5 + 32 : c)}°`;
+}
+
 export function fmtTemp(c: number, u: TempUnit): string {
   return `${temp(c, u)}°`;
 }
@@ -39,8 +47,13 @@ export function localiseWind(text: string, u: WindUnit): string {
   return text.replace(/(\d+(?:\.\d+)?) km\/h/g, (_, n: string) => wind(Number(n), u));
 }
 
-/** Rewrites "4°" / "-2.5°" inside engine text into the user's temperature unit. */
+/**
+ * Rewrites temperatures inside engine text into the user's unit. "+5°" is a
+ * difference and converts without the offset; "4°" and "-2.5°" are readings.
+ */
 export function localiseTemp(text: string, u: TempUnit): string {
   if (u === 'c') return text;
-  return text.replace(/(-?\d+(?:\.\d+)?)°/g, (_, n: string) => `${temp(Number(n), u)}°`);
+  return text
+    .replace(/\+(\d+(?:\.\d+)?)°/g, (_, n: string) => `+${Math.round(tempDelta(Number(n), u))}°`)
+    .replace(/(?<![+\d.])(-?\d+(?:\.\d+)?)°/g, (_, n: string) => `${temp(Number(n), u)}°`);
 }

@@ -1,0 +1,16 @@
+/* TEAM */
+  Name: torrentsec
+  Handle: torrentsec
+  Location: London, UK
+
+/* THANKS */
+  Weather data: Open-Meteo.com (CC BY 4.0)
+  Typeface: Jost, by Owen Earl (SIL Open Font License)
+
+/* SITE */
+  Standards: HTML, CSS, TypeScript
+  Components: Preact, Preact Signals
+  Tooling: Vite, vite-plugin-pwa (Workbox), Vitest
+  Hosting: Cloudflare Pages, Pages Functions, D1, Workers
+  Source: https://github.com/torrentsec/Layered
+  Licence: AGPL-3.0-or-later

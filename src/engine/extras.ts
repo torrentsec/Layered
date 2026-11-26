@@ -82,7 +82,7 @@ export function extrasFor(stats: WindowStats, effective: number, activity: Activ
   if (stats.maxGust > GUST_WARNING) out.push({ id: 'gusts', label: `Gusts ${r0(stats.maxGust)} km/h`, tone: 'warn', reason: `Gusts over ${GUST_WARNING} km/h` });
   if (stats.dark && handsBusy) out.push({ id: 'reflective', label: 'Reflective kit', tone: 'warn', reason: `Dark while ${activity}` });
   if (stats.warming >= SWING_DEGREES) {
-    out.push({ id: 'swing', label: 'Layers you can take off', tone: 'info', reason: `Warms by ${r0(stats.warming)}° while you're out` });
+    out.push({ id: 'swing', label: 'Layers you can take off', tone: 'info', reason: `Feels-like rises +${r0(stats.warming)}° while you're out` });
   }
   return out;
 }

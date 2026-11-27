@@ -4,39 +4,32 @@
 import '../styles/feels-calibration.css';
 import { actualRange } from '../engine/actual';
 import type { Advice } from '../engine/types';
-import { familiarRange, type CalibratedReading } from '../data/feels-calibration';
+import type { CalibratedReading } from '../data/feels-calibration';
 import { fmtTemp, type Units } from '../data/units';
-import { FeelsActual } from './AdviceParts';
 
 interface Props {
   advice: Advice;
   reading: CalibratedReading;
-  familiar: boolean;
   units: Units;
   context: string;
 }
 
 /**
- * The readout under the poster for a wording on trial (spike #84). With the
- * familiar number on top the range below uses it too, so the two never
- * disagree on screen.
+ * The readout under the poster: the real temperature, then how it feels. The
+ * range line gives only the air range, because the feels figure is already in
+ * the note and the hourly strip; repeating it made the same number show twice.
  */
-export function CalibratedFeels({ advice, reading, familiar, units, context }: Props) {
-  const t = (c: number) => fmtTemp(c, units.temp);
-  const fam = familiar ? familiarRange(advice.hours) : null;
+export function CalibratedFeels({ advice, reading, units, context }: Props) {
   const actual = actualRange(advice.hours);
   return (
     <div>
       <div class="feels num" style={{ position: 'relative' }}><span class="visually-hidden">{reading.label} </span>{reading.text}</div>
       {reading.note && <div class="feels-note">{reading.note}</div>}
-      {fam ? (
+      {actual && (
         <div class="feels-label">
-          <span class="nowrap">Feels {t(fam.min)} to {t(fam.max)}</span>
-          {actual && <>{' · '}<span class="nowrap">actual {t(actual.min)} to {t(actual.max)}</span></>}
+          <span class="nowrap">Air {fmtTemp(actual.min, units.temp)} to {fmtTemp(actual.max, units.temp)}</span>
           <span class="feels-context">{context}</span>
         </div>
-      ) : (
-        <FeelsActual advice={advice} units={units} context={context} />
       )}
     </div>
   );

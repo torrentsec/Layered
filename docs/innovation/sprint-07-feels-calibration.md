@@ -1,5 +1,7 @@
 # Sprint 7: calibrating the feels-like headline (#84)
 
+**Shipped in Sprint 8 (#93):** real temperature first is now the default hero, with the circle coloured by how it feels (UTCI), a range line that gives only the air range (so the feels number is not repeated), and the hourly strip keeping UTCI with the real temperature beneath. The familiar wind-chill number and the `feels-familiar` and `feels-actual` flags are removed. Simple bands are unchanged.
+
 Paired with dev-06, whose refinements are folded in: say the UTCI stress category in words, use the JAG/TI wind chill as the "other apps" number, and check that the clothing target does not move.
 
 ## Question

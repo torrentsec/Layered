@@ -178,7 +178,7 @@ function ScienceWhyParts({ s, advice, units, margin }: { s: ScienceWhy; advice: 
   );
 }
 
-/** `margin` is the spike #88 prototype; production never passes it. */
+/** `margin` is passed only when 2° or less would change the advice (#88). */
 export function WhyBody({ advice, units, margin }: { advice: Advice; units: Units; margin?: MarginText }) {
   const w = advice.why;
   const fmt = timeFmt(units.clock);

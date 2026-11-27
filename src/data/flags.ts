@@ -6,9 +6,9 @@
  * Innovation Sprints: production behaviour doesn't change). A flag is turned
  * on with `?flags=a,b` in the URL and remembered on this device only, so a demo
  * survives reloads and hash navigation; `?flags=` turns them all off. Routes
- * are hash-based, so the query goes before the hash: `/?flags=margin#/today`.
+ * are hash-based, so the query goes before the hash: `/?flags=learned-card#/today`.
  */
-export const FLAGS = ['feels-in-clothes', 'feels-familiar', 'feels-actual', 'site-street', 'site-shade', 'learned-card', 'margin'] as const;
+export const FLAGS = ['feels-in-clothes', 'site-street', 'site-shade', 'learned-card'] as const;
 export type Flag = (typeof FLAGS)[number];
 
 export const FLAGS_KEY = 'layered:flags';

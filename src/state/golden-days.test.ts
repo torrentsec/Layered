@@ -18,7 +18,8 @@ import { feelsInClothes } from '../data/feels-in-clothes';
 import { comfortTime } from '../engine/science/comfort-time';
 import { hourToWeather } from '../engine/science/weather';
 import { COMPLETE, DAYS, openMeteo, type Conditions, type DayId } from './__fixtures__/golden-days';
-import { adviceMargin } from '../data/margin-text';
+import { adviceMargin, marginText } from '../data/margin-text';
+import { calibratedReading } from '../data/feels-calibration';
 
 function run(id: DayId, engine: Settings['engine'], activity: Activity = 'walking', duration = 0.5): Advice {
   const c: Conditions = DAYS[id];
@@ -295,6 +296,75 @@ describe('golden days, margin to the next band (spike #88)', () => {
           "warmer": {
             "band": "light",
             "by": 4,
+          },
+        },
+      }
+    `);
+  });
+});
+
+// Sprint 8 (#93): what each golden day shows by default. The hero is the real
+// temperature with how it feels beneath; "What would change this" appears only
+// where 2° or less would change the advice.
+describe('golden days, the default headline and margin (Sprint 8)', () => {
+  it('records the hero and whether the margin shows, in °C and °F', () => {
+    const rows = Object.fromEntries((Object.keys(DAYS) as DayId[]).map((id) => {
+      const a = run(id, DEFAULT_PATH);
+      const c = DAYS[id];
+      const m = adviceMargin(a, { lat: c.lat, lon: c.lon, utcOffsetSeconds: c.utcOffset });
+      const shows = (u: 'c' | 'f') => (m ? marginText(m, u).show : false);
+      const c1 = calibratedReading(a, 'c');
+      const f1 = calibratedReading(a, 'f');
+      return [id, { c: `${c1.text} ${c1.note}`.trim(), f: `${f1.text} ${f1.note}`.trim(), margin: { c: shows('c'), f: shows('f') } }];
+    }));
+    expect(rows).toMatchInlineSnapshot(`
+      {
+        "cloudy8": {
+          "c": "8° Feels -6° in the wind",
+          "f": "46° Feels 20° in the wind",
+          "margin": {
+            "c": false,
+            "f": false,
+          },
+        },
+        "london": {
+          "c": "3° Feels -13° in the wind",
+          "f": "37° Feels 8° in the wind",
+          "margin": {
+            "c": false,
+            "f": false,
+          },
+        },
+        "madrid": {
+          "c": "28° Feels 32° in the sun",
+          "f": "82° Feels 90° in the sun",
+          "margin": {
+            "c": false,
+            "f": false,
+          },
+        },
+        "mild": {
+          "c": "15° Feels 22° in the sun",
+          "f": "59° Feels 71° in the sun",
+          "margin": {
+            "c": true,
+            "f": true,
+          },
+        },
+        "oslo": {
+          "c": "-10° Feels -24° in the wind",
+          "f": "14° Feels -12° in the wind",
+          "margin": {
+            "c": false,
+            "f": false,
+          },
+        },
+        "sunny8": {
+          "c": "8° Feels 19° in the sun",
+          "f": "46° Feels 66° in the sun",
+          "margin": {
+            "c": false,
+            "f": false,
           },
         },
       }

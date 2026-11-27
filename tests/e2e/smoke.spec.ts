@@ -12,15 +12,14 @@ test('first run: pick a place, skip the rest, and Today gives a verdict', async 
   await page.getByRole('button', { name: 'Skip setup' }).click();
 
   await expect(page.getByRole('navigation', { name: 'Sections' })).toBeVisible();
-  // Science is the default: the hero is the coldest hour's UTCI, the real temperature sits beside it,
-  // and "Why this?" opens with the same number.
-  const hero = page.locator('.readout .feels');
-  await expect(hero).toHaveText(/^Feels like -?\d+°$/);
-  await expect(page.locator('.readout .feels-label')).toContainText(/actual -?\d+° to -?\d+°/);
+  // Science is the default: the hero is the real temperature, with how it feels (UTCI) beneath,
+  // and "Why this?" opens with that same feels-like number.
+  await expect(page.locator('.readout .feels')).toHaveText(/^Actual -?\d+°$/);
+  await expect(page.locator('.readout .feels-label')).toContainText(/Air -?\d+° to -?\d+°/);
   await expect(page.locator('main')).toContainText(/coat|jacket|jumper/i);
-  const number = (await hero.textContent())!.replace('Feels like ', '');
+  const note = await page.locator('.readout .feels-note').textContent();
   await page.getByRole('button', { name: 'Why this?' }).click();
-  await expect(page.locator('.why-lead')).toContainText(`it will feel like ${number}`);
+  if (note) await expect(page.locator('.why-lead')).toContainText(`it will feel like ${note.replace(/^Feels /, '').replace(/ in the (wind|sun)$/, '')}`);
 });
 
 test('simple bands keep the dress-for number on the hero', async ({ page }) => {

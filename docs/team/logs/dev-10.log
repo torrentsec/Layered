@@ -1,0 +1,9 @@
+2026-11-27 (sprint 5, from the board) | dev-10 -> team | claim | src/engine/science/why.ts: the ScienceWhy shape #69 hands to Why this?
+2026-11-27 (sprint 5, from the board) | dev-10 -> dev-07 | offer | proposed ScienceWhy fields (coldest hour, UTCI, Tmrt delta, radiation, metabolic, target), all from functions already called
+2026-11-27 (sprint 5, from the board) | dev-10 -> dev-07 | question | confirm field names; is the coldest hour the lowest UTCI? what is the flag name?
+2026-11-27 (sprint 5, from the board) | dev-07 -> dev-10 | answer | flag is settings.engine (absent = bands); advice.science will carry your ScienceWhy
+2026-11-27 (sprint 5, from the board) | dev-10 -> dev-07 | answer | all agreed; ScienceWhy type pushed; commute and routine feels need merging across legs
+2026-11-27 (sprint 5, from the board) | dev-10 -> dev-06 | review | no tests yet; inline wind plus ride sum instead of airSpeedAtBody; heat rule wins above 20 °C
+2026-11-27 (sprint 5, from the board) | dev-06 -> dev-10 | answer | tests added; over-20 °C rule commented; airSpeedAtBody after #68 lands
+2026-11-27 (sprint 5, from the board) | dev-09 -> dev-10 | review | no bugs, no copied maths; dropped two findings after checking main; two nits
+2026-11-27 (sprint 5, from the board) | dev-10 -> scrum-master | handback | Sprint 5 item done and reported

@@ -11,7 +11,7 @@ import type { Activity, BandId, Effort } from '../types';
 import { ireq, ISO_11079_LIMITS, lightestIclFor } from './ireq';
 import { metabolicRate } from './metabolic';
 import { airSpeedAtBody } from './radiation';
-import type { BandForCloFn, ClothingTarget, ClothingTargetFn, IreqParams, UtciCategory, UtciResult, Weather } from './types';
+import type { BandForCloFn, ClothingTarget, ClothingTargetFn, IreqParams, Metabolic, UtciCategory, UtciResult, Weather } from './types';
 import { weatherUtci } from './utci';
 
 /** Lower edge of each band above `tshirt`, basic clo (thermal-model §9.1). */
@@ -92,10 +92,10 @@ function radiantTemp(w: Weather): number {
   return w.ta + share * gain;
 }
 
-function ireqTarget(w: Weather, activity: Activity, effort: Effort | undefined, exposureHours: number) {
-  const met = metabolicRate(activity, effort);
+/** ISO 11079 inputs for one hour and body heat, as the clothing target sees them. */
+export function ireqParamsFor(w: Weather, met: Metabolic): Omit<IreqParams, 'icl'> {
   // A cyclist meets the wind plus their own speed; a walker's own breeze is IREQ's `walk` term.
-  const params: Omit<IreqParams, 'icl'> = {
+  return {
     ta: w.ta,
     tr: radiantTemp(w),
     va: airSpeedAtBody(w.wind10, met.ride),
@@ -104,6 +104,10 @@ function ireqTarget(w: Weather, activity: Activity, effort: Effort | undefined, 
     w: met.w,
     walk: met.walk,
   };
+}
+
+function ireqTarget(w: Weather, activity: Activity, effort: Effort | undefined, exposureHours: number) {
+  const params = ireqParamsFor(w, metabolicRate(activity, effort));
   const steady = ireq(params);
   const needed = Math.max(lightestIclFor(params, exposureHours), Math.min(steady.iclNeutral, NEUTRAL_REACH_CLO));
   return { steady, needed };

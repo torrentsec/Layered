@@ -14,6 +14,9 @@ import type { Activity, Advice } from '../engine/types';
 import { DAILY_VARS, parseForecast } from '../data/forecast-types';
 import { DEFAULT_SETTINGS, type Settings } from '../data/store';
 import { planDay } from './advice';
+import { feelsInClothes } from '../data/feels-in-clothes';
+import { comfortTime } from '../engine/science/comfort-time';
+import { hourToWeather } from '../engine/science/weather';
 
 interface Conditions {
   /** Local start of the walk, YYYY-MM-DDTHH:00. */
@@ -92,13 +95,13 @@ type DayId = keyof typeof DAYS;
 // Everything in the catalogue, in every thickness, with its usual protection.
 const COMPLETE: Inventory = Object.fromEntries(CATALOGUE.map((c) => [c.id, { counts: c.thickness ? { thin: 1, medium: 1, thick: 1 } : { medium: 1 } }]));
 
-function run(id: DayId, engine: Settings['engine'], activity: Activity = 'walking'): Advice {
+function run(id: DayId, engine: Settings['engine'], activity: Activity = 'walking', duration = 0.5): Advice {
   const c: Conditions = DAYS[id];
   vi.useFakeTimers();
   vi.setSystemTime(new Date(Date.parse(`${c.time}:00Z`) - c.utcOffset * 1000 + 5 * 60_000));
   const f = parseForecast(openMeteo(c) as Parameters<typeof parseForecast>[0], 0);
-  const settings: Settings = { ...DEFAULT_SETTINGS, activity, duration: 0.5, engine };
-  // A 30-minute walk, no bias, nothing learned.
+  const settings: Settings = { ...DEFAULT_SETTINGS, activity, duration, engine };
+  // A 30-minute walk unless asked otherwise, no bias, nothing learned.
   const plan = planDay(f, c.time.slice(0, 10), { settings, ratings: [], inventory: COMPLETE, comfort: DEFAULT_COMFORT, garmentWarmth: {}, bias: { mean: 0, count: 0 } });
   expect(plan).not.toBeNull();
   return plan!.advice;
@@ -281,5 +284,39 @@ describe('golden days, science engine through the default settings', () => {
     expect(a.science?.target.icl).toBe(a.requirements?.clo?.icl);
     expect(a.science?.utci.utci).toBeLessThan(DAYS.london.ta);
     expect(a.why.rules[0]).toMatch(/^Needs about \d\.\d clo/);
+  });
+});
+
+// #85 prototype (docs/innovation/sprint-07-feels-in-clothes.md): how long the outfit keeps you warm.
+describe('golden days, feels like in what you wear', () => {
+  const placeOf = (id: DayId) => ({ lat: DAYS[id].lat, lon: DAYS[id].lon, utcOffsetSeconds: DAYS[id].utcOffset });
+  const line = (id: DayId, activity: Activity = 'walking', duration = 0.5) => feelsInClothes(run(id, DEFAULT_PATH, activity, duration), placeOf(id));
+
+  it('an outfit at the clothing target is warm for the whole time outside', () => {
+    for (const id of ['london', 'oslo', 'cloudy8'] as const) for (const activity of ['walking', 'cycling'] as const) for (const d of [0.5, 1, 2, 4]) {
+      const a = run(id, DEFAULT_PATH, activity, d);
+      const t = comfortTime({ hours: a.hours.map((h) => hourToWeather(h, placeOf(id))), metabolic: a.science!.metabolic, worn: a.science!.target.icl, bias: 0 })!;
+      expect(t.warm * 60, `${id} ${activity} ${d} h`).toBeGreaterThanOrEqual(a.science!.exposureMinutes - 3);
+    }
+  });
+
+  it('says nothing on a hot day, and warm all day on mild ones', () => {
+    expect(line('madrid')).toBeUndefined();
+    expect(line('mild')?.line).toBe('Warm enough in this outfit all day.');
+    expect(line('sunny8')?.tone).toBe('covered');
+  });
+
+  it('cloudy 8 °C: the coat covers a 30-minute walk', () => {
+    expect(line('cloudy8')).toMatchObject({ tone: 'covered', line: 'Warm enough in your coat for about 60 min.', sub: 'You’re out for 30 min.' });
+  });
+
+  it('London: the matched layers sum below the target, and the line says so', () => {
+    const a = run('london', DEFAULT_PATH);
+    expect(a.science!.outfit!.basic).toBeLessThan(a.science!.target.icl);
+    expect(line('london')?.tone).toBe('cool');
+  });
+
+  it('Oslo for an hour: the heaviest plan is not enough, and the line asks for a layer', () => {
+    expect(line('oslo', 'walking', 1)).toMatchObject({ tone: 'cold', sub: expect.stringContaining('Add a layer') });
   });
 });

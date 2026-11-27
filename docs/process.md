@@ -55,11 +55,13 @@ An Increment is Done when:
 6. There are no secrets, tracking or AI references in the repo, and source headers are present.
 7. `docs/requirements.md` statuses and any user-facing docs are updated.
 8. It is deployed to production from `main`.
+9. Its branch is deleted once merged, and any debt it knowingly leaves is in [`docs/tech-debt.md`](tech-debt.md).
 
 ## Engineering practices
 
 - **Trunk-based development** with short-lived branches: `feat/<issue>-<slug>`, `fix/<issue>-<slug>`.
 - **Contracts first.** Shared types and module boundaries are agreed at Sprint Planning and land on `main` before parallel work starts, so the two teams work on separate files.
+- **Technical debt is planned work.** Debt lives in [`docs/tech-debt.md`](tech-debt.md). Each Sprint takes at least one debt item into its Sprint Backlog, chosen at Planning like any other item.
 - **Developers collaborate through a team board.** Each wave shares one board. Developers post what they need and offer before coding, claim shared helpers so each exists once, ask the owner instead of copying, and review each other's branches before integration. The SM facilitates and removes blockers; it doesn't decide code.
 - **Conventional Commits** and squash merges keep `main` readable.
 - **Security.** Cloudflare credentials live only in GitHub Actions secrets, and runtime keys in Worker secrets.

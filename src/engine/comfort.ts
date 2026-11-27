@@ -28,7 +28,8 @@ export const COLD_WHEN_STILL_OFFSET = -1.5;
 // Listed rather than derived from ACTIVITY_OFFSET so a newly added activity
 // gets no preference adjustment until someone decides where it belongs.
 export const ACTIVE_ACTIVITIES: readonly Activity[] = ['walking', 'hiking', 'running', 'cycling'];
-export const STILL_ACTIVITIES: readonly Activity[] = ['standing', 'transport', 'night'];
+// An office day's exposure is mostly waiting at stops and crossings.
+export const STILL_ACTIVITIES: readonly Activity[] = ['standing', 'transport', 'night', 'office'];
 
 /**
  * Offset from the comfort profile for an activity, applied alongside the

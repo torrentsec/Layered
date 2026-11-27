@@ -72,7 +72,10 @@ describe('comfortOffset', () => {
     expect(comfortOffset({ sensitivity: 'freezing' as Sensitivity }, 'walking')).toBe(0);
   });
 
-  it('places every current activity in exactly one group', () => {
-    for (const a of ACTIVITIES) expect(Number(ACTIVE_ACTIVITIES.includes(a)) + Number(STILL_ACTIVITIES.includes(a))).toBe(1);
+  it('places every outdoor activity in exactly one group', () => {
+    // Staying in is a quick trip out, so neither preference applies.
+    const outdoor = ACTIVITIES.filter((a) => a !== 'indoors');
+    for (const a of outdoor) expect(Number(ACTIVE_ACTIVITIES.includes(a)) + Number(STILL_ACTIVITIES.includes(a))).toBe(1);
+    expect(ACTIVE_ACTIVITIES.includes('indoors') || STILL_ACTIVITIES.includes('indoors')).toBe(false);
   });
 });

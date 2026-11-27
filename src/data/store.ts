@@ -125,6 +125,29 @@ export const wardrobe = persisted<WardrobeItem[]>('wardrobe', []);
 export const inventory = persisted<Inventory>('inventory', {});
 export const comfort = persisted<ComfortProfile>('comfort', DEFAULT_COMFORT);
 export const routines = persisted<Routine[]>('routines', []);
+/**
+ * Learned warmth per garment, in warmth points, keyed `${category}:${thickness}` (US-039).
+ * Kept apart from personal sensitivity so a cold coat doesn't make you "feel the cold".
+ */
+export const garmentWarmth = persisted<Record<string, number>>('garmentWarmth', {});
+
+/** One day's advice as shown, with the weather that drove it and how it went (US-049 to US-052). */
+export interface DayRecord {
+  date: string;
+  activity: Activity;
+  effective: number;
+  band: string;
+  layers: string[];
+  extras: string[];
+  maxRain: number;
+  maxWind: number;
+  rating?: -1 | 0 | 1;
+  /** Set when advice couldn't be given or the wardrobe left gaps. */
+  issue?: 'no-forecast' | 'engine-error' | 'incomplete-inventory';
+}
+/** Most recent first, capped at 60 days; never leaves the device except through the user's own sync. */
+export const history = persisted<DayRecord[]>('history', []);
+
 /** First-run flow finished or skipped (US-006). */
 export const onboarded = persisted<boolean>('onboarded', false);
 export const trips = persisted<Trip[]>('trips', []);
@@ -146,6 +169,8 @@ export interface Bundle {
   inventory?: Inventory;
   comfort?: ComfortProfile;
   routines?: Routine[];
+  garmentWarmth?: Record<string, number>;
+  history?: DayRecord[];
   trips: Trip[];
   ratings: Rating[];
 }
@@ -160,6 +185,8 @@ export function exportBundle(): Bundle {
     inventory: inventory.value,
     comfort: comfort.value,
     routines: routines.value,
+    garmentWarmth: garmentWarmth.value,
+    history: history.value,
     trips: trips.value,
     ratings: ratings.value,
   };
@@ -176,6 +203,8 @@ export function importBundle(b: unknown): void {
   inventory.value = x.inventory && typeof x.inventory === 'object' ? x.inventory : {};
   comfort.value = { ...DEFAULT_COMFORT, ...x.comfort };
   routines.value = Array.isArray(x.routines) ? x.routines : [];
+  garmentWarmth.value = x.garmentWarmth && typeof x.garmentWarmth === 'object' ? x.garmentWarmth : {};
+  history.value = Array.isArray(x.history) ? x.history : [];
   trips.value = Array.isArray(x.trips) ? x.trips : [];
   ratings.value = Array.isArray(x.ratings) ? x.ratings : [];
 }

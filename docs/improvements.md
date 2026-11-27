@@ -19,10 +19,13 @@ Every Sprint Retrospective adds at least one improvement here. Each one is plann
 | 13 | Sprint 3 | Reinstall dependencies in the integration worktree whenever the lockfile changes on `main` | Sprint 4 | **Kept.** One `npm ci` before checks; no false type errors |
 | 14 | Sprint 3 | Developers stop the servers they start; the SM clears leftover previews before integrating | Sprint 4 | **Kept.** No port conflicts |
 | 15 | Sprint 3 | State lives in git: decisions land in the Sprint doc or this log as they're made | Sprint 4 | **Adjusted.** PO decisions were captured at each hand-back but landed in git at Review, not as made. Keep, and commit them with the integration branch as it grows |
-| 16 | Sprint 4 | Re-index Graphify at `main` at every Sprint Planning | Sprint 5 | Pending |
-| 17 | Sprint 4 | A spike runs each formula against its acceptance tests before writing it into the backlog | Sprint 5 | Pending |
-| 18 | Sprint 4 | Confirm external API field names with one live request at Planning | Sprint 5 | Pending |
-| 19 | Sprint 4 (stakeholder) | Developers self-manage the how: a shared team board for needs, offers and claimed helpers; ask instead of copy; peer review by another Developer. The SM facilitates and never dictates code | Sprint 5 | Pending |
+| 16 | Sprint 4 | Re-index Graphify at `main` at every Sprint Planning | Sprint 5 | **Kept.** Blocked at Planning, then the index followed `main` again mid-Sprint (D3 paid off) |
+| 17 | Sprint 4 | A spike runs each formula against its acceptance tests before writing it into the backlog | Sprint 5 | **Kept.** Golden days were written as runnable expectations before implementation and drove the tuning |
+| 18 | Sprint 4 | Confirm external API field names with one live request at Planning | Sprint 5 | **Kept.** Confirmed at Planning from the provider's documentation source |
+| 19 | Sprint 4 (stakeholder) | Developers self-manage the how: a shared team board for needs, offers and claimed helpers; ask instead of copy; peer review by another Developer. The SM facilitates and never dictates code | Sprint 5 | **Kept.** 53 board entries, 15 questions and answers, 6 peer reviews, no duplicate code merged, SM wrote no feature code |
+| 20 | Sprint 5 | Merge `origin/main` into a pushed branch; rebase only before the first push | Sprint 6 | Pending |
+| 21 | Sprint 5 | Depend on commits the owner posts as stable on the board, and re-merge on a newer one | Sprint 6 | Pending |
+| 22 | Sprint 5 | Merge the Sprint PR with a merge commit so each story's commits stay visible | Sprint 6 | Pending |
 
 ## Metrics we watch
 
@@ -32,3 +35,4 @@ Every Sprint Retrospective adds at least one improvement here. Each one is plann
 | 2 | 5 | 5 | 2 | 7 (`main.tsx` ×3, Week, DayView, Settings, SharePoster) | 361 → 630 | SM-caused `node_modules` link (#40) |
 | 3 | 5 | 5 | 4 | 1 (Settings) | 630 → 698 + 5 e2e + axe + Lighthouse | Session restart; stale dependencies; a port held by a leftover server |
 | 4 | 5 | 5 | 1 (one Sprint PR) | 1 (`windAtBody` duplicate) | 698 → 1,480 | Open-Meteo quota spent; GitHub connection dropped after restart |
+| 5 | 5 | 5 | 1 Sprint PR + 3 side PRs (#73–#75) | 1 (early merge of moving branches) | 1,480 → 1,585 | Usage limit mid-wave; force-push refused for rebased branches |

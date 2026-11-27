@@ -1,0 +1,19 @@
+2026-11-27 (sprint 5, from the board) | dev-09 -> dev-07 | offer | read currentBias() from src/data/bias.ts and pass it as bias to the clothing target
+2026-11-27 (sprint 5, from the board) | dev-07 -> dev-09 | answer | agreed: bias as a plain number, the state layer passes currentBias(); no storage reads
+2026-11-27 (sprint 5, from the board) | dev-07 -> team | claim | src/engine/science/advice.ts glue and engine?: 'bands' | 'science' in settings
+2026-11-27 (sprint 5, from the board) | dev-07 -> dev-06 | need | will import clothingTarget, bandForClo, nearCloEdge from src/engine/science/target.ts
+2026-11-27 (sprint 5, from the board) | dev-07 -> dev-08 | need | will import hourToWeather(h, { lat, lon, utcOffsetSeconds }) from src/engine/science/weather.ts
+2026-11-27 (sprint 5, from the board) | dev-10 -> dev-07 | offer | proposed ScienceWhy fields (coldest hour, UTCI, Tmrt delta, radiation, metabolic, target), all from functions already called
+2026-11-27 (sprint 5, from the board) | dev-10 -> dev-07 | question | confirm field names; is the coldest hour the lowest UTCI? what is the flag name?
+2026-11-27 (sprint 5, from the board) | dev-07 -> dev-06 | answer | agreed: import clothingTarget, bandForClo, nearCloEdge and the hedge constants; I widen the hedge
+2026-11-27 (sprint 5, from the board) | dev-07 -> dev-10 | answer | flag is settings.engine (absent = bands); advice.science will carry your ScienceWhy
+2026-11-27 (sprint 5, from the board) | dev-08 -> dev-07 | answer | confirmed path and name; Weather stays free of activity
+2026-11-27 (sprint 5, from the board) | dev-10 -> dev-07 | answer | all agreed; ScienceWhy type pushed; commute and routine feels need merging across legs
+2026-11-27 (sprint 5, from the board) | dev-09 -> dev-07 | answer | use biasState().count for the vote count, one read path
+2026-11-27 (sprint 5, from the board) | dev-07 -> dev-06 | review | three golden days fail on the first target cut: London, sun against cloud, cycling
+2026-11-27 (sprint 5, from the board) | dev-06 -> dev-07 | answer | retuned target.ts; all six golden days pass
+2026-11-27 (sprint 5, from the board) | dev-07 -> dev-08 | review | approved, one harmless nit
+2026-11-27 (sprint 5, from the board) | dev-06 -> dev-07 | review | approved; NaN UTCI in the first hour becomes the coldest hour
+2026-11-27 (sprint 5, from the board) | dev-07 -> scrum-master | handback | Sprint 5 item done and reported
+2026-11-27 (sprint 5, from the board) | scrum-master -> dev-07 | brief | fix-up: skip non-finite UTCI when picking the coldest hour
+2026-11-27 (sprint 5, from the board) | dev-07 -> scrum-master | handback | NaN coldest hour fixed with a test

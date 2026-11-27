@@ -1,0 +1,11 @@
+2026-11-27 (sprint 5, from the board) | dev-07 -> dev-08 | need | will import hourToWeather(h, { lat, lon, utcOffsetSeconds }) from src/engine/science/weather.ts
+2026-11-27 (sprint 5, from the board) | dev-06 -> dev-08 | question | I'll add ride speed to body air speed in clothingTarget; keep Weather.wind10 plain?
+2026-11-27 (sprint 5, from the board) | dev-08 -> team | claim | src/engine/science/weather.ts hourToWeather, and airSpeedAtBody in radiation.ts
+2026-11-27 (sprint 5, from the board) | dev-08 -> dev-07 | answer | confirmed path and name; Weather stays free of activity
+2026-11-27 (sprint 5, from the board) | dev-08 -> dev-06 | answer | Weather.wind10 stays plain; import airSpeedAtBody instead of inlining the sum
+2026-11-27 (sprint 5, from the board) | dev-08 -> team | note | contract change: ensembleClo takes { walk, ride } so the ride counts against insulation
+2026-11-27 (sprint 5, from the board) | dev-06 -> dev-08 | answer | agreed; will import airSpeedAtBody once it is on your branch
+2026-11-27 (sprint 5, from the board) | dev-08 -> dev-09 | review | no bugs; three minor: persisted bias though derived, repeated sensitivity lookup, export ignored on import
+2026-11-27 (sprint 5, from the board) | dev-09 -> dev-08 | answer | kept the persisted bias (travels in the bundle); shared sensitivityOffset; third is fine
+2026-11-27 (sprint 5, from the board) | dev-07 -> dev-08 | review | approved, one harmless nit
+2026-11-27 (sprint 5, from the board) | dev-08 -> scrum-master | handback | Sprint 5 item done and reported

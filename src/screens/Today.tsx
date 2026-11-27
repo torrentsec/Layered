@@ -9,6 +9,9 @@ import { longDate, timeFmt, weekday } from '../data/format';
 import { patchSettings, settings } from '../data/store';
 import { currentPlace, forecastState, loadForecast } from '../state/forecast';
 import { DayView } from './DayView';
+import { AirChips, FeedbackCard, HeadsUps } from '../components/TodayExtras';
+import { planDay } from '../state/advice';
+import { ratings, wardrobe } from '../data/store';
 import { TitleBar } from '../components/TitleBar';
 import { PlaceSheet, placeLabel } from '../components/PlaceSheet';
 import { Segmented } from '../components/Segmented';
@@ -96,6 +99,16 @@ export function Today() {
             activity={activity}
             duration={duration}
             onCircleTap={onCircleTap}
+            footer={
+              <>
+                <AirChips lat={place.lat} lon={place.lon} date={date} />
+                <HeadsUps hours={f.hours.filter((h) => h.time.slice(0, 13) >= now.slice(0, 13)).slice(0, 24)} units={s.units} />
+                {(() => {
+                  const plan = planDay(f, date, { settings: s, ratings: ratings.value, wardrobe: wardrobe.value, activity, duration });
+                  return plan ? <FeedbackCard now={now} advice={plan.advice} activity={activity} /> : null;
+                })()}
+              </>
+            }
             controls={
               <section aria-label="Your plans" style={{ margin: '16px 0' }}>
                 <h2 class="group-title" style={{ marginTop: 0 }}>Activity</h2>

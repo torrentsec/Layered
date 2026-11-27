@@ -64,6 +64,19 @@ export function DayView({ forecast, date, activity, duration, commute, onCircleT
 
       <LayerList advice={advice} />
       <ExtraChips advice={advice} units={units} />
+      {c && (
+        <ul class="group" aria-label="Commute legs" style={{ listStyle: 'none', padding: 0 }}>
+          {([['Out', c.out], ['Back', c.back]] as const).map(([name, leg]) => (
+            <li class="row-item plain" key={name}>
+              <span class="grow">
+                {name} · {fmt(leg.hours[0].time)}
+                <span class="sub">{leg.verdict}{c.colder === (name === 'Out' ? 'out' : 'back') ? ' · colder leg' : ''}</span>
+              </span>
+              <span class="num">feels {fmtTemp(leg.minFeels, units.temp)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
       {c && c.notes.length > 0 && (
         <ul class="card" style={{ listStyle: 'none', paddingLeft: '16px' }} aria-label="Commute notes">
           {c.notes.map((n) => <li key={n}>{n}</li>)}

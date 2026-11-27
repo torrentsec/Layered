@@ -18,6 +18,7 @@ import { Segmented } from '../components/Segmented';
 import { Chevron } from '../components/Marks';
 import { toast } from '../components/Toast';
 import { haptic } from '../components/haptics';
+import { SharePoster } from '../components/SharePoster';
 
 const DURATIONS = [2, 5, 10].map((h) => ({ value: h, label: `${h} h` }));
 const SECRET_TAPS = 7;
@@ -56,6 +57,7 @@ export function Today() {
     <>
       <TitleBar
         short={title}
+        action={place && f ? <SharePoster forecast={f} date={date} place={title} activity={activity} duration={duration} /> : undefined}
         title={
           <button type="button" class="place-btn" onClick={() => setPlacesOpen(true)} aria-label={`Place: ${title}. Change place`}>
             <span>{title}</span>

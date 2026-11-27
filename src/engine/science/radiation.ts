@@ -75,6 +75,8 @@ export const WIND_BODY_FACTOR = Math.log(1.1 / 0.01) / Math.log(10 / 0.01);
 
 const clamp = (x: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, x));
 const nonNeg = (x: number) => (Number.isFinite(x) && x > 0 ? x : 0);
+/** A missing cloud value is read as overcast: less sun and a warmer sky, the cautious side both ways. */
+const cloudFraction = (cloud: number) => clamp(Number.isFinite(cloud) ? cloud : 1, 0, 1);
 
 function dayOfYearUtc(utcMs: number): number {
   const d = new Date(utcMs);
@@ -131,7 +133,7 @@ export function splitGhi(sun: SunPosition, ghi: number): { direct: number; diffu
 /** For providers without radiation (MET Norway). `cloud` is a 0..1 fraction. */
 export const estimateRadiation: EstimateRadiationFn = (sun, cloud) => {
   if (sun.elevation <= 0) return { ghi: 0, direct: 0, diffuse: 0 };
-  const c = clamp(Number.isFinite(cloud) ? cloud : 1, 0, 1);
+  const c = cloudFraction(cloud);
   const ghi = clearSkyGhi(sun.elevation) * (1 - 0.75 * c ** 3.4);
   return { ghi, ...splitGhi(sun, ghi) };
 };
@@ -148,7 +150,7 @@ export function vapourPressureHpa(ta: number, rh: number): number {
  */
 export function longwaveDown(ta: number, rh: number, cloud: number): number {
   const tk = ta + KELVIN;
-  const c = clamp(cloud, 0, 1);
+  const c = cloudFraction(cloud);
   const epsClear = 1.24 * (vapourPressureHpa(ta, rh) / tk) ** (1 / 7);
   return (c + (1 - c) * epsClear) * SIGMA * tk ** 4;
 }

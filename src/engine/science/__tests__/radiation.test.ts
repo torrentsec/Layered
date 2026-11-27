@@ -126,6 +126,10 @@ describe('meanRadiantTemp night and low sun', () => {
     expect(meanRadiantTempParts(15, 60, 0.1, sun(30), r).beamNormal).toBe(700);
   });
 
+  it('reads a missing cloud value as overcast', () => {
+    expect(meanRadiantTemp(5, 85, Number.NaN, night, rad(0, 0))).toBe(meanRadiantTemp(5, 85, 1, night, rad(0, 0)));
+  });
+
   it('treats negative or non-finite radiation as zero', () => {
     const bad: Radiation = { ghi: -3, direct: Number.NaN, diffuse: -1 };
     expect(meanRadiantTempParts(10, 70, 0.5, sun(20), bad).tmrt).toBe(

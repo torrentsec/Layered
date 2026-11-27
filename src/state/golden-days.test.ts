@@ -133,45 +133,142 @@ describe('golden days, band engine (recorded)', () => {
 
   it('cycling', () => expect(run('london', 'bands', 'cycling').band).toBe(BAND_ENGINE.cycling));
 
-  it('is what the default settings give', () => {
-    for (const id of Object.keys(DAYS) as DayId[]) expect(run(id, undefined)).toEqual(run(id, 'bands'));
+  // Recorded from the Sprint 5 band engine, so choosing bands in Settings keeps exactly those outfits.
+  it('gives the Sprint 5 outfits', () => {
+    const outfit = (a: Advice) => ({ band: a.band, layers: a.layers.map((l) => [l.kind, l.category, l.thickness].filter(Boolean).join(' ')), extras: a.extras.map((e) => e.id) });
+    expect(Object.fromEntries((Object.keys(DAYS) as DayId[]).map((id) => [id, outfit(run(id, 'bands'))]))).toMatchInlineSnapshot(`
+      {
+        "cloudy8": {
+          "band": "bundle",
+          "extras": [
+            "gloves",
+            "hat",
+          ],
+          "layers": [
+            "base thermal medium",
+            "mid jumper thick",
+            "outer coat thick",
+            "bottoms heavy-trousers",
+            "footwear trainers",
+          ],
+        },
+        "london": {
+          "band": "bundle",
+          "extras": [
+            "umbrella",
+            "gloves",
+            "hat",
+            "scarf",
+          ],
+          "layers": [
+            "base thermal thick",
+            "mid jumper thick",
+            "outer waterproof-jacket thick",
+            "bottoms heavy-trousers",
+            "footwear waterproof-shoes",
+          ],
+        },
+        "madrid": {
+          "band": "tshirt",
+          "extras": [
+            "sunglasses",
+            "sunscreen",
+          ],
+          "layers": [
+            "base tshirt thin",
+            "bottoms shorts",
+            "footwear sandals",
+          ],
+        },
+        "mild": {
+          "band": "two",
+          "extras": [
+            "sunglasses",
+          ],
+          "layers": [
+            "base longsleeve medium",
+            "mid jumper medium",
+            "bottoms jeans",
+            "footwear trainers",
+          ],
+        },
+        "oslo": {
+          "band": "bundle",
+          "extras": [
+            "gloves",
+            "hat",
+            "scarf",
+          ],
+          "layers": [
+            "base thermal thick",
+            "mid jumper thick",
+            "outer coat thick",
+            "bottoms heavy-trousers",
+            "footwear trainers",
+          ],
+        },
+        "sunny8": {
+          "band": "coat",
+          "extras": [
+            "sunglasses",
+          ],
+          "layers": [
+            "base longsleeve medium",
+            "mid jumper medium",
+            "outer coat medium",
+            "bottoms jeans",
+            "footwear trainers",
+          ],
+        },
+      }
+    `);
   });
 });
 
-describe('golden days, science engine', () => {
+const DEFAULT_PATH: Settings['engine'] = DEFAULT_SETTINGS.engine;
+
+describe('default settings', () => {
+  it('have no engine set, so they exercise the fallback', () => expect(DEFAULT_PATH).toBeUndefined());
+
+  it('give the science engine', () => {
+    for (const id of Object.keys(DAYS) as DayId[]) expect(run(id, DEFAULT_PATH)).toEqual(run(id, 'science'));
+  });
+});
+
+describe('golden days, science engine through the default settings', () => {
   it('London, 26 Nov: coat, with a waterproof outer', () => {
-    const a = run('london', 'science');
+    const a = run('london', DEFAULT_PATH);
     expect(a.band).toBe('coat');
     expect(['waterproof', 'hood']).toContain(a.requirements?.rain);
     expect(outerProps(a)?.water).toBe('waterproof');
   });
 
   it('mild and sunny: two light layers, nothing heavy', () => {
-    const a = run('mild', 'science');
+    const a = run('mild', DEFAULT_PATH);
     expect(a.band).toBe('two');
     expect(outer(a)).toBeUndefined();
     expect(a.layers.filter((l) => l.kind === 'base' || l.kind === 'mid').every((l) => l.thickness !== 'thick')).toBe(true);
   });
 
   it('Madrid, summer: T-shirt, with sunscreen', () => {
-    const a = run('madrid', 'science');
+    const a = run('madrid', DEFAULT_PATH);
     expect(a.band).toBe('tshirt');
     expect(a.extras.map((e) => e.id)).toContain('sunscreen');
   });
 
   it('Oslo, January: bundle up, with hat and gloves', () => {
-    const a = run('oslo', 'science');
+    const a = run('oslo', DEFAULT_PATH);
     expect(a.band).toBe('bundle');
     expect(a.requirements?.accessories).toEqual(expect.arrayContaining(['hat', 'gloves']));
   });
 
   it('sun against cloud: the clear day is at least one band lighter', () => {
-    expect(bandRank(run('sunny8', 'science').band)).toBeLessThanOrEqual(bandRank(run('cloudy8', 'science').band) - 1);
+    expect(bandRank(run('sunny8', DEFAULT_PATH).band)).toBeLessThanOrEqual(bandRank(run('cloudy8', DEFAULT_PATH).band) - 1);
   });
 
   it('cycling: same or warmer than walking, with a windproof outer', () => {
-    const walk = run('london', 'science');
-    const ride = run('london', 'science', 'cycling');
+    const walk = run('london', DEFAULT_PATH);
+    const ride = run('london', DEFAULT_PATH, 'cycling');
     expect(bandRank(ride.band)).toBeGreaterThanOrEqual(bandRank(walk.band));
     expect(ride.requirements!.clo!.icl).toBeGreaterThanOrEqual(walk.requirements!.clo!.icl);
     expect(ride.requirements?.wind).not.toBe('none');
@@ -179,7 +276,7 @@ describe('golden days, science engine', () => {
   });
 
   it('explains itself in clo and UTCI', () => {
-    const a = run('london', 'science');
+    const a = run('london', DEFAULT_PATH);
     expect(a.science?.exposureMinutes).toBe(30);
     expect(a.science?.target.icl).toBe(a.requirements?.clo?.icl);
     expect(a.science?.utci.utci).toBeLessThan(DAYS.london.ta);

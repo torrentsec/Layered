@@ -12,6 +12,7 @@ import { timeFmt, weekday } from '../data/format';
 import { fmtTemp } from '../data/units';
 import { garmentWarmth, type Routine, type Settings } from '../data/store';
 import { biasState } from '../data/bias';
+import { engineOf } from '../data/engine-choice';
 import type { GarmentWarmth } from '../engine/garment-learning';
 import type { Rating } from '../engine/types';
 import type { Inventory } from '../engine/inventory';
@@ -58,7 +59,7 @@ export function planDay(f: Forecast, date: string, ctx: Ctx): DayPlan | null {
   const isToday = now.startsWith(date);
   const fmt = timeFmt(s.units.clock);
   const bias = ctx.bias ?? biasState();
-  const science = s.engine === 'science' ? { place: { lat: f.lat, lon: f.lon, utcOffsetSeconds: f.utcOffsetSeconds }, bias: bias.mean, biasCount: bias.count } : undefined;
+  const science = engineOf(s) === 'science' ? { place: { lat: f.lat, lon: f.lon, utcOffsetSeconds: f.utcOffsetSeconds }, bias: bias.mean, biasCount: bias.count } : undefined;
   const shared = {
     manualOffset: s.manualOffset,
     ratings: ctx.ratings,

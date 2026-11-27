@@ -44,6 +44,12 @@ export const HOURLY_VARS = [
   'uv_index',
   'is_day',
   'visibility',
+  'relative_humidity_2m',
+  'cloud_cover',
+  'shortwave_radiation',
+  'direct_radiation',
+  'diffuse_radiation',
+  'direct_normal_irradiance',
 ] as const;
 
 export const DAILY_VARS = [
@@ -85,8 +91,10 @@ interface RawForecast {
 }
 
 const num = (v: unknown, fallback = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
+/** For the science inputs a gap must stay a gap: 0 W/m² is a real night value, so it can't stand in for "unknown". */
+const opt = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : undefined);
 
-/** Open-Meteo's column arrays → rows. Gaps (nulls) become safe defaults. */
+/** Open-Meteo's column arrays → rows. Gaps (nulls) become safe defaults, except the optional science inputs, which stay undefined. */
 export function parseForecast(raw: RawForecast, fetchedAt = Date.now()): Forecast {
   const h = raw.hourly;
   const hours: Hour[] = h.time.map((time, i) => {
@@ -104,6 +112,13 @@ export function parseForecast(raw: RawForecast, fetchedAt = Date.now()): Forecas
       isDay: h.is_day[i] === 1,
       code: num(h.weather_code[i]),
       visibility: h.visibility?.[i] == null ? undefined : num(h.visibility[i]),
+      // Optional chaining on the series too: documents from before these variables were requested lack them.
+      rh: opt(h.relative_humidity_2m?.[i]),
+      cloud: opt(h.cloud_cover?.[i]),
+      ghi: opt(h.shortwave_radiation?.[i]),
+      direct: opt(h.direct_radiation?.[i]),
+      diffuse: opt(h.diffuse_radiation?.[i]),
+      dni: opt(h.direct_normal_irradiance?.[i]),
     };
   });
   const d = raw.daily;

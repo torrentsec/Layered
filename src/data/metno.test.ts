@@ -130,6 +130,39 @@ describe('parseMetno', () => {
   it('leaves sunrise and sunset blank', () => {
     expect(f.days.every((d) => d.sunrise === '' && d.sunset === '')).toBe(true);
   });
+
+  it('maps humidity and cloud cover', () => {
+    const src = LONDON.properties.timeseries[0].data.instant.details;
+    expect(f.hours[0].rh).toBe(src.relative_humidity);
+    expect(f.hours[0].cloud).toBe(src.cloud_area_fraction);
+    expect(f.hours.every((h) => h.rh !== undefined && h.cloud !== undefined)).toBe(true);
+  });
+
+  it('interpolates humidity and cloud across the six-hourly tail', () => {
+    const steps = LONDON.properties.timeseries;
+    const i = steps.findIndex((s, j) => j > 0 && Date.parse(s.time) - Date.parse(steps[j - 1].time) === 6 * 3_600_000) - 1;
+    const [a, b] = [steps[i].data.instant.details, steps[i + 1].data.instant.details];
+    const mid = f.hours.find((h) => h.time === new Date(Date.parse(steps[i].time) + 3 * 3_600_000).toISOString().slice(0, 16))!;
+    expect(mid.cloud).toBeCloseTo((a.cloud_area_fraction! + b.cloud_area_fraction!) / 2, 1);
+    expect(mid.rh).toBeCloseTo((a.relative_humidity! + b.relative_humidity!) / 2, 1);
+  });
+
+  it('leaves radiation for the engine to estimate', () => {
+    for (const h of f.hours) {
+      expect(h.ghi).toBeUndefined();
+      expect(h.direct).toBeUndefined();
+      expect(h.diffuse).toBeUndefined();
+      expect(h.dni).toBeUndefined();
+    }
+  });
+
+  it('leaves missing humidity and cloud undefined, not 0', () => {
+    const bare: MetnoStep = { time: '2026-11-26T08:00:00Z', data: { instant: { details: { air_temperature: 5, wind_speed: 3 } } } };
+    const [h] = parseMetno({ properties: { timeseries: [bare] } }, 0).hours;
+    expect(h.rh).toBeUndefined();
+    expect(h.cloud).toBeUndefined();
+    expect('rh' in h).toBe(false);
+  });
 });
 
 describe('dailyFrom', () => {

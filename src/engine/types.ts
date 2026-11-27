@@ -22,6 +22,15 @@ export interface Hour {
   isDay: boolean;
   code: number;
   visibility?: number;
+  /** Inputs for the physiology engine; optional so saved forecasts stay valid. */
+  rh?: number;
+  /** Cloud cover, %. */
+  cloud?: number;
+  /** Radiation, W/m², mean over the preceding hour. */
+  ghi?: number;
+  direct?: number;
+  diffuse?: number;
+  dni?: number;
 }
 
 export type Activity = 'walking' | 'standing' | 'cycling' | 'transport' | 'running' | 'hiking' | 'night' | 'office' | 'indoors';

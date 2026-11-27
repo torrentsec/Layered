@@ -91,6 +91,8 @@ export interface Explanation {
   coldestFeels: number;
   activity: Activity;
   activityOffset: number;
+  /** From the comfort profile (sensitivity and preferences). */
+  comfortOffset?: number;
   manualOffset: number;
   learnedOffset: number;
   learnedFrom: 'activity' | 'all' | 'none';

@@ -3,6 +3,7 @@
 
 import type { CategoryId, Ownership, Thickness } from './inventory';
 import type { Requirements } from './requirements';
+import type { ScienceWhy } from './science/why';
 
 /**
  * One forecast hour. Everything is metric (°C, km/h, mm, cm) so the engine
@@ -138,4 +139,6 @@ export interface Advice {
   extras: Extra[];
   hours: Hour[];
   why: Explanation;
+  /** Set only when the science engine produced this advice; drives the clo and UTCI "Why this?". */
+  science?: ScienceWhy;
 }

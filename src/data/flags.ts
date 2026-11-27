@@ -5,7 +5,8 @@
  * Innovation-Sprint prototypes, off unless asked for (docs/process.md,
  * Innovation Sprints: production behaviour doesn't change). A flag is turned
  * on with `?flags=a,b` in the URL and remembered on this device only, so a demo
- * survives reloads and hash navigation; `?flags=` turns them all off.
+ * survives reloads and hash navigation; `?flags=` turns them all off. Routes
+ * are hash-based, so the query goes before the hash: `/?flags=margin#/today`.
  */
 export const FLAGS = ['feels-in-clothes'] as const;
 export type Flag = (typeof FLAGS)[number];
@@ -19,7 +20,7 @@ export function parseFlags(raw: string | null | undefined): Set<Flag> {
   return new Set((raw ?? '').split(',').map((s) => s.trim()).filter(known));
 }
 
-interface FlagEnv {
+export interface FlagEnv {
   search: string;
   storage?: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 }
@@ -41,21 +42,31 @@ export function activeFlags(env: FlagEnv | undefined = browserEnv()): Set<Flag> 
   if (!env) return new Set();
   const asked = new URLSearchParams(env.search).get('flags');
   try {
-    if (asked !== null) {
-      const set = parseFlags(asked);
-      if (set.size) env.storage?.setItem(FLAGS_KEY, [...set].join(','));
-      else env.storage?.removeItem(FLAGS_KEY);
+    if (asked !== null && !asked.trim()) {
+      env.storage?.removeItem(FLAGS_KEY);
+      return new Set();
+    }
+    const set = parseFlags(asked);
+    // Only names we know replace what was remembered, so a typo never clears a demo.
+    if (set.size) {
+      env.storage?.setItem(FLAGS_KEY, [...set].join(','));
       return set;
     }
     return parseFlags(env.storage?.getItem(FLAGS_KEY));
   } catch {
-    return asked !== null ? parseFlags(asked) : new Set();
+    return parseFlags(asked);
   }
 }
 
 let cached: Set<Flag> | undefined;
 
-export function flagOn(name: Flag): boolean {
-  cached ??= activeFlags();
+/** Read once per page load: the URL can't change without one. */
+export function flagOn(name: Flag, env?: FlagEnv): boolean {
+  cached ??= activeFlags(env ?? browserEnv());
   return cached.has(name);
+}
+
+/** For tests: forget the flags read on this page. */
+export function resetFlags(): void {
+  cached = undefined;
 }

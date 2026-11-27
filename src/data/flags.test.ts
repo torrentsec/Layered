@@ -2,7 +2,7 @@
 // Copyright (c) 2026 torrentsec
 
 import { describe, expect, it } from 'vitest';
-import { activeFlags, FLAGS_KEY, parseFlags } from './flags';
+import { activeFlags, flagOn, FLAGS_KEY, parseFlags, resetFlags } from './flags';
 
 function memory(initial?: string) {
   const m = new Map<string, string>(initial === undefined ? [] : [[FLAGS_KEY, initial]]);
@@ -44,5 +44,20 @@ describe('flags', () => {
     const broken = { getItem: () => { throw new Error('blocked'); }, setItem: () => { throw new Error('blocked'); }, removeItem: () => {} };
     expect(activeFlags({ search: '?flags=feels-in-clothes', storage: broken }).has('feels-in-clothes')).toBe(true);
     expect(activeFlags({ search: '', storage: broken }).size).toBe(0);
+  });
+
+  it('a typo keeps what was remembered', () => {
+    const s = memory('feels-in-clothes');
+    expect(activeFlags({ search: '?flags=nope', storage: s.storage }).has('feels-in-clothes')).toBe(true);
+    expect(s.m.get(FLAGS_KEY)).toBe('feels-in-clothes');
+  });
+
+  it('flagOn reads once per page and can be reset', () => {
+    resetFlags();
+    expect(flagOn('feels-in-clothes', { search: '?flags=feels-in-clothes', storage: memory().storage })).toBe(true);
+    expect(flagOn('feels-in-clothes', { search: '?flags=', storage: memory().storage })).toBe(true);
+    resetFlags();
+    expect(flagOn('feels-in-clothes', { search: '', storage: memory().storage })).toBe(false);
+    resetFlags();
   });
 });

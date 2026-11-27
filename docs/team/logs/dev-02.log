@@ -1,1 +1,34 @@
 2026-11-27T12:38:50Z | scrum-master -> dev-02 | brief | Sprint 6 item assigned; outcome and acceptance in the issue; the how is yours on the board
+2026-11-27T12:40:29Z | dev-02 -> team | claim | Claimed the engine choice helper (science by default, bands on request) and the Settings advice section; planDay will read it
+2026-11-27T12:40:29Z | dev-02 -> dev-04 | offer | Offered the engine choice helper for Week, Trip, poster, history and the push profile; proposed an engine field on the push profile with a science fallback for old subscriptions
+2026-11-27T12:40:29Z | dev-02 -> dev-03 | note | No changes from me in Today or DayView; DayView follows the default through planDay
+2026-11-27T12:40:52Z | dev-03 -> dev-02 | need | Asked dev-02 to confirm the engine flag and that science details are set only when science produced the advice
+2026-11-27T12:41:57Z | dev-02 -> team | stable | Posted the engine choice helper and the science default in planDay as stable
+2026-11-27T12:42:03Z | dev-02 -> dev-03 | answer | Do not read the engine flag directly any more since missing now means science; keying off the science part of the advice is right; use the engine choice helper if the choice itself is needed
+2026-11-27T12:42:03Z | dev-02 -> dev-01 | note | My change in the day planner is one line plus an import, so our edits there should merge cleanly
+2026-11-27T12:42:07Z | dev-04 -> dev-02 | need | Asked for the engine choice helper as Stable and that I add the engine line in the planner wrapper myself
+2026-11-27T12:42:07Z | dev-04 -> dev-02 | answer | Took the proposal: engine in the push profile, Worker falls back to the default engine
+2026-11-27T12:42:59Z | dev-02 -> dev-03 | answer | dev-02 said do not read the engine flag; keying off the science details on the advice is right
+2026-11-27T12:43:33Z | dev-02 -> dev-01 | note | Two routine tests assumed the band default; pinned them to bands in one line; under science the evening dog walk is not the coldest leg, which looks like the issue you are fixing
+2026-11-27T12:43:39Z | dev-02 -> dev-04 | answer | The stable commit already has the one engine line in the day planner; merge it before moving the body and there is no conflict; I will not touch that file again; agreed on the engine field in the push profile
+2026-11-27T12:43:41Z | dev-03 -> dev-02 | stable | Merged dev-02's posted stable commit for the science default so Today shows science advice in my checks
+2026-11-27T12:45:09Z | dev-01 -> dev-02 | note | Your default switch breaks two band routine tests; I pinned those tests to bands on my branch, merges clean with yours
+2026-11-27T12:45:13Z | dev-03 -> dev-02 | question | Told dev-02 their stable commit fails two routine planning tests and asked for a fixed stable commit to re-merge
+2026-11-27T12:46:02Z | dev-02 -> team | stable | Posted the Settings engine choice with main merged and all checks passing
+2026-11-27T12:46:02Z | dev-02 -> dev-03 | answer | Fixed the two routine tests by pinning them to bands; asked to re-merge the new stable commit
+2026-11-27T12:46:02Z | dev-02 -> dev-01 | answer | Made my band pin in the routine tests identical to theirs so the branches merge clean
+2026-11-27T12:46:02Z | dev-02 -> dev-04 | note | Their planner move conflicts with my engine line; resolve by keeping their wrapper with the engine choice helper; asked them to make sure no other path checks the science flag directly
+2026-11-27T12:46:02Z | dev-02 -> dev-01 | review | Ready for review, reviewer dev-01
+2026-11-27T17:33:45Z | scrum-master -> dev-02 | impediment | usage limit stopped work mid-wave; resume after 17:00 UTC
+2026-11-27T17:34:01Z | dev-02 -> dev-03 | answer | dev-02 fixed the two routine tests and posted a new stable commit
+2026-11-27T17:34:01Z | dev-03 -> dev-02 | stable | Re-merged dev-02's newer stable commit
+2026-11-27T17:34:22Z | dev-02 -> dev-03 | question | Asked them to push their branch and post ready for review so I can review it
+2026-11-27T17:35:26Z | dev-03 -> dev-02 | review | Asked dev-02 to review my branch as next in the rotation
+2026-11-27T17:35:46Z | dev-01 -> dev-02 | review | Reviewed the default switch: no correctness findings, one nit to move inline spacing into its stylesheet
+2026-11-27T17:36:12Z | dev-02 -> dev-03 | review | Reviewed their branch: no bugs; two minor findings, a third copy of the per-hour comfort index call that should reuse the engine one, and the place rebuilt in the day view that could drift from the planner
+2026-11-27T17:37:16Z | dev-02 -> dev-01 | answer | Fixed the review nit by moving the spacing into the feature stylesheet
+2026-11-27T17:37:16Z | dev-02 -> team | stable | Posted the final stable commit for the science default and Settings choice
+2026-11-27T17:37:16Z | dev-02 -> scrum-master | handback | Science is the default, Settings offers thermal model or simple bands, golden days pass through the default path and bands keep the Sprint 5 outfits; reviewed dev-03 with two minor findings
+2026-11-27T17:38:38Z | dev-02 -> dev-03 | review | dev-02 found the per-hour UTCI helper duplicated the one in the science advice
+2026-11-27T17:38:38Z | dev-03 -> dev-02 | answer | Agreed and fixed: one shared function now computes an hour's UTCI, also replacing a third copy in the clothing target
+2026-11-27T17:40:15Z | dev-04 -> dev-02 | answer | Merged the engine choice Stable; the planner wrapper and the push profile use it, the Worker falls back through it

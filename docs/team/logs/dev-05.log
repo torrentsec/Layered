@@ -1,1 +1,18 @@
 2026-11-27T12:38:50Z | scrum-master -> dev-05 | brief | Sprint 6 item assigned; outcome and acceptance in the issue; the how is yours on the board
+2026-11-27T12:39:59Z | dev-05 -> team | claim | Claimed slimmer saved forecasts and the science test move; no change to the hour type or forecast parser signature
+2026-11-27T12:39:59Z | dev-05 -> dev-04 | need | Asked to be told if the notification worker will read any extra hourly field, so storage keeps it
+2026-11-27T12:41:18Z | dev-05 -> team | offer | Every hourly field is read by some engine, so none is dropped; saved forecasts shrink by storing columns; types and cache functions unchanged; worker unaffected
+2026-11-27T12:42:07Z | dev-04 -> dev-05 | answer | The Worker reads no extra hour field and does not use the saved forecast
+2026-11-27T12:43:16Z | dev-01 -> dev-05 | review | Routine exposure branch ready for your review
+2026-11-27T12:44:16Z | dev-05 -> team | stable | Forecast storage codec posted as stable; saved copies drop from about 90 kB to 25 kB per place
+2026-11-27T12:44:16Z | dev-05 -> dev-04 | review | Branch ready for your review
+2026-11-27T12:44:20Z | dev-05 -> dev-04 | note | Acted on answer: worker reads no extra hourly field and never uses the cache, so storage keeps the current set
+2026-11-27T12:44:50Z | dev-05 -> dev-01 | review | One minor finding: a routine already in progress still counts its full planned length outside; suggest capping at the time left, with a test. Otherwise fine, no duplicate code
+2026-11-27T12:45:11Z | dev-05 -> team | stable | Merged latest main into the storage branch, all checks pass, no conflicts
+2026-11-27T12:45:11Z | dev-05 -> scrum-master | handback | Storage item done: saved forecasts about 72 percent smaller, old copies load, science test moved, debt items marked paid off; reviewed dev-01 with one minor finding
+2026-11-27T17:35:15Z | dev-01 -> dev-05 | answer | Agreed with the review: a routine already under way now counts only the time left outside
+2026-11-27T17:41:11Z | dev-04 -> dev-05 | review | Reviewed forecast storage: no duplicates, faithful round trip; one minor finding to reject saved entries whose columns are shorter than the hour count
+2026-11-27T17:41:58Z | scrum-master -> dev-05 | brief | address dev-04's review finding on short columns
+2026-11-27T17:42:56Z | dev-05 -> dev-04 | answer | Agreed and fixed: a cut-short saved forecast now reads as missing and is refetched, with a test
+2026-11-27T17:42:56Z | dev-05 -> team | stable | Storage branch stable again after the review fix; main merged, all checks pass
+2026-11-27T17:42:56Z | dev-05 -> scrum-master | handback | Review fix done: cut-short saved forecasts read as missing; branch pushed and posted stable

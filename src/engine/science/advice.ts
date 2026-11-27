@@ -13,7 +13,7 @@ import type { Activity, BandId, Effort, LayerAdvice } from '../types';
 import { ensembleClo } from './clothing';
 import { metabolicRate } from './metabolic';
 import { bandForClo, clothingTarget, CLO_EDGE_HEDGE, CLO_EDGE_HEDGE_WIDE, nearCloEdge } from './target';
-import type { ClothingTarget, GarmentClo, UtciResult, Weather, WetState } from './types';
+import type { ClothingTarget, GarmentClo, Metabolic, UtciResult, Weather, WetState } from './types';
 import { utci } from './utci';
 import type { ScienceWhy } from './why';
 
@@ -51,13 +51,13 @@ export function wetState(stats: Pick<WindowStats, 'maxProb' | 'totalPrecip'>): W
 }
 
 /** ISO 9920 sum of matched layers that name a category; generic advice has nothing to sum. */
-function outfitClo(layers: LayerAdvice[], inventory: Inventory, w: Weather, walk: number, wet: WetState): ScienceWhy['outfit'] {
+function outfitClo(layers: LayerAdvice[], inventory: Inventory, w: Weather, move: Pick<Metabolic, 'walk' | 'ride'>, wet: WetState): ScienceWhy['outfit'] {
   const worn = layers.filter((l) => l.category && !l.optional);
   if (!worn.length || worn.length < layers.filter((l) => !l.optional).length) return undefined;
   const garments: GarmentClo[] = worn.map((l) => ({ category: l.category!, thickness: l.thickness }));
   const outer = worn.find((l) => l.kind === 'outer');
   const props = outer && { d: category(outer.category!).defaults, e: inventory[outer.category!] };
-  const e = ensembleClo(garments, w.wind10, walk, wet, props && { water: props.e?.water ?? props.d.water, wind: props.e?.wind ?? props.d.wind });
+  const e = ensembleClo(garments, w.wind10, move, wet, props && { water: props.e?.water ?? props.d.water, wind: props.e?.wind ?? props.d.wind });
   return { basic: e.basic, windLoss: e.windLoss };
 }
 
@@ -83,7 +83,7 @@ export function scienceWhy(x: ScienceWhyInput): ScienceWhy {
   const w = x.science.weather[i];
   const trusted = results.filter((r) => !r.outOfRange).map((r) => r.utci);
   const metabolic = metabolicRate(x.activity, x.effort);
-  const outfit = outfitClo(x.layers, x.inventory, w, metabolic.walk, wetState(x.stats));
+  const outfit = outfitClo(x.layers, x.inventory, w, metabolic, wetState(x.stats));
   return {
     coldestHour: x.hours[i].time,
     ta: w.ta,

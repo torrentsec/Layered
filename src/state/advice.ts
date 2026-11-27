@@ -11,10 +11,12 @@ import type { Forecast } from '../data/forecast-types';
 import { timeFmt, weekday } from '../data/format';
 import { fmtTemp } from '../data/units';
 import { garmentWarmth, type Routine, type Settings } from '../data/store';
+import { biasState } from '../data/bias';
 import type { GarmentWarmth } from '../engine/garment-learning';
 import type { Rating } from '../engine/types';
 import type { Inventory } from '../engine/inventory';
 import type { ComfortProfile } from '../engine/comfort';
+import type { BiasState } from '../engine/science/types';
 
 export interface DayPlan {
   advice: Advice;
@@ -39,8 +41,8 @@ interface Ctx {
   routines?: Routine[];
   /** Defaults to the persisted learned warmth, so every screen dresses you the same way. */
   garmentWarmth?: GarmentWarmth;
-  /** Personal insulation bias for the science engine, clo, and the ratings behind it. */
-  bias?: { mean: number; count: number };
+  /** Personal insulation bias for the science engine; defaults to the persisted one. */
+  bias?: Pick<BiasState, 'mean' | 'count'>;
 }
 
 /**
@@ -55,7 +57,7 @@ export function planDay(f: Forecast, date: string, ctx: Ctx): DayPlan | null {
   const now = localNow(f.utcOffsetSeconds);
   const isToday = now.startsWith(date);
   const fmt = timeFmt(s.units.clock);
-  const bias = ctx.bias ?? { mean: 0, count: 0 };
+  const bias = ctx.bias ?? biasState();
   const science = s.engine === 'science' ? { place: { lat: f.lat, lon: f.lon, utcOffsetSeconds: f.utcOffsetSeconds }, bias: bias.mean, biasCount: bias.count } : undefined;
   const shared = {
     manualOffset: s.manualOffset,

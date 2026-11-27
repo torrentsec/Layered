@@ -91,7 +91,7 @@ The sync and push endpoints share one fixed-window rate limiter. It keys counter
 
 What stays on the device:
 
-- Your wardrobe, comfort profile, ratings, learned offsets, routines, trips, history and settings.
+- Your wardrobe, ratings, history and trips. Your comfort profile, routines and settings too, except for the parts listed under Notifications below.
 - Exact location. "Use my location" is rounded to about 1 km before it's stored.
 
 What leaves the device, and only when you use the feature:
@@ -101,7 +101,7 @@ What leaves the device, and only when you use the feature:
 | Forecast, place search, air quality, trip climate | Open-Meteo, straight from the browser | Rounded coordinates, or the place name you typed |
 | Forecast fallback | `/api/forecast`, then MET Norway from the server | Coordinates rounded to two decimals and your time zone |
 | Sync (opt-in) | D1 `sync_blobs` | The export bundle under your sync code; no account, no name, no email |
-| Notifications (opt-in) | D1 `push_subscriptions`, then your browser's push service | The push endpoint and keys, rounded coordinates, time zone, schedule, units, activity, comfort profile and commute; no wardrobe |
+| Notifications (opt-in) | D1 `push_subscriptions`, then your browser's push service | The push endpoint and keys, rounded coordinates, time zone, schedule, units, activity, time outside, commute, comfort profile, manual offset and engine choice. From your ratings, only two derived numbers: the clo bias (how much warmer or cooler you dress) and the summed vote pull per activity, dated at your newest vote. Routines as time, length, days, activity and effort. Not sent: individual ratings or their dates, routine names, wardrobe, learned garment warmth. The server adds only the dates it last sent each kind of notification and the morning's band and rain gear, to spot a change. The row is deleted when you turn notifications off. |
 | Any `/api` call | Cloudflare | Your IP address, as for any website; Layered stores only a salted hash in `rate_limits`, in hourly windows |
 
 There is no analytics, no tracking, no third-party script and no account. The Content Security Policy in `public/_headers` limits the browser to this origin and `*.open-meteo.com`.

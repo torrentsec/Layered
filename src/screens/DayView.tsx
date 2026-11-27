@@ -3,7 +3,7 @@
 
 import { useState } from 'preact/hooks';
 import type { Forecast } from '../data/forecast-types';
-import { fmtDressFor, fmtTemp } from '../data/units';
+import { fmtTemp } from '../data/units';
 import { daysBetween, timeFmt } from '../data/format';
 import { ratings, settings, inventory, comfort, type Routine } from '../data/store';
 import { ROUGH_GUIDE_NOTE, certaintyFor, hedgeRequirements } from '../engine/certainty';
@@ -11,7 +11,7 @@ import { rainSummary } from '../engine/rain';
 import { localNow } from '../engine/time';
 import type { Activity, Effort } from '../engine/types';
 import { planDay, restOfDay } from '../state/advice';
-import { feelsRange } from '../data/why-science';
+import { feelsRange, heroReading, hourlyFeels } from '../data/why-science';
 import { ExtraChips, FeelsActual, HourlyStrip, LayerList, Limitations, WhyBody } from '../components/AdviceParts';
 import { Hero } from '../components/Hero';
 import { Sheet } from '../components/Sheet';
@@ -55,14 +55,18 @@ export function DayView({ forecast, date, activity, duration, commute, effort, r
     : plan.advice;
   const rain = restOfDay(plan.dayHours, date);
   const maxRain = Math.max(0, ...advice.hours.map((h) => h.precipProb));
+  const hero = heroReading(advice, units.temp);
+  // The place planDay hands the science engine, so window hours match "Why this?".
+  const place = { lat: forecast.lat, lon: forecast.lon, utcOffsetSeconds: forecast.utcOffsetSeconds };
+  const stripFeels = advice.science ? hourlyFeels(plan.dayHours, advice, place) : undefined;
 
   return (
     <>
-      <Hero feels={advice.effective} rain={maxRain} onCircleTap={onCircleTap} />
+      <Hero feels={hero.value} rain={maxRain} onCircleTap={onCircleTap} />
       <div class="readout">
         <div>
           {/* Positioned so the hidden text stays inside the swiper rather than widening the page. */}
-          <div class="feels num" style={{ position: 'relative' }}><span class="visually-hidden">Dress for </span>{fmtDressFor(advice.effective, units.temp)}</div>
+          <div class="feels num" style={{ position: 'relative' }}><span class="visually-hidden">{hero.label} </span>{hero.text}</div>
           <FeelsActual advice={advice} units={units} context={c ? 'across both legs' : plan.legs ? 'across today’s plans' : 'while you’re out'} />
         </div>
         <button type="button" class="text-btn" onClick={() => setWhy(true)}>Why this?</button>
@@ -96,7 +100,7 @@ export function DayView({ forecast, date, activity, duration, commute, effort, r
       {controls}
 
       <h2 class="group-title">Next hours</h2>
-      <HourlyStrip hours={plan.dayHours} inWindow={plan.windowTimes} units={units} />
+      <HourlyStrip hours={plan.dayHours} inWindow={plan.windowTimes} units={units} feels={stripFeels} />
       {rain.length > 0 && <p class="card" style={{ margin: '4px 0 12px' }}><strong>{rainSummary(rain, fmt)}</strong></p>}
       {info?.sunrise && info.sunset && (
         <p class="small-print" style={{ margin: '0 4px' }}>

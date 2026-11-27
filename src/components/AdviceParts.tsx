@@ -3,6 +3,7 @@
 
 import '../styles/advice.css';
 import '../styles/forecast.css';
+import '../styles/utci.css';
 import { useState } from 'preact/hooks';
 import type { Advice, Hour, LayerAdvice } from '../engine/types';
 import { ACTIVITY_LABEL } from '../engine/activity';
@@ -98,20 +99,29 @@ export function FeelsActual({ advice, units, context }: { advice: Advice; units:
   );
 }
 
-export function HourlyStrip({ hours, inWindow, units }: { hours: Hour[]; inWindow: Set<string>; units: Units }) {
+/**
+ * With `feels` (the science engine's UTCI per hour) each hour also shows the
+ * real temperature, so the model's number never stands alone (US-069).
+ */
+export function HourlyStrip({ hours, inWindow, units, feels }: { hours: Hour[]; inWindow: Set<string>; units: Units; feels?: (number | null)[] }) {
   const fmt = timeFmt(units.clock);
   return (
     // Focusable so the strip can be scrolled from the keyboard (WCAG 2.1.1).
     <ol class="hourly" aria-label="Hourly feels-like" tabIndex={0}>
-      {hours.map((h) => (
-        <li key={h.time} class={inWindow.has(h.time) ? 'in' : undefined}>
-          <span class="meta">{fmt(h.time)}</span>
-          <span class="dot" style={{ background: tempColor(h.feels) }} aria-hidden="true" />
-          <span class="t num">{fmtTemp(h.feels, units.temp)}</span>
-          <span class="p">{h.precipProb >= 10 ? `${Math.round(h.precipProb)}%` : ''}</span>
-          <span class="visually-hidden">{h.precipProb >= 10 ? 'chance of rain' : 'dry'}{inWindow.has(h.time) ? ', while you’re out' : ''}</span>
-        </li>
-      ))}
+      {hours.map((h, i) => {
+        const f = feels ? feels[i] : h.feels;
+        return (
+          <li key={h.time} class={inWindow.has(h.time) ? 'in' : undefined}>
+            <span class="meta">{fmt(h.time)}</span>
+            <span class="dot" style={{ background: tempColor(f ?? h.temp) }} aria-hidden="true" />
+            {feels && <span class="visually-hidden">feels like</span>}
+            <span class="t num">{f === null ? <><span aria-hidden="true">–</span><span class="visually-hidden">too hot and humid to put a number on</span></> : fmtTemp(f ?? h.feels, units.temp)}</span>
+            {feels && <span class="a num"><span class="visually-hidden">actual </span>{fmtTemp(h.temp, units.temp)}</span>}
+            <span class="p">{h.precipProb >= 10 ? `${Math.round(h.precipProb)}%` : ''}</span>
+            <span class="visually-hidden">{h.precipProb >= 10 ? 'chance of rain' : 'dry'}{inWindow.has(h.time) ? ', while you’re out' : ''}</span>
+          </li>
+        );
+      })}
     </ol>
   );
 }

@@ -2,11 +2,12 @@
 // Copyright (c) 2026 torrentsec
 
 import { ACTIVITY_LABEL } from '../engine/activity';
-import type { UtciCategory } from '../engine/science/types';
+import { hourUtci } from '../engine/science/hourly';
+import type { UtciCategory, WeatherPlace } from '../engine/science/types';
 import type { ScienceWhy } from '../engine/science/why';
-import type { Activity, Advice } from '../engine/types';
+import type { Activity, Advice, Hour } from '../engine/types';
 import type { TimeFormatter } from '../engine/time';
-import { fmtTemp, tempDelta, type TempUnit } from './units';
+import { fmtDressFor, fmtTemp, tempDelta, type TempUnit } from './units';
 
 /** Below this Tmrt − ta (K) the sun or sky is not worth a mention (thermal-model §9.3). */
 export const RADIANT_MENTION = 2;
@@ -72,6 +73,38 @@ const usable = (n: number) => Number.isFinite(n);
 export function feelsRange(a: Advice): { min: number; max: number } {
   const f = a.science?.feels;
   return f && usable(f.min) && usable(f.max) ? f : { min: a.minFeels, max: a.maxFeels };
+}
+
+export interface HeroReading {
+  /** Drives the circle's colour, °C. */
+  value: number;
+  text: string;
+  /** Read before the number by screen readers. */
+  label: 'Feels like' | 'Dress for';
+}
+
+/**
+ * The big number under the poster. With the science engine it is the coldest
+ * hour's UTCI, the same number and rounding "Why this?" opens with; the bands
+ * keep their dress-for temperature.
+ */
+export function heroReading(a: Advice, u: TempUnit): HeroReading {
+  const r = a.science?.utci;
+  if (r && !r.outOfRange && usable(r.utci)) return { value: r.utci, text: fmtTemp(r.utci, u), label: 'Feels like' };
+  return { value: a.effective, text: fmtDressFor(a.effective, u), label: 'Dress for' };
+}
+
+/**
+ * Feels-like for each strip hour: UTCI when the science engine produced the
+ * advice, apparent temperature otherwise. Null where UTCI has no trustworthy
+ * number, so the strip never shows an invented one.
+ */
+export function hourlyFeels(hours: Hour[], a: Advice, place: WeatherPlace): (number | null)[] {
+  if (!a.science) return hours.map((h) => h.feels);
+  return hours.map((h) => {
+    const r = hourUtci(h, place);
+    return r.outOfRange || !usable(r.utci) ? null : r.utci;
+  });
 }
 
 /**

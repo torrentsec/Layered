@@ -66,6 +66,16 @@ An Increment is Done when:
 - **Conventional Commits** and squash merges keep `main` readable.
 - **Security.** Cloudflare credentials live only in GitHub Actions secrets, and runtime keys in Worker secrets.
 
+## Interaction logs
+
+Every agent keeps an interaction log in [`docs/team/logs/`](team/logs/): one file per Developer (`dev-01.log` to `dev-10.log`), plus `scrum-master.log` and `product-owner.log`. Each line records one interaction with another agent, as it happens:
+
+```
+2026-11-27T12:38:30Z | dev-07 -> dev-06 | question | will you add ride speed inside clothingTarget?
+```
+
+The sender writes the line to its own log and to the recipient's. Types: claim, offer, need, question, answer, stable, review, handback, brief, decision, impediment, note. Requests from the stakeholder appear in the Product Owner's log. The logs are committed with each Sprint, after a check for paths, secrets and tool names, so the repo shows who asked whom for what and when. Sprint 5 was back-filled from its team board without times.
+
 ## Innovation Sprints
 
 Feature Sprints keep the Developers busy with known work, so new ideas rarely get tried. Every fourth Sprint is an **innovation Sprint**. It is still a Sprint, with every Scrum event, but its goal is learning rather than shipping.

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 // Cold reads blue, mild reads paper-yellow, hot reads red: the poster primaries
 // doubling as a thermometer.

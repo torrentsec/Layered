@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 import { THICKNESSES, type Category, type CategoryId, type Inventory, type InventoryEntry, type Thickness } from '../engine/inventory';
 

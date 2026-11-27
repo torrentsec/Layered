@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 import { advise, adviseCommute, hourIndex, legWindow, notificationText, selectWindow } from '../../src/engine';
 import type { Advice, BandId, ExtraId, Hour } from '../../src/engine';

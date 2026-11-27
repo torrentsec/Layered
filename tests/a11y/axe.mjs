@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 // Runs axe-core (WCAG 2.2 A and AA rules) against every screen and sheet of the
 // built app, in light and dark, at 390px and 320px. Serves `dist` with

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 import { describe, expect, it, vi } from 'vitest';
 import { fetchForecast, forecastUrl, HOURLY_VARS, parseForecast, type Forecast } from './forecast-types';

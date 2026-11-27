@@ -30,7 +30,7 @@ CI runs the same four on every pull request.
 - **Source headers.** Every source file starts with:
   ```
   // SPDX-License-Identifier: AGPL-3.0-or-later
-  // Copyright (c) 2026 Daniel Woo
+  // Copyright (c) 2026 torrentsec
   ```
 
 How the team applies Scrum is in [`docs/process.md`](docs/process.md), and the backlog is in [`docs/requirements.md`](docs/requirements.md).

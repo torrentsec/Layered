@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 // Open-Meteo /v1/forecast for central London, trimmed to the hours around sunrise on 26 November.
 // The 10:00 humidity and radiation are null to stand for a gap in the upstream model run.

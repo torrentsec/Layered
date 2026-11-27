@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Turns your local forecast into what to wear.",
   "license": "AGPL-3.0-or-later",
-  "author": "Daniel Woo (torrentsec)",
+  "author": "torrentsec",
   "private": true,
   "type": "module",
   "repository": {

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 import { LEARN_CAP, learnOffset } from '../../engine/learning';
 import type { ComfortProfile, Sensitivity } from '../../engine/comfort';

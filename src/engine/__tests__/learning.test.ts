@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 import { describe, expect, it } from 'vitest';
 import { activityOffsets, addRating, learnedFor, learnOffset, LEARN_CAP } from '../learning';

@@ -8,6 +8,7 @@ import { ComfortSection } from './settings/Comfort';
 import { DataSection } from './settings/Data';
 import { DefaultsSection } from './settings/Defaults';
 import { PlacesSection } from './settings/Places';
+import { SyncSection } from './settings/Sync';
 import { UnitsSection } from './settings/Units';
 
 // Each section owns its own state and file, so features can add sections
@@ -22,6 +23,7 @@ export function Settings() {
         <DefaultsSection />
         <ComfortSection />
         <AppearanceSection />
+        <SyncSection />
         <DataSection />
         <AboutSection />
       </main>

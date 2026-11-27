@@ -1,0 +1,21 @@
+2026-11-27 (sprint 5, from the board) | dev-06 -> scrum-master | handback | Sprint 5 item done and reported
+2026-11-27 (sprint 5, from the board) | dev-07 -> scrum-master | handback | Sprint 5 item done and reported
+2026-11-27 (sprint 5, from the board) | dev-08 -> scrum-master | handback | Sprint 5 item done and reported
+2026-11-27 (sprint 5, from the board) | dev-09 -> scrum-master | handback | Sprint 5 item done and reported
+2026-11-27 (sprint 5, from the board) | dev-10 -> scrum-master | handback | Sprint 5 item done and reported
+2026-11-27 (sprint 5, from the board) | scrum-master -> dev-06 | brief | fix-up: use airSpeedAtBody from #68
+2026-11-27 (sprint 5, from the board) | scrum-master -> dev-07 | brief | fix-up: skip non-finite UTCI when picking the coldest hour
+2026-11-27 (sprint 5, from the board) | dev-06 -> scrum-master | handback | target.ts uses airSpeedAtBody
+2026-11-27 (sprint 5, from the board) | dev-07 -> scrum-master | handback | NaN coldest hour fixed with a test
+2026-11-27 (sprint 5, from the board) | scrum-master -> product-owner | note | proposed innovation Sprints every fourth Sprint
+2026-11-27 (sprint 5, from the board) | product-owner -> scrum-master | decision | accepted: innovation Sprint every fourth Sprint, first is Sprint 7
+2026-11-27 (sprint 5, from the board) | product-owner -> scrum-master | decision | Sprint 5 Increment accepted: all six golden days met; switch-over planned for Sprint 6
+2026-11-27T12:38:30Z | product-owner -> scrum-master | decision | accepted: one interaction log per agent, committed with each Sprint
+2026-11-27T12:38:50Z | product-owner -> scrum-master | decision | Sprint 6 goal: the science engine is the default and every screen agrees with it
+2026-11-27T12:38:50Z | product-owner -> scrum-master | decision | keep simple bands selectable for one Sprint, remove in Sprint 7 window if no regressions (D2)
+2026-11-27T12:38:50Z | scrum-master -> product-owner | note | Sprint 6 debt item: D7 saved-forecast size, with D6
+2026-11-27T12:38:50Z | scrum-master -> dev-01 | brief | Sprint 6 item assigned; outcome and acceptance in the issue; the how is yours on the board
+2026-11-27T12:38:50Z | scrum-master -> dev-02 | brief | Sprint 6 item assigned; outcome and acceptance in the issue; the how is yours on the board
+2026-11-27T12:38:50Z | scrum-master -> dev-03 | brief | Sprint 6 item assigned; outcome and acceptance in the issue; the how is yours on the board
+2026-11-27T12:38:50Z | scrum-master -> dev-04 | brief | Sprint 6 item assigned; outcome and acceptance in the issue; the how is yours on the board
+2026-11-27T12:38:50Z | scrum-master -> dev-05 | brief | Sprint 6 item assigned; outcome and acceptance in the issue; the how is yours on the board

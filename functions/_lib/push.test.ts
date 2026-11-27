@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 import { describe, expect, it } from 'vitest';
 import { MAX_SUBSCRIBE_BYTES, PUSH_API, type SubscribeRequest } from '../../src/data/push-api';
@@ -65,10 +65,10 @@ describe('subscribe validation', () => {
 
   it('strips fields the Worker does not need', () => {
     const extra = request();
-    (extra.profile as unknown as Record<string, unknown>).name = 'Daniel';
+    (extra.profile as unknown as Record<string, unknown>).name = 'Alex';
     (extra as unknown as Record<string, unknown>).email = 'x@example.com';
     const r = parse(extra);
-    expect(r.ok && JSON.stringify(r.body)).not.toMatch(/Daniel|example/);
+    expect(r.ok && JSON.stringify(r.body)).not.toMatch(/Alex|example/);
   });
 
   it('checks sizes: 8 KB by body and by header', async () => {

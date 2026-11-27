@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (c) 2026 Daniel Woo
+# Copyright (c) 2026 torrentsec
 """Reference vectors for the thermal-comfort science module.
 
 UTCI, IREQ, PMV and the ISO 9920 clothing corrections come from the CBE

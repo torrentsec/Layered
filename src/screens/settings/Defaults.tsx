@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 import { ACTIVITIES, ACTIVITY_EXPOSURE, ACTIVITY_LABEL, COMMUTE_MODES, COMMUTE_MODE_LABEL, type CommuteMode } from '../../engine/activity';
 import type { Activity } from '../../engine/types';

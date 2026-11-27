@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 import { exportBundle, importBundle, patchSettings, settings, type Bundle } from './store';
 import { longDate, timeFmt } from './format';

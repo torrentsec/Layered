@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 // Lighthouse against a served `dist`, on mobile emulation, with a fixture
 // forecast seeded so the run never depends on Open-Meteo. Exits non-zero
@@ -14,7 +14,7 @@ import { pathToFileURL } from 'node:url';
 export type Budgets = Record<string, number>;
 export type Scores = Record<string, number>;
 
-const PLACE = { id: 'lh', name: 'Woolwich', detail: 'England', lat: 51.49, lon: 0.07, kind: 'home' };
+const PLACE = { id: 'lh', name: 'London', detail: 'England', lat: 51.51, lon: -0.13, kind: 'home' };
 
 /** Cold, showery days in the app's parsed shape, starting at today's midnight UTC. */
 export function fixtureForecast(now: number) {

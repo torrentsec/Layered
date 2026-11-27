@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 // Runs axe-core (WCAG 2.2 A and AA rules) against every screen and sheet of the
 // built app, in light and dark, at 390px and 320px. Serves `dist` with
@@ -20,7 +20,7 @@ const BLOCKING = new Set(['serious', 'critical']);
 const IPHONE_UA =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1';
 
-const HOME = { id: 'p1', name: 'Woolwich', detail: 'England', lat: 51.49, lon: 0.07, kind: 'home' };
+const HOME = { id: 'p1', name: 'London', detail: 'England', lat: 51.51, lon: -0.13, kind: 'home' };
 const TRIP = {
   id: 't1',
   name: 'Edinburgh',

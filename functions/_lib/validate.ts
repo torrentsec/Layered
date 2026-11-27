@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 /** Must match `SYNC_ALPHABET` in src/data/sync.ts. No 0/O, 1/I/L: codes get read aloud and retyped. */
 export const SYNC_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';

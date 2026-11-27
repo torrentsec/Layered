@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 import { test as base, type Page } from '@playwright/test';
 
@@ -73,14 +73,14 @@ export function openMeteoForecast() {
     daily.wind_gusts_10m_max.push(35);
     daily.weather_code.push(d % 2 ? 2 : 80);
   }
-  return { latitude: 51.49, longitude: 0.07, timezone: 'Europe/London', utc_offset_seconds: 0, hourly, daily };
+  return { latitude: 51.51, longitude: -0.13, timezone: 'Europe/London', utc_offset_seconds: 0, hourly, daily };
 }
 
-export const PLACE = { id: 'p1', name: 'Woolwich', detail: 'England', lat: 51.49, lon: 0.07, kind: 'home' };
+export const PLACE = { id: 'p1', name: 'London', detail: 'England', lat: 51.51, lon: -0.13, kind: 'home' };
 
 const GEOCODE = {
   results: [
-    { id: 1, name: 'Woolwich', admin1: 'England', country: 'United Kingdom', latitude: 51.49, longitude: 0.07 },
+    { id: 1, name: 'London', admin1: 'England', country: 'United Kingdom', latitude: 51.51, longitude: -0.13 },
     { id: 2, name: 'Lisbon', admin1: 'Lisbon', country: 'Portugal', latitude: 38.72, longitude: -9.14 },
   ],
 };

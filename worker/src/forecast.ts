@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 import { forecastUrl, parseForecast, type Forecast } from '../../src/data/forecast-types';
 import { METNO_URL, parseMetno, type MetnoResponse } from '../../src/data/metno';

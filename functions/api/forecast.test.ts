@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 import { describe, expect, it, vi } from 'vitest';
 import { LONDON } from '../../src/data/metno.fixture';
@@ -87,7 +87,7 @@ describe('onRequestGet', () => {
     vi.stubGlobal('fetch', strictFetch);
     vi.stubGlobal('caches', { default: { match: async () => undefined, put: async () => undefined } });
     try {
-      const request = new Request('https://layered.test/api/forecast?lat=51.49&lon=0.07&tz=Europe/London');
+      const request = new Request('https://layered.test/api/forecast?lat=51.51&lon=-0.13&tz=Europe/London');
       const res = await onRequestGet({ request } as unknown as Parameters<typeof onRequestGet>[0]);
       expect(res.status).toBe(200);
       expect(((await res.json()) as { source: string }).source).toBe('met-norway');

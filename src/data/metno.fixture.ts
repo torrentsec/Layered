@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 // MET Norway locationforecast/2.0/complete for central London, trimmed: hourly steps for two and a half days, then six-hourly.
 

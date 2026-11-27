@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 // The slice of D1 the sync API uses. Narrow on purpose, so tests can stand
 // in an in-memory fake and the real D1Database still satisfies it.

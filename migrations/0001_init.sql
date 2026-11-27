@@ -1,5 +1,5 @@
 -- SPDX-License-Identifier: AGPL-3.0-or-later
--- Copyright (c) 2026 Daniel Woo
+-- Copyright (c) 2026 torrentsec
 
 -- One row per sync code. `data` is a device's export bundle as JSON and
 -- `updated_at` is milliseconds since the epoch, set by the server.

@@ -11,6 +11,7 @@ import type { ComfortProfile } from '../engine/comfort';
 import type { GarmentWarmth } from '../engine/garment-learning';
 import type { LearnSnapshot } from '../engine/learning';
 import type { BiasState, WeatherPlace } from '../engine/science/types';
+import type { Site } from '../engine/science/site';
 import type { EngineChoice } from './engine-choice';
 import type { Forecast } from './forecast-types';
 import { timeFmt, weekday } from './format';
@@ -51,6 +52,8 @@ export interface PlanInput {
   bias: Pick<BiasState, 'mean' | 'count'>;
   /** Routines scheduled on the date become extra legs (US-066). */
   routines?: (RoutineSpec & { id: string })[];
+  /** Spike #86; missing is the open site, as every saved place and the Worker assume. */
+  site?: Site;
 }
 
 type PlanForecast = Pick<Forecast, 'hours' | 'lat' | 'lon' | 'utcOffsetSeconds'>;
@@ -68,7 +71,7 @@ export function planDayFor(f: PlanForecast, date: string, p: PlanInput, now: str
   const effort = p.effort;
   const isToday = now.startsWith(date);
   const fmt = timeFmt(p.units.clock);
-  const science = p.engine === 'science' ? { place: placeOf(f), bias: p.bias.mean, biasCount: p.bias.count } : undefined;
+  const science = p.engine === 'science' ? { place: { ...placeOf(f), ...(p.site ? { site: p.site } : {}) }, bias: p.bias.mean, biasCount: p.bias.count } : undefined;
   const shared = {
     manualOffset: p.manualOffset,
     ratings: p.ratings,

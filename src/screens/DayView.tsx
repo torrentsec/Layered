@@ -10,7 +10,7 @@ import { ROUGH_GUIDE_NOTE, certaintyFor, hedgeRequirements } from '../engine/cer
 import { rainSummary } from '../engine/rain';
 import { localNow } from '../engine/time';
 import type { Activity, Effort } from '../engine/types';
-import { planDay, restOfDay } from '../state/advice';
+import { flagSite, planDay, restOfDay } from '../state/advice';
 import { placeOf } from '../data/day-plan';
 import { feelsRange, heroReading, hourlyFeels } from '../data/why-science';
 import { ExtraChips, FeelsActual, HourlyStrip, LayerList, Limitations, WhyBody } from '../components/AdviceParts';
@@ -66,7 +66,7 @@ export function DayView({ forecast, date, activity, duration, commute, effort, r
   // The same place the planner hands the science engine, so window hours match "Why this?".
   const stripFeels = !advice.science ? undefined
     : trial === 'familiar' ? plan.dayHours.map(familiarFeels)
-    : hourlyFeels(plan.dayHours, advice, placeOf(forecast));
+    : hourlyFeels(plan.dayHours, advice, { ...placeOf(forecast), site: flagSite() });
   const feelsContext = c ? 'across both legs' : plan.legs ? 'across today’s plans' : 'while you’re out';
 
   return (

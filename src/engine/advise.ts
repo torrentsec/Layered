@@ -11,7 +11,8 @@ import { learnedFor } from './learning';
 import { matchInventory, withoutCovered } from './match';
 import { requirementsFor } from './requirements';
 import { scienceWhy } from './science/advice';
-import { hourToWeather, type WeatherPlace } from './science/weather';
+import type { WeatherPlace } from './science/types';
+import { hourToWeather } from './science/weather';
 import type { Activity, Advice, Effort, Hour, Rating } from './types';
 
 export interface AdviseInput {

@@ -20,8 +20,8 @@
  */
 
 import { CATALOGUE, type CategoryId, type Level, type Thickness, type WaterResistance } from '../inventory';
-import { windAtBody } from './radiation';
-import type { EnsembleClo, EnsembleCloFn, GarmentClo, GarmentCloFn, WetState } from './types';
+import { airSpeedAtBody } from './radiation';
+import type { EnsembleClo, EnsembleCloFn, GarmentClo, GarmentCloFn, Metabolic, WetState } from './types';
 
 export interface GarmentCloRow {
   /** Basic insulation Iclu, clo; per thickness for categories that have one. */
@@ -118,9 +118,12 @@ export const resultantIcl = (icl: number, vr: number, vw: number): number => icl
 /**
  * Relative air speed at the body. Head- and tailwind legs of a walk average
  * to roughly the larger of wind and walking speed, and a walker in calm air
- * still meets their own breeze.
+ * still meets their own breeze. A cyclist's ride speed adds to the wind
+ * rather than averaging with it, so riding strips insulation that walking
+ * at the same metabolic rate would not.
  */
-const relativeAirSpeed = (wind10: number, walk: number): number => Math.max(windAtBody(wind10), Math.max(0, walk));
+const relativeAirSpeed = (wind10: number, move: Pick<Metabolic, 'walk' | 'ride'>): number =>
+  Math.max(airSpeedAtBody(wind10, move.ride), Math.max(0, move.walk));
 
 // ---- Wet clothing (thermal-model §7.4; judgement within the published range) ----
 
@@ -152,11 +155,11 @@ function permeability(garments: GarmentClo[], outer?: { water: WaterResistance; 
  * describes the outermost layer; without it the outfit is treated as having
  * no water or wind protection.
  */
-export const ensembleClo: EnsembleCloFn = (garments, wind10, walk, wet, outer): EnsembleClo => {
+export const ensembleClo: EnsembleCloFn = (garments, wind10, move, wet, outer): EnsembleClo => {
   const sum = BASE_ALLOWANCE_CLO + garments.reduce((s, g) => s + garmentClo(g), 0);
   const basic = iclFromGarments(sum);
   const wetIcl = basic * WET_FACTOR[outer?.water ?? 'none'][wet];
-  const resultant = resultantIcl(wetIcl, relativeAirSpeed(wind10, walk), walk);
+  const resultant = resultantIcl(wetIcl, relativeAirSpeed(wind10, move), move.walk);
   return {
     basic,
     resultant,

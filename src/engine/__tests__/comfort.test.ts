@@ -9,12 +9,23 @@ import {
   DEFAULT_COMFORT,
   OVERHEAT_WHEN_ACTIVE_OFFSET,
   SENSITIVITY_OFFSET,
+  sensitivityOffset,
   STILL_ACTIVITIES,
   type ComfortProfile,
   type Sensitivity,
 } from '../comfort';
 import { ACTIVITIES } from '../activity';
 import type { Activity } from '../types';
+
+describe('sensitivityOffset', () => {
+  it('is the base sensitivity alone, without per-activity preferences', () => {
+    expect(sensitivityOffset({ sensitivity: 'cold', coldWhenStill: true, overheatWhenWalking: true })).toBe(SENSITIVITY_OFFSET.cold);
+  });
+
+  it('is zero for a sensitivity from a later version', () => {
+    expect(sensitivityOffset({ sensitivity: 'icy' as never })).toBe(0);
+  });
+});
 
 const ACTIVE: Activity[] = ['walking', 'hiking', 'running', 'cycling'];
 const STILL: Activity[] = ['standing', 'transport', 'night'];

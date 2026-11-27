@@ -21,3 +21,32 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
+
+  lighthouse:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Serve dist
+        run: |
+          npx vite preview --port 4173 --strictPort &
+          for i in $(seq 1 30); do curl -sf http://localhost:4173/ > /dev/null && exit 0; sleep 1; done
+          exit 1
+      # A fixture forecast is seeded and Open-Meteo calls are answered locally,
+      # so the scores never depend on the weather service.
+      - name: Lighthouse budgets
+        run: npm run lighthouse -- http://localhost:4173
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+          LH_OUT: lighthouse-report
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: lighthouse-report

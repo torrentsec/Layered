@@ -25,9 +25,9 @@ export function EngineSection() {
     <h2 class="group-title">Advice</h2>
     <div class="card engine-choice">
       {/* The segmented control's own legend is hidden, so this is the visible copy of it. */}
-      <p aria-hidden="true" style={{ margin: '0 0 8px' }}>{LABEL}</p>
+      <p class="engine-label" aria-hidden="true">{LABEL}</p>
       <Segmented<EngineChoice> label={LABEL} value={engine} options={OPTIONS} onChange={(e) => patchSettings({ engine: e })} />
-      <p class="small-print" aria-live="polite" style={{ margin: '8px 0 0' }}>{DETAIL[engine]}</p>
+      <p class="small-print engine-detail" aria-live="polite">{DETAIL[engine]}</p>
     </div>
     </>
   );

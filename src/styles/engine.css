@@ -5,3 +5,11 @@
 .engine-choice .segmented label {
   min-height: 44px;
 }
+
+.engine-choice .engine-label {
+  margin: 0 0 8px;
+}
+
+.engine-choice .engine-detail {
+  margin: 8px 0 0;
+}

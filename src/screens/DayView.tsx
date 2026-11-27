@@ -9,7 +9,7 @@ import { ratings, settings, wardrobe } from '../data/store';
 import { rainSummary } from '../engine/rain';
 import type { Activity } from '../engine/types';
 import { planDay, restOfDay } from '../state/advice';
-import { ExtraChips, HourlyStrip, LayerList, WhyBody } from '../components/AdviceParts';
+import { ExtraChips, HourlyStrip, LayerList, Limitations, WhyBody } from '../components/AdviceParts';
 import { Hero } from '../components/Hero';
 import { Sheet } from '../components/Sheet';
 
@@ -64,6 +64,7 @@ export function DayView({ forecast, date, activity, duration, commute, onCircleT
 
       <LayerList advice={advice} />
       <ExtraChips advice={advice} units={units} />
+      <Limitations advice={advice} />
       {c && (
         <ul class="group" aria-label="Commute legs" style={{ listStyle: 'none', padding: 0 }}>
           {([['Out', c.out], ['Back', c.back]] as const).map(([name, leg]) => (

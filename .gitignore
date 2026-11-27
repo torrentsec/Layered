@@ -9,6 +9,7 @@ coverage/
 !.dev.vars.example
 *.local.json
 *.log
+!docs/team/logs/*.log
 .DS_Store
 
 # local tool config

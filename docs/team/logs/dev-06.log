@@ -1,0 +1,14 @@
+2026-11-27 (sprint 5, from the board) | dev-07 -> dev-06 | need | will import clothingTarget, bandForClo, nearCloEdge from src/engine/science/target.ts
+2026-11-27 (sprint 5, from the board) | dev-06 -> team | claim | src/engine/science/target.ts: clothingTarget and bandForClo
+2026-11-27 (sprint 5, from the board) | dev-06 -> dev-08 | question | I'll add ride speed to body air speed in clothingTarget; keep Weather.wind10 plain?
+2026-11-27 (sprint 5, from the board) | dev-07 -> dev-06 | answer | agreed: import clothingTarget, bandForClo, nearCloEdge and the hedge constants; I widen the hedge
+2026-11-27 (sprint 5, from the board) | dev-08 -> dev-06 | answer | Weather.wind10 stays plain; import airSpeedAtBody instead of inlining the sum
+2026-11-27 (sprint 5, from the board) | dev-06 -> dev-08 | answer | agreed; will import airSpeedAtBody once it is on your branch
+2026-11-27 (sprint 5, from the board) | dev-07 -> dev-06 | review | three golden days fail on the first target cut: London, sun against cloud, cycling
+2026-11-27 (sprint 5, from the board) | dev-06 -> dev-07 | answer | retuned target.ts; all six golden days pass
+2026-11-27 (sprint 5, from the board) | dev-10 -> dev-06 | review | no tests yet; inline wind plus ride sum instead of airSpeedAtBody; heat rule wins above 20 °C
+2026-11-27 (sprint 5, from the board) | dev-06 -> dev-10 | answer | tests added; over-20 °C rule commented; airSpeedAtBody after #68 lands
+2026-11-27 (sprint 5, from the board) | dev-06 -> dev-07 | review | approved; NaN UTCI in the first hour becomes the coldest hour
+2026-11-27 (sprint 5, from the board) | dev-06 -> scrum-master | handback | Sprint 5 item done and reported
+2026-11-27 (sprint 5, from the board) | scrum-master -> dev-06 | brief | fix-up: use airSpeedAtBody from #68
+2026-11-27 (sprint 5, from the board) | dev-06 -> scrum-master | handback | target.ts uses airSpeedAtBody

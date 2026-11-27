@@ -2,11 +2,13 @@
 // Copyright (c) 2026 Daniel Woo
 
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { ACTIVITIES, ACTIVITY_LABEL } from '../engine/activity';
-import { localNow } from '../engine/time';
-import type { Activity } from '../engine/types';
+import { ACTIVITIES, ACTIVITY_LABEL, EFFORTS, EFFORT_LABEL, scalesWithEffort } from '../engine/activity';
+import type { LegsAdvice } from '../engine/routines';
+import { localNow, type TimeFormatter } from '../engine/time';
+import type { Activity, Effort } from '../engine/types';
 import { longDate, timeFmt, weekday } from '../data/format';
-import { patchSettings, settings } from '../data/store';
+import { fmtTemp, type TempUnit } from '../data/units';
+import { patchSettings, routines, settings } from '../data/store';
 import { currentPlace, forecastState, loadForecast } from '../state/forecast';
 import { DayView } from './DayView';
 import { AirChips, FeedbackCard, HeadsUps } from '../components/TodayExtras';
@@ -23,6 +25,35 @@ import { SharePoster } from '../components/SharePoster';
 
 const DURATIONS = [2, 5, 10].map((h) => ({ value: h, label: `${h} h` }));
 const SECRET_TAPS = 7;
+const EFFORT_OPTIONS = EFFORTS.map((e) => ({ value: e, label: EFFORT_LABEL[e] }));
+
+/** Today's routines and commute legs, each with its own reading (US-066). */
+function PlanLegs({ legs, fmt, unit }: { legs: LegsAdvice; fmt: TimeFormatter; unit: TempUnit }) {
+  return (
+    <>
+      <ul class="group" aria-label="Today’s plans" style={{ listStyle: 'none', padding: 0 }}>
+        {legs.legs.map(({ leg, advice, coldest }) => (
+          <li class="row-item plain" key={leg.id}>
+            <span class="grow">
+              {leg.label} · {fmt(leg.start ?? leg.hours[0].time)}
+              <span class="sub">
+                {advice.verdict} · {ACTIVITY_LABEL[leg.activity]}
+                {leg.effort && scalesWithEffort(leg.activity) ? `, ${EFFORT_LABEL[leg.effort].toLowerCase()}` : ''}
+                {coldest && legs.legs.length > 1 ? ' · coldest' : ''}
+              </span>
+            </span>
+            <span class="num">feels {fmtTemp(advice.minFeels, unit)}</span>
+          </li>
+        ))}
+      </ul>
+      {legs.notes.length > 0 && (
+        <ul class="card" style={{ listStyle: 'none', paddingLeft: '16px' }} aria-label="Plan notes">
+          {legs.notes.map((n) => <li key={n}>{n}</li>)}
+        </ul>
+      )}
+    </>
+  );
+}
 
 export function Today() {
   const s = settings.value;
@@ -30,6 +61,7 @@ export function Today() {
   const st = forecastState.value;
   const [placesOpen, setPlacesOpen] = useState(false);
   const [activity, setActivity] = useState<Activity>(s.activity);
+  const [effort, setEffort] = useState<Effort>('steady');
   const [duration, setDuration] = useState(s.duration);
   const taps = useRef({ n: 0, t: 0 });
   const swap = useRef<Swap | null>(null);
@@ -64,12 +96,16 @@ export function Today() {
   const date = now.slice(0, 10);
   const fmt = timeFmt(s.units.clock);
   const commuteDay = s.commute.enabled && date && s.commute.days.includes(weekday(date));
+  const dayEffort = scalesWithEffort(activity) ? effort : undefined;
+  const plan = f
+    ? planDay(f, date, { settings: s, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value, activity, effort: dayEffort, duration, routines: routines.value })
+    : null;
 
   return (
     <>
       <TitleBar
         short={title}
-        action={place && f ? <SharePoster forecast={f} date={date} place={title} activity={activity} duration={duration} /> : undefined}
+        action={place && f ? <SharePoster forecast={f} date={date} place={title} activity={activity} duration={duration} effort={dayEffort} /> : undefined}
         title={
           <button type="button" class="place-btn" onClick={() => setPlacesOpen(true)} aria-label={`Place: ${title}. Change place`}>
             <span>{title}</span>
@@ -111,21 +147,21 @@ export function Today() {
             forecast={f}
             date={date}
             activity={activity}
+            effort={dayEffort}
             duration={duration}
+            routines={routines.value}
             onCircleTap={onCircleTap}
             footer={
               <>
                 <AirChips lat={place.lat} lon={place.lon} date={date} />
                 <HeadsUps hours={f.hours.filter((h) => h.time.slice(0, 13) >= now.slice(0, 13)).slice(0, 24)} units={s.units} />
-                {(() => {
-                  const plan = planDay(f, date, { settings: s, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value, activity, duration });
-                  return plan ? <FeedbackCard now={now} advice={plan.advice} activity={activity} /> : null;
-                })()}
+                {plan ? <FeedbackCard now={now} advice={plan.advice} activity={activity} /> : null}
               </>
             }
             controls={
               <section aria-label="Your plans" style={{ margin: '16px 0' }}>
-                <h2 class="group-title" style={{ marginTop: 0 }}>Activity</h2>
+                {plan?.legs && <PlanLegs legs={plan.legs} fmt={fmt} unit={s.units.temp} />}
+                <h2 class="group-title" style={{ marginTop: plan?.legs ? undefined : 0 }}>Activity</h2>
                 <div class="pick" role="group" aria-label="Activity">
                   {ACTIVITIES.map((a) => (
                     <button
@@ -141,6 +177,12 @@ export function Today() {
                     </button>
                   ))}
                 </div>
+                {scalesWithEffort(activity) && (
+                  <>
+                    <h2 class="group-title">Effort</h2>
+                    <Segmented label="Effort" value={effort} options={EFFORT_OPTIONS} onChange={setEffort} />
+                  </>
+                )}
                 {!commuteDay && (
                   <>
                     <h2 class="group-title">Out for</h2>

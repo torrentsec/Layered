@@ -1,0 +1,21 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later
+   Copyright (c) 2026 Daniel Woo */
+
+/* ---------- routines ---------- */
+
+/* Matches the span labels of the neighbouring .field rows. */
+.routine-legend {
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.routine-error {
+  margin: 8px 0 0;
+}
+
+.routine-presets {
+  margin-top: -4px;
+  margin-bottom: 4px;
+}

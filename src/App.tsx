@@ -8,6 +8,8 @@ import { Week } from './screens/Week';
 import { Settings } from './screens/Settings';
 import { Trip } from './screens/Trip';
 import { Wardrobe } from './screens/Wardrobe';
+import { Onboarding, settleOnboarding } from './screens/Onboarding';
+import { onboarded } from './data/store';
 import { ToastHost } from './components/Toast';
 import { SettingsIcon, TodayIcon, TripIcon, WardrobeIcon, WeekIcon } from './components/Icons';
 
@@ -18,6 +20,9 @@ interface TabDef {
   screen: FunctionComponent;
 }
 
+// Settled once at start-up, so adding a place during the flow doesn't end it early.
+settleOnboarding();
+
 const TAB_DEFS: TabDef[] = [
   { id: 'today', label: 'Today', icon: TodayIcon, screen: Today },
   { id: 'week', label: 'Week', icon: WeekIcon, screen: Week },
@@ -27,6 +32,14 @@ const TAB_DEFS: TabDef[] = [
 ];
 
 export function App() {
+  if (!onboarded.value) {
+    return (
+      <>
+        <Onboarding />
+        <ToastHost />
+      </>
+    );
+  }
   const r = route.value;
   const active = TAB_DEFS.find((t) => t.id === r.tab) ?? TAB_DEFS[0];
   const Screen = active.screen;

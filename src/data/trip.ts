@@ -4,7 +4,9 @@
 import { advise } from '../engine/advise';
 import { combineAdvice, packingList, type PackItem } from '../engine/packing';
 import { selectWindow } from '../engine/window';
-import type { Activity, Advice, Hour, Rating, WardrobeItem } from '../engine/types';
+import type { Activity, Advice, Hour, Rating } from '../engine/types';
+import type { Inventory } from '../engine/inventory';
+import type { ComfortProfile } from '../engine/comfort';
 import { getForecast } from './cache';
 import { addDays } from './format';
 import { fetchTypical } from './openmeteo';
@@ -52,7 +54,8 @@ export function datesBetween(start: string, end: string): string[] {
 interface Ctx {
   manualOffset: number;
   ratings: Rating[];
-  wardrobe: WardrobeItem[];
+  inventory: Inventory;
+  comfort: ComfortProfile;
   today: string;
 }
 

@@ -15,3 +15,7 @@ CLAUDE.md
 .claude/
 .mcp.json
 worker/wrangler.deploy.toml
+
+# end-to-end test output
+test-results/
+playwright-report/

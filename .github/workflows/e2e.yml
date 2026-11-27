@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 torrentsec
+
+name: E2E
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - name: Keep traces of failed tests
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-traces
+          path: test-results/
+          retention-days: 7

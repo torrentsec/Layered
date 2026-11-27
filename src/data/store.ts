@@ -62,6 +62,8 @@ export interface Settings {
   syncCode?: string;
   syncedAt?: number;
   installHintSeen?: boolean;
+  /** Developer flag: which engine dresses Today. Missing means 'bands'. */
+  engine?: 'bands' | 'science';
 }
 
 export interface TripStop {

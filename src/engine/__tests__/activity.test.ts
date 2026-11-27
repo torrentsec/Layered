@@ -2,11 +2,79 @@
 // Copyright (c) 2026 Daniel Woo
 
 import { describe, expect, it } from 'vitest';
-import { ACTIVITIES, ACTIVITY_EXPOSURE, ACTIVITY_LABEL, ACTIVITY_OFFSET, COMMUTE_MODES, COMMUTE_MODE_LABEL } from '../activity';
+import {
+  ACTIVITIES,
+  ACTIVITY_EXPOSURE,
+  ACTIVITY_LABEL,
+  ACTIVITY_OFFSET,
+  COMMUTE_MODES,
+  COMMUTE_MODE_LABEL,
+  EFFORT_ACTIVITIES,
+  EFFORT_LABEL,
+  EFFORTS,
+  effortOffset,
+  scalesWithEffort,
+} from '../activity';
 import { advise } from '../advise';
 import { adviseCommute } from '../commute';
-import type { Activity } from '../types';
+import type { Activity, Effort } from '../types';
 import { day } from './fixtures';
+
+describe('effort (US-067)', () => {
+  it('offers easy, steady and hard', () => {
+    expect(EFFORTS).toEqual(['easy', 'steady', 'hard']);
+    expect(EFFORTS.map((e) => EFFORT_LABEL[e])).toEqual(['Easy', 'Steady', 'Hard']);
+  });
+
+  it('only scales running, cycling and hiking', () => {
+    expect(EFFORT_ACTIVITIES).toEqual(['running', 'cycling', 'hiking']);
+    expect(ACTIVITIES.filter(scalesWithEffort)).toEqual(['cycling', 'running', 'hiking']);
+  });
+
+  it.each([
+    ['running', 'easy', 5],
+    ['running', 'steady', 8],
+    ['running', 'hard', 11],
+    ['hiking', 'easy', 1],
+    ['hiking', 'steady', 3],
+    ['hiking', 'hard', 5],
+    // Harder riding warms you but also adds wind, so the gain is smaller.
+    ['cycling', 'easy', -5],
+    ['cycling', 'steady', -4],
+    ['cycling', 'hard', -2],
+  ] as [Activity, Effort, number][])('%s at %s effort counts as %s°', (activity, effort, offset) => {
+    expect(effortOffset(activity, effort)).toBe(offset);
+  });
+
+  it('nets less warming for a hard ride than for a hard run', () => {
+    expect(effortOffset('cycling', 'hard') - effortOffset('cycling', 'steady')).toBeLessThan(effortOffset('running', 'hard') - effortOffset('running', 'steady'));
+    expect(effortOffset('cycling', 'hard')).toBeLessThan(0);
+  });
+
+  it('defaults to steady', () => {
+    for (const a of ACTIVITIES) expect(effortOffset(a)).toBe(ACTIVITY_OFFSET[a]);
+  });
+
+  it.each(ACTIVITIES.filter((a) => !scalesWithEffort(a)))('ignores effort for %s', (a) => {
+    for (const e of EFFORTS) expect(effortOffset(a, e)).toBe(ACTIVITY_OFFSET[a]);
+  });
+
+  it('feeds the effective temperature and the explanation', () => {
+    const hours = day(2, () => ({ feels: 4 }));
+    const steady = advise({ hours, activity: 'running' })!;
+    const hard = advise({ hours, activity: 'running', effort: 'hard' })!;
+    const easy = advise({ hours, activity: 'running', effort: 'easy' })!;
+    expect(steady.effective).toBe(12);
+    expect(hard.effective).toBe(15);
+    expect(easy.effective).toBe(9);
+    expect(hard.why.activityOffset).toBe(11);
+  });
+
+  it('leaves walking advice alone whatever the effort', () => {
+    const hours = day(2, () => ({ feels: 4 }));
+    expect(advise({ hours, activity: 'walking', effort: 'hard' })!.effective).toBe(advise({ hours, activity: 'walking' })!.effective);
+  });
+});
 
 describe('activities', () => {
   it('waits at stops on an office day', () => expect(ACTIVITY_OFFSET.office).toBe(-1));

@@ -8,7 +8,7 @@ import { garmentLabel } from '../../engine/match';
 import { garmentWarmth, ratings, settings } from '../../data/store';
 import { tempDelta } from '../../data/units';
 import { engineOf } from '../../data/engine-choice';
-import { learnedCardOn } from '../../data/learned-card';
+import { flagOn } from '../../data/flags';
 import { LearnedCard } from './LearnedCard';
 import { toast } from '../../components/Toast';
 import { localToday } from '../../state/garment-warmth';
@@ -56,7 +56,7 @@ export function LearnedSection() {
     <>
       <h2 class="group-title" id="learned-title">What Layered has learned</h2>
       <section class="group" aria-labelledby="learned-title">
-        {learnedCardOn() && engineOf(settings.value) === 'science' ? <LearnedCard /> : <>
+        {flagOn('learned-card') && engineOf(settings.value) === 'science' ? <LearnedCard /> : <>
         <div class="row-item plain learned-row">
           <span class="grow">Overall<span class="sub">{all.length ? `From ${plural(all.length)}` : 'No ratings yet'}</span></span>
           <span class="meta num">{degrees(overall)}</span>

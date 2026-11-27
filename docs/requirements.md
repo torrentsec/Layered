@@ -64,7 +64,7 @@ Thresholds are named constants with unit tests, so they can be recalibrated from
 | US-012 | Water and wind resistance | P1 | Done | Water: none / resistant / waterproof. Wind: low / medium / high. Jackets are never assumed waterproof. |
 | US-013 | Insulation separate from thickness | P1 | Done | Optional low / medium / high. Overrides the thickness-based default. |
 | US-014 | Edit inventory | P0 | Done | Edited in place, saved automatically. |
-| US-015 | Inventory completeness | P1 | Partial | Configured vs not set and a completeness bar are done. Still to do: which missing categories matter today. |
+| US-015 | Inventory completeness | P1 | Done | Configured vs not set and a completeness bar are done. Still to do: which missing categories matter today. |
 | US-016 | Works with a partial wardrobe | P0 | Done | Generic advice works today. The "not set versus don't own" distinction arrives with the category model. |
 
 ### E03: Weather intelligence
@@ -79,7 +79,7 @@ Thresholds are named constants with unit tests, so they can be recalibrated from
 | US-022 | Rain | P0 | Done | Probability, amount and timing ("Dry until 15:00, then showers"). |
 | US-023 | Meaningful changes | P0 | Done | Swing detection gives "layers you can take off". Commute legs are compared. |
 | US-024 | Freshness | P1 | Done | "Last updated" shows when stale or offline. To do: always show the forecast time. |
-| US-025 | Forecast uncertainty | P2 | Planned | Use model spread where available. Prefer adaptable layers when uncertain. |
+| US-025 | Forecast uncertainty | P2 | Done | Use model spread where available. Prefer adaptable layers when uncertain. |
 
 ### E04: Recommendation engine
 
@@ -111,8 +111,8 @@ Thresholds are named constants with unit tests, so they can be recalibrated from
 | ID | Story | Pri | Status | Notes |
 |---|---|---|---|---|
 | US-041 | Today on open | P0 | Done | |
-| US-042 | Notification time | P1 | Planned | Morning Web Push at a chosen time and days, in local time (`layered-push` Worker). |
-| US-043 | Significant change alerts | P2 | Planned | The Worker re-checks after the morning push and alerts only if the advice changes. At most one a day. |
+| US-042 | Notification time | P1 | Done | Morning Web Push at a chosen time and days, in local time (`layered-push` Worker). |
+| US-043 | Significant change alerts | P2 | Done | The Worker re-checks after the morning push and alerts only if the advice changes. At most one a day. |
 | US-044 | Journey-home warnings | P1 | Done | Commute notes such as "Umbrella for the way home — showers from 17:00". |
 
 ### E07: Activities and context
@@ -168,15 +168,19 @@ Added by the Product Owner at the Sprint 1 Review, from [voice-of-customer resea
 
 | ID | Story | Pri | Epic | Status |
 |---|---|---|---|---|
-| US-061 | Optional evening notification with tomorrow's outfit | P1 | E06 | Planned |
+| US-061 | Optional evening notification with tomorrow's outfit | P1 | E06 | Done |
 | US-062 | Add another person (such as a child) with their own comfort profile | P2 | Household | Planned |
 | US-063 | Age-appropriate defaults for a child | P2 | Household | Planned |
 | US-064 | Each person's outfit side by side on Today | P2 | Household | Planned |
-| US-065 | Saved routines (school run, dog walk, gym) with time, length, days and activity | P1 | E07 | Planned |
-| US-066 | Dress for the coldest of today's routines and flag the differences | P1 | E07 | Planned |
-| US-067 | Effort level (easy, steady, hard) for running, cycling and hiking | P1 | E07 | Planned |
-| US-068 | Rain timing phrased as approximate; far-off days marked less certain | P1 | E03 | Planned |
-| US-069 | Real temperature shown next to feels-like | P2 | E03 | Planned |
+| US-065 | Saved routines (school run, dog walk, gym) with time, length, days and activity | P1 | E07 | Done |
+| US-066 | Dress for the coldest of today's routines and flag the differences | P1 | E07 | Done |
+| US-067 | Effort level (easy, steady, hard) for running, cycling and hiking | P1 | E07 | Done |
+| US-068 | Rain timing phrased as approximate; far-off days marked less certain | P1 | E03 | Done |
+| US-069 | Real temperature shown next to feels-like | P2 | E03 | Done |
+| US-070 | Remember the last effort per activity | P3 | E07 | Planned |
+| US-071 | Undo deleting a routine | P3 | E07 | Planned |
+| US-072 | Opt-in wardrobe-aware notifications (owned categories sent to the Worker) | P2 | E06 | Planned |
+| US-073 | Retry a push that failed with a server error; batch large Worker runs | P2 | E06 | Planned |
 
 ## 5. Non-functional requirements
 

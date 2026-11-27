@@ -37,13 +37,20 @@ export interface LayerText {
 export function layerText(l: LayerAdvice): LayerText {
   const general = l.owned === 'unknown';
   if (l.nickname) return { title: `Your ${l.nickname}`, sub: genericName(l), general };
-  if (l.item) return { title: `Your ${l.item.name.toLowerCase()}`, sub: l.label, general };
   return { title: genericName(l), general };
 }
 
-/** Legacy named items count as owned; anything not matched is general advice. */
+/** Anything not matched to the inventory is general advice. */
 export function fromWardrobe(l: LayerAdvice): boolean {
-  return l.owned === 'owned' || (!!l.item && l.owned === undefined);
+  return l.owned === 'owned';
+}
+
+/** The outer layer in a few words: "Your navy puffer" when it's from the wardrobe, else the general label. */
+export function outerText(layers: LayerAdvice[]): string | undefined {
+  const l = layers.find((x) => x.kind === 'outer' && !x.optional);
+  if (!l) return undefined;
+  if (l.owned !== 'owned') return l.label;
+  return `Your ${l.nickname ?? l.label.toLowerCase()}`;
 }
 
 export function insulationWords(points: number): string {

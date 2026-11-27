@@ -6,6 +6,7 @@ import type { Forecast } from '../data/forecast-types';
 import { longDate } from '../data/format';
 import { ratings, settings, inventory, comfort } from '../data/store';
 import { fmtTemp } from '../data/units';
+import { layerText } from '../data/advice-text';
 import type { Activity } from '../engine/types';
 import { planDay } from '../state/advice';
 import { haptic } from './haptics';
@@ -57,7 +58,7 @@ export function SharePoster({ forecast, date, place, activity, duration }: Props
       verdict: a.verdict,
       layers: a.layers.map((l) => ({
         kind: l.kind,
-        label: `${l.item ? `Your ${l.item.name.toLowerCase()}` : l.label}${l.optional ? ', optional' : ''}`,
+        label: `${layerText(l).title}${l.optional ? ', optional' : ''}`,
       })),
       feels: a.effective,
       rain: Math.max(0, ...a.hours.map((h) => h.precipProb)),

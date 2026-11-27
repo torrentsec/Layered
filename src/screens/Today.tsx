@@ -11,6 +11,7 @@ import { currentPlace, forecastState, loadForecast } from '../state/forecast';
 import { DayView } from './DayView';
 import { AirChips, FeedbackCard, HeadsUps } from '../components/TodayExtras';
 import { planDay } from '../state/advice';
+import { outForAfter, type Swap } from '../state/out-for';
 import { ratings, inventory, comfort } from '../data/store';
 import { TitleBar } from '../components/TitleBar';
 import { PlaceSheet, placeLabel } from '../components/PlaceSheet';
@@ -31,6 +32,17 @@ export function Today() {
   const [activity, setActivity] = useState<Activity>(s.activity);
   const [duration, setDuration] = useState(s.duration);
   const taps = useRef({ n: 0, t: 0 });
+  const swap = useRef<Swap | null>(null);
+  const pickActivity = (a: Activity) => {
+    const next = outForAfter(a, { duration, swap: swap.current });
+    swap.current = next.swap;
+    setDuration(next.duration);
+    setActivity(a);
+  };
+  const pickDuration = (h: number) => {
+    swap.current = null;
+    setDuration(h);
+  };
 
   useEffect(() => {
     void loadForecast();
@@ -122,7 +134,7 @@ export function Today() {
                       aria-pressed={a === activity}
                       onClick={() => {
                         haptic();
-                        setActivity(a);
+                        pickActivity(a);
                       }}
                     >
                       {ACTIVITY_LABEL[a]}
@@ -132,7 +144,7 @@ export function Today() {
                 {!commuteDay && (
                   <>
                     <h2 class="group-title">Out for</h2>
-                    <Segmented label="Out for" value={duration} options={DURATIONS} onChange={setDuration} />
+                    <Segmented label="Out for" value={duration} options={DURATIONS} onChange={pickDuration} />
                   </>
                 )}
                 <div class="group" style={{ marginTop: '16px' }}>

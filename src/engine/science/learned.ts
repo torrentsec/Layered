@@ -77,7 +77,8 @@ export function leanOf(mean: number, previous?: LeanLabel): LeanLabel {
   const next = rawLean(mean);
   if (!previous || sameLabel(next, previous)) return next;
   const m = Math.abs(mean);
-  const sameSide = previous.lean === 'average' || next.lean === 'average' || (mean > 0) === (previous.lean === 'cold');
+  // A held lean must still point the same way: once the bias crosses zero, "feel the cold" is wrong.
+  const sameSide = previous.lean === 'average' || (previous.lean === 'cold' ? mean > 0 : mean < 0);
   const inside = sameSide && m > bandFloor(previous) - HYSTERESIS && m < bandCeiling(previous) + HYSTERESIS;
   return inside ? previous : next;
 }

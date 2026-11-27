@@ -40,6 +40,9 @@ describe('leanOf', () => {
 
   it('never holds a lean once the bias crosses to the other side', () => {
     expect(leanOf(-0.06, { lean: 'cold', strength: 'a little' })).toEqual({ lean: 'warm', strength: 'a little' });
+    expect(leanOf(-0.04, { lean: 'cold', strength: 'a little' })).toEqual({ lean: 'average' });
+    expect(leanOf(0.04, { lean: 'warm', strength: 'a little' })).toEqual({ lean: 'average' });
+    expect(leanOf(0, { lean: 'cold', strength: 'a little' })).toEqual({ lean: 'average' });
   });
 
   it('treats a non-number as average', () => {

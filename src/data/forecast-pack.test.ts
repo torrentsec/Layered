@@ -129,6 +129,17 @@ describe('unpackForecast', () => {
     expect(unpackForecast(legacy(f))).toEqual(legacy(f));
   });
 
+  it('reads a copy whose columns are shorter than its hour count as missing, not partly filled', () => {
+    const p = JSON.parse(JSON.stringify(packForecast(f)));
+    expect(unpackForecast({ ...p, cols: { ...p.cols, temp: p.cols.temp.slice(0, 10) } })).toBeNull();
+    expect(unpackForecast({ ...p, cols: { ...p.cols, rh: p.cols.rh.slice(0, 10) } })).toBeNull();
+    expect(unpackForecast({ ...p, isDay: p.isDay.slice(0, 10) })).toBeNull();
+    expect(unpackForecast({ ...p, n: p.n + 1 })).toBeNull();
+    expect(unpackForecast({ ...p, times: ['2026-11-26T00:00'] })).toBeNull();
+    expect(unpackForecast({ ...p, n: 'x' })).toBeNull();
+    expect(unpackForecast(p)).not.toBeNull();
+  });
+
   it('rejects anything that is neither format', () => {
     expect(unpackForecast(null)).toBeNull();
     expect(unpackForecast({})).toBeNull();

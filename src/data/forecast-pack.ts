@@ -97,11 +97,27 @@ function unpack(p: PackedForecast): Forecast {
 }
 
 const isPacked = (x: unknown): x is PackedForecast =>
-  typeof x === 'object' && x !== null && (x as PackedForecast).v === PACK_VERSION && typeof (x as PackedForecast).cols === 'object';
+  typeof x === 'object' && x !== null && (x as PackedForecast).v === PACK_VERSION && typeof (x as PackedForecast).cols === 'object' && (x as PackedForecast).cols !== null;
+
+/** A cut-short copy (a partial write, an edited entry) would fill hours with undefined; better to refetch. */
+function complete(p: PackedForecast): boolean {
+  const n = p.n;
+  const fits = (a: unknown) => Array.isArray(a) && a.length === n;
+  return (
+    Number.isInteger(n) &&
+    n >= 0 &&
+    typeof p.t0 === 'string' &&
+    Array.isArray(p.days) &&
+    fits(p.isDay) &&
+    (p.times === undefined || fits(p.times)) &&
+    REQUIRED.every((k) => fits(p.cols[k])) &&
+    OPTIONAL.every((k) => p.cols[k] === undefined || fits(p.cols[k]))
+  );
+}
 
 /** Reads either format: columns from this version on, or the one-object-per-hour copies saved before it. Anything else is null. */
 export function unpackForecast(raw: unknown): Forecast | null {
-  if (isPacked(raw)) return unpack(raw);
+  if (isPacked(raw)) return complete(raw) ? unpack(raw) : null;
   const legacy = raw as Forecast | null;
   return legacy && typeof legacy === 'object' && Array.isArray(legacy.hours) ? legacy : null;
 }

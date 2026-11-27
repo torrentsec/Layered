@@ -1,6 +1,6 @@
 # Reference fixtures
 
-Generated with pythermalcomfort by `scripts/science/generate_fixtures.py`. Tests
+Computed with pythermalcomfort by `scripts/science/generate_fixtures.py`. Tests
 import them directly, for example:
 
 ```ts

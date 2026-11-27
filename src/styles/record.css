@@ -1,0 +1,149 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later
+   Copyright (c) 2026 Daniel Woo */
+
+/* ---------- your record (US-049 to US-052) ---------- */
+
+.record-head p {
+  margin: 0;
+}
+
+.record-rate {
+  font: 500 20px/1.25 var(--font-display);
+}
+
+.record-rate strong {
+  font-weight: 600;
+}
+
+.record-note {
+  margin: 6px 0 0;
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.record-head .record-note {
+  margin-top: 6px;
+}
+
+.record-pad {
+  margin: 0 16px 8px;
+}
+
+.record-sub {
+  font: 600 15px/1.2 var(--font-body);
+  margin: 20px 16px 8px;
+}
+
+.record-chart {
+  margin-inline: 0;
+}
+
+.record-chart figcaption {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.record-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.record-axis,
+.record-value {
+  font: 12px var(--font-body);
+  fill: var(--ink-2);
+}
+
+.record-value {
+  fill: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.record-track {
+  fill: var(--surface-2);
+}
+
+.record-fill {
+  fill: var(--blue);
+}
+
+@media (forced-colors: active) {
+  .record-fill {
+    fill: CanvasText;
+  }
+  .record-track {
+    fill: Canvas;
+    stroke: CanvasText;
+  }
+}
+
+.record-table {
+  background: var(--surface);
+  border-radius: var(--radius);
+  margin: 12px 0;
+  overflow-x: auto;
+}
+
+.record-table:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.record-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.record-table caption {
+  text-align: left;
+  font-weight: 600;
+  padding: 12px 12px 4px;
+}
+
+.record-table th,
+.record-table td {
+  padding: 8px 6px;
+  text-align: right;
+  border-top: 1px solid var(--line);
+}
+
+.record-table th:first-child {
+  text-align: left;
+  padding-left: 12px;
+}
+
+.record-table tr > :last-child {
+  padding-right: 12px;
+}
+
+.record-table thead th {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-2);
+  border-top: 0;
+  vertical-align: bottom;
+}
+
+.record-table tbody th {
+  font-weight: 400;
+}
+
+.record-list {
+  list-style: none;
+  padding: 0;
+}
+
+.record-more {
+  display: block;
+  margin: 0 auto 4px;
+}
+
+.record-danger {
+  color: var(--red-ink);
+}

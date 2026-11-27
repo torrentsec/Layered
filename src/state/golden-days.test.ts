@@ -14,6 +14,7 @@ import type { Activity, Advice } from '../engine/types';
 import { DAILY_VARS, parseForecast } from '../data/forecast-types';
 import { DEFAULT_SETTINGS, type Settings } from '../data/store';
 import { planDay } from './advice';
+import { adviceMargin } from '../data/margin-text';
 
 interface Conditions {
   /** Local start of the walk, YYYY-MM-DDTHH:00. */
@@ -281,5 +282,61 @@ describe('golden days, science engine through the default settings', () => {
     expect(a.science?.target.icl).toBe(a.requirements?.clo?.icl);
     expect(a.science?.utci.utci).toBeLessThan(DAYS.london.ta);
     expect(a.why.rules[0]).toMatch(/^Needs about \d\.\d clo/);
+  });
+});
+
+// Spike #88: how far each golden day is from changing band, through the same
+// path "Why this?" takes. Recorded as evidence, not as a verdict.
+describe('golden days, margin to the next band (spike #88)', () => {
+  it('reruns to the advice band and records the margins', () => {
+    const margins = Object.fromEntries((Object.keys(DAYS) as DayId[]).map((id) => {
+      const a = run(id, DEFAULT_PATH);
+      const c = DAYS[id];
+      const m = adviceMargin(a, { lat: c.lat, lon: c.lon, utcOffsetSeconds: c.utcOffset });
+      expect(m?.band).toBe(a.band);
+      return [id, m];
+    }));
+    expect(margins).toMatchInlineSnapshot(`
+      {
+        "cloudy8": {
+          "band": "coat",
+        },
+        "london": {
+          "band": "coat",
+          "colder": {
+            "band": "bundle",
+            "by": 5,
+          },
+        },
+        "madrid": {
+          "band": "tshirt",
+        },
+        "mild": {
+          "band": "two",
+          "warmer": {
+            "band": "light",
+            "by": 1,
+          },
+        },
+        "oslo": {
+          "band": "bundle",
+          "warmer": {
+            "band": "coat",
+            "by": 3,
+          },
+        },
+        "sunny8": {
+          "band": "two",
+          "colder": {
+            "band": "jacket",
+            "by": 5,
+          },
+          "warmer": {
+            "band": "light",
+            "by": 4,
+          },
+        },
+      }
+    `);
   });
 });

@@ -13,6 +13,8 @@ import type { Activity, Effort } from '../engine/types';
 import { planDay, restOfDay } from '../state/advice';
 import { placeOf } from '../data/day-plan';
 import { feelsRange, heroReading, hourlyFeels } from '../data/why-science';
+import { adviceMargin, marginText } from '../data/margin-text';
+import { flagOn } from '../data/flags';
 import { ExtraChips, FeelsActual, HourlyStrip, LayerList, Limitations, WhyBody } from '../components/AdviceParts';
 import { Hero } from '../components/Hero';
 import { Sheet } from '../components/Sheet';
@@ -59,6 +61,7 @@ export function DayView({ forecast, date, activity, duration, commute, effort, r
   const hero = heroReading(advice, units.temp);
   // The same place the planner hands the science engine, so window hours match "Why this?".
   const stripFeels = advice.science ? hourlyFeels(plan.dayHours, advice, placeOf(forecast)) : undefined;
+  const margin = why && advice.science && flagOn('margin') ? adviceMargin(advice, placeOf(forecast), effort) : undefined;
 
   return (
     <>
@@ -110,7 +113,7 @@ export function DayView({ forecast, date, activity, duration, commute, effort, r
       {footer}
 
       <Sheet open={why} title="Why this?" onClose={() => setWhy(false)}>
-        <WhyBody advice={advice} units={units} />
+        <WhyBody advice={advice} units={units} margin={margin && marginText(margin, units.temp)} />
       </Sheet>
     </>
   );

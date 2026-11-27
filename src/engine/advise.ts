@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Daniel Woo
 
-import { ACTIVITY_OFFSET } from './activity';
+import { effortOffset } from './activity';
 import { bandFor } from './bands';
 import { extrasFor, windowStats } from './extras';
 import { comfortOffset as comfortOffsetFor, type ComfortProfile } from './comfort';
@@ -9,11 +9,13 @@ import { ownership, type Inventory } from './inventory';
 import { learnedFor } from './learning';
 import { matchInventory, withoutCovered } from './match';
 import { requirementsFor } from './requirements';
-import type { Activity, Advice, Hour, Rating } from './types';
+import type { Activity, Advice, Effort, Hour, Rating } from './types';
 
 export interface AdviseInput {
   hours: Hour[];
   activity: Activity;
+  /** Only changes running, cycling and hiking; missing means steady. */
+  effort?: Effort;
   /** Manual offset from Settings, °C. Positive means "I run warm". */
   manualOffset?: number;
   ratings?: Rating[];
@@ -36,7 +38,7 @@ export function advise(input: AdviseInput): Advice | null {
   const maxFeels = Math.max(...hours.map((h) => h.feels));
 
   const manualOffset = input.manualOffset ?? 0;
-  const activityOffset = ACTIVITY_OFFSET[activity];
+  const activityOffset = effortOffset(activity, input.effort);
   const learned = learnedFor(input.ratings ?? [], activity, input.today ?? hours[0].time.slice(0, 10));
   const comfortOffset = input.comfort ? comfortOffsetFor(input.comfort, activity) : 0;
   const effective = round1(coldest.feels + activityOffset + comfortOffset + manualOffset + learned.offset);

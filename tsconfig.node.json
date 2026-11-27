@@ -6,5 +6,5 @@
     "lib": ["ES2022"],
     "types": ["node"]
   },
-  "include": ["vite.config.ts", "vitest.config.ts", "scripts", "test"]
+  "include": ["vite.config.ts", "vitest.config.ts", "scripts", "test", "tests"]
 }

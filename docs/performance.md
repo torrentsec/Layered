@@ -44,7 +44,7 @@ Today screen, median of runs, same machine and script.
 | First / Largest Contentful Paint | 0.75 s | 0.75 s |
 | Total Blocking Time | 16 ms | 18 ms |
 | Cumulative Layout Shift | 0.001 | 0 |
-| Start-up JS (gzip) | 53.5 kB | 38.6 kB |
+| Start-up JS (gzip) | 53.5 kB | 40.7 kB (with #53 and #54 included) |
 | Unused JS at load | 29 kB | 0 kB |
 | Jost 500 request starts | ~95 ms | ~30 ms |
 

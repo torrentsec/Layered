@@ -19,6 +19,7 @@
     "test": "vitest run",
     "test:e2e": "vite build && playwright test -c tests/e2e",
     "icons": "node scripts/icons.mjs",
+    "lighthouse": "node scripts/lighthouse.ts",
     "deploy": "wrangler pages deploy dist --project-name layered --branch main"
   },
   "dependencies": {
@@ -34,6 +35,8 @@
     "@types/node": "^26.6.11",
     "eslint": "^10.15.0",
     "globals": "^17.14.0",
+    "lighthouse": "^13.6.0",
+    "puppeteer-core": "^25.19.0",
     "sharp": "^0.35.5",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.74.0",

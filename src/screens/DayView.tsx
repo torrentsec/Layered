@@ -60,7 +60,8 @@ export function DayView({ forecast, date, activity, duration, commute, effort, r
       <Hero feels={advice.effective} rain={maxRain} onCircleTap={onCircleTap} />
       <div class="readout">
         <div>
-          <div class="feels num" aria-label={`Dress for ${fmtDressFor(advice.effective, units.temp)}`}>{fmtDressFor(advice.effective, units.temp)}</div>
+          {/* Positioned so the hidden text stays inside the swiper rather than widening the page. */}
+          <div class="feels num" style={{ position: 'relative' }}><span class="visually-hidden">Dress for </span>{fmtDressFor(advice.effective, units.temp)}</div>
           <FeelsActual advice={advice} units={units} context={c ? 'across both legs' : plan.legs ? 'across today’s plans' : 'while you’re out'} />
         </div>
         <button type="button" class="text-btn" onClick={() => setWhy(true)}>Why this?</button>

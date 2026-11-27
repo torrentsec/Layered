@@ -24,8 +24,6 @@ export function ToastHost() {
     } catch {
       // Already open: the text has been replaced in place.
     }
-    const ariaNotify = (document as unknown as { ariaNotify?: (s: string) => void }).ariaNotify;
-    ariaNotify?.call(document, m.text);
     const t = setTimeout(() => {
       try {
         el.hidePopover();
@@ -36,11 +34,16 @@ export function ToastHost() {
     return () => clearTimeout(t);
   }, [m?.n]);
 
+  // The live region stays in the tree; a status role on the popover itself is
+  // often not announced, as it goes from hidden to shown and filled at once.
   return (
-    <div role="region" aria-label="Notifications">
-      <div ref={ref} class="toast" popover="manual" role="status">
+    <>
+      <div class="visually-hidden" role="status">
         {m?.text}
       </div>
-    </div>
+      <div ref={ref} class="toast" popover="manual" aria-hidden="true">
+        {m?.text}
+      </div>
+    </>
   );
 }

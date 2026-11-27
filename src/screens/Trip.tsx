@@ -140,7 +140,7 @@ function TripEditor({ initial, onSave, onDelete, onClose }: { initial: TripT; on
       )}
 
       <h2 class="group-title" style={{ margin: '20px 0 8px' }}>You’ll be</h2>
-      <div class="pick" role="group" aria-label="Activities" style={{ flexWrap: 'wrap', margin: 0, padding: 0 }}>
+      <div class="pick" role="group" aria-label="Activities" style={{ flexWrap: 'wrap', margin: 0, padding: 0, overflow: 'visible' }}>
         {ACTIVITIES.map((a: Activity) => (
           <button
             type="button"
@@ -153,6 +153,7 @@ function TripEditor({ initial, onSave, onDelete, onClose }: { initial: TripT; on
         ))}
       </div>
 
+      {!valid && <p class="small-print" style={{ margin: '16px 0 0' }}>Add a destination to save.</p>}
       <div class="sheet-actions">
         {onDelete && <button type="button" class="btn danger" onClick={onDelete} style={{ marginRight: 'auto' }}>Delete</button>}
         <button type="button" class="btn secondary" onClick={onClose}>Cancel</button>
@@ -230,7 +231,7 @@ function TripDetail({ trip, onEdit }: { trip: TripT; onEdit: () => void }) {
                   </h2>
                   {typical && <p class="group-foot" style={{ margin: '0 16px 8px' }}><strong>Typical weather</strong> for dates past the 16-day forecast, from the last five years.</p>}
                   {error && <p class="group-foot stale" style={{ margin: '0 16px 8px' }}>{error}</p>}
-                  <ol class="hourly" aria-label={`Days in ${stop.place.name}`}>
+                  <ol class="hourly" aria-label={`Days in ${stop.place.name}`} tabIndex={0}>
                     {days.map((d) => (
                       <li key={d.date} class="trip-day">
                         <span class="meta">{dayLabel(d.date, todayIso())}</span>

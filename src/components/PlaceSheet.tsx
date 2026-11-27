@@ -56,7 +56,9 @@ export function PlaceSearch({ onPick, label = 'Search for a place' }: { onPick: 
         <span>{label}</span>
         <input type="search" value={q} onInput={(e) => setQ(e.currentTarget.value)} placeholder="City or town" autocomplete="off" enterkeyhint="search" />
       </label>
-      <p class="small-print" aria-live="polite">{busy ? 'Searching…' : error ?? ''}</p>
+      <p class="small-print" aria-live="polite">
+        {busy ? 'Searching…' : (error ?? (results.length ? `${results.length} ${results.length === 1 ? 'place' : 'places'} found` : ''))}
+      </p>
       {results.length > 0 && (
         <ul class="group" style={{ listStyle: 'none', padding: 0, background: 'var(--paper)' }}>
           {results.map((p) => (

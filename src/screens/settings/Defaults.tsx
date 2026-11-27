@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 torrentsec
 
-import { ACTIVITIES, ACTIVITY_LABEL } from '../../engine/activity';
+import { ACTIVITIES, ACTIVITY_EXPOSURE, ACTIVITY_LABEL, COMMUTE_MODES, COMMUTE_MODE_LABEL, type CommuteMode } from '../../engine/activity';
 import type { Activity } from '../../engine/types';
 import { patchSettings, settings } from '../../data/store';
 import { WEEKDAY_SHORT } from '../../data/format';
@@ -17,7 +17,15 @@ export function DefaultsSection() {
     <div class="group">
       <label class="row-item plain">
         <span class="grow">Activity</span>
-        <select value={s.activity} onChange={(e) => patchSettings({ activity: e.currentTarget.value as Activity })}>
+        <select
+          value={s.activity}
+          onChange={(e) => {
+            const activity = e.currentTarget.value as Activity;
+            // An indoor default with a ten-hour window would dress you for a whole day outside.
+            const exposure = ACTIVITY_EXPOSURE[activity];
+            patchSettings(exposure ? { activity, duration: exposure } : { activity });
+          }}
+        >
           {ACTIVITIES.map((a) => <option key={a} value={a}>{ACTIVITY_LABEL[a]}</option>)}
         </select>
       </label>
@@ -42,6 +50,16 @@ export function DefaultsSection() {
       <label class="row-item plain">
         <span class="grow">Head home</span>
         <input type="time" value={s.commute.back} onChange={(e) => patchSettings({ commute: { ...s.commute, back: e.currentTarget.value || s.commute.back } })} />
+      </label>
+      <label class="row-item plain">
+        <span class="grow">Getting there</span>
+        <select
+          value={s.commute.mode ?? ''}
+          onChange={(e) => patchSettings({ commute: { ...s.commute, mode: (e.currentTarget.value || undefined) as CommuteMode | undefined } })}
+        >
+          <option value="">Same as the day</option>
+          {COMMUTE_MODES.map((m) => <option key={m} value={m}>{COMMUTE_MODE_LABEL[m]}</option>)}
+        </select>
       </label>
       <label class="row-item plain">
         <span class="grow">Each way</span>

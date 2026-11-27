@@ -24,7 +24,7 @@ export interface Hour {
   visibility?: number;
 }
 
-export type Activity = 'walking' | 'standing' | 'cycling' | 'transport' | 'running' | 'hiking' | 'night';
+export type Activity = 'walking' | 'standing' | 'cycling' | 'transport' | 'running' | 'hiking' | 'night' | 'office' | 'indoors';
 
 export type LayerKind = 'base' | 'mid' | 'outer';
 export type ItemKind = LayerKind | 'accessory';

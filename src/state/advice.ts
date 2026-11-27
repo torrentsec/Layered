@@ -45,16 +45,17 @@ export function planDay(f: Forecast, date: string, ctx: Ctx): DayPlan | null {
   let commute: CommuteAdvice | undefined;
 
   if (commuteOn) {
+    const leg = { ...base, activity: s.commute.mode ?? activity };
     const out = legWindow(f.hours, date, s.commute.out, s.commute.legHours);
     const back = legWindow(f.hours, date, s.commute.back, s.commute.legHours);
     // Once the morning leg is past, today is just the trip home.
     const outLive = !isToday || out.some((h) => h.time.slice(0, 13) >= now.slice(0, 13));
     const backLive = !isToday || back.some((h) => h.time.slice(0, 13) >= now.slice(0, 13));
     if (outLive && backLive) {
-      commute = adviseCommute(base, out, back, timeFmt(s.units.clock)) ?? undefined;
+      commute = adviseCommute(leg, out, back, timeFmt(s.units.clock)) ?? undefined;
       advice = commute?.advice ?? null;
     } else if (backLive) {
-      advice = advise({ ...base, hours: back.filter((h) => h.time.slice(0, 13) >= now.slice(0, 13)) });
+      advice = advise({ ...leg, hours: back.filter((h) => h.time.slice(0, 13) >= now.slice(0, 13)) });
     }
   }
   if (!advice) {

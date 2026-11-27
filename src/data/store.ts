@@ -18,6 +18,8 @@ export interface Commute {
   legHours: number;
   /** 0 = Sunday, as Date#getDay. */
   days: number[];
+  /** How you travel; unset means the legs follow the day's activity. */
+  mode?: 'walking' | 'cycling' | 'transport';
 }
 
 export interface NotifyPrefs {

@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 torrentsec
 
-import type { Activity } from '../../src/engine/types';
-import type { PushProfile, PushSchedule, SubscribeRequest } from '../../src/data/push-api';
-import { MAX_SUBSCRIBE_BYTES } from '../../src/data/push-api';
+import type { LearnSnapshot } from '../../src/engine/learning';
+import type { Activity, Effort } from '../../src/engine/types';
+import type { PushProfile, PushRoutine, PushSchedule, SubscribeRequest } from '../../src/data/push-api';
+import { MAX_PUSH_ROUTINES, MAX_SUBSCRIBE_BYTES } from '../../src/data/push-api';
 import { fromB64url } from './b64';
 
 export const ACTIVITIES: readonly Activity[] = ['walking', 'standing', 'cycling', 'transport', 'running', 'hiking', 'night', 'office', 'indoors'];
@@ -98,6 +99,13 @@ function profile(v: unknown): PushProfile | string {
   const cd = days(c.days);
   if (!cd) return 'profile.commute.days must be days of the week, 0 to 6';
   if (c.mode !== undefined && !oneOf(c.mode, ACTIVITIES)) return 'profile.commute.mode is not valid';
+  if (v.engine !== undefined && !oneOf(v.engine, ['bands', 'science'])) return 'profile.engine is not valid';
+  if (v.duration !== undefined && (!isNum(v.duration) || v.duration <= 0 || v.duration > 24)) return 'profile.duration is out of range';
+  if (v.bias !== undefined && (!isNum(v.bias) || Math.abs(v.bias) > MAX_BIAS)) return 'profile.bias is out of range';
+  const learned = v.learned === undefined ? undefined : learnSnapshot(v.learned);
+  if (learned === null) return 'profile.learned is not valid';
+  const routines = v.routines === undefined ? undefined : pushRoutines(v.routines);
+  if (routines === null) return 'profile.routines is not valid';
 
   // Rebuilt field by field so nothing unexpected reaches storage.
   return {
@@ -112,7 +120,43 @@ function profile(v: unknown): PushProfile | string {
       ...(comfort.rainTolerance !== undefined && { rainTolerance: comfort.rainTolerance as 'low' | 'medium' | 'high' }),
     },
     commute: { enabled: c.enabled, out: c.out, back: c.back, legHours: c.legHours, days: cd, ...(c.mode !== undefined && { mode: c.mode }) },
+    ...(v.engine !== undefined && { engine: v.engine }),
+    ...(v.duration !== undefined && { duration: v.duration }),
+    ...(v.bias !== undefined && { bias: v.bias }),
+    ...(learned && { learned }),
+    ...(routines && { routines }),
   };
+}
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const EFFORTS: readonly Effort[] = ['easy', 'steady', 'hard'];
+/** The bias engine clamps to ±0.6 clo; a little headroom, nothing that isn't a preference. */
+export const MAX_BIAS = 1;
+/** Far past any real pull (the offset caps at 5°), small enough to mean nothing else. */
+const MAX_LEARN_SUM = 1000;
+const isSum = (n: unknown): n is number => isNum(n) && Math.abs(n) <= MAX_LEARN_SUM;
+
+function learnSnapshot(v: unknown): LearnSnapshot | null {
+  if (!isObj(v) || typeof v.at !== 'string' || !DATE_RE.test(v.at) || !isSum(v.all) || typeof v.any !== 'boolean' || !isObj(v.by)) return null;
+  const by: LearnSnapshot['by'] = {};
+  for (const [k, n] of Object.entries(v.by)) {
+    if (!oneOf(k, ACTIVITIES) || !isSum(n)) return null;
+    by[k] = n;
+  }
+  return { at: v.at, all: v.all, any: v.any, by };
+}
+
+function pushRoutines(v: unknown): PushRoutine[] | null {
+  if (!Array.isArray(v) || v.length > MAX_PUSH_ROUTINES) return null;
+  const out: PushRoutine[] = [];
+  for (const r of v) {
+    if (!isObj(r) || !isHHMM(r.time) || !isNum(r.hours) || r.hours <= 0 || r.hours > 12 || !oneOf(r.activity, ACTIVITIES)) return null;
+    if (r.effort !== undefined && !oneOf(r.effort, EFFORTS)) return null;
+    const d = days(r.days);
+    if (!d) return null;
+    out.push({ time: r.time, hours: r.hours, days: d, activity: r.activity, ...(r.effort !== undefined && { effort: r.effort }) });
+  }
+  return out;
 }
 
 export type ParsedSubscribe = { ok: true; body: SubscribeRequest } | { ok: false; status: 400 | 413; message: string };

@@ -26,7 +26,7 @@ import {
   type PushDeps,
 } from '../../data/push';
 import type { NotifyPrefs } from '../../data/store';
-import { comfort, inventory, patchSettings, ratings, settings } from '../../data/store';
+import { cloBias, comfort, inventory, patchSettings, ratings, routines, settings } from '../../data/store';
 import { planDay } from '../../state/advice';
 import { currentPlace, forecastState, loadForecast } from '../../state/forecast';
 import { toast } from '../../components/Toast';
@@ -72,6 +72,7 @@ const deps: PushDeps = {
       tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
       settings: settings.peek(),
       comfort: comfort.peek(),
+      learning: { bias: cloBias.peek().mean, ratings: ratings.peek(), routines: routines.peek() },
       id,
     });
   },
@@ -113,6 +114,7 @@ export function watchPushSettings(): () => void {
   return effect(() => {
     const s = settings.value;
     const c = comfort.value;
+    const learning = { bias: cloBias.value.mean, ratings: ratings.value, routines: routines.value };
     const place = currentPlace.value;
     const id = s.notify.subscriptionId;
     if (!s.notify.enabled || !id || !place) return;
@@ -122,6 +124,7 @@ export function watchPushSettings(): () => void {
       tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
       settings: s,
       comfort: c,
+      learning,
       id,
     });
     if (requestSignature(probe) !== readSig()) post(id);
@@ -134,7 +137,7 @@ function usePreview(): { text: string; real: boolean } {
   const s = settings.value;
   if (!f) return { text: EXAMPLE, real: false };
   const date = localNow(f.utcOffsetSeconds).slice(0, 10);
-  const plan = planDay(f, date, { settings: s, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value });
+  const plan = planDay(f, date, { settings: s, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value, routines: routines.value });
   return plan ? { text: notificationText(plan.advice, plan.dayHours, timeFmt(s.units.clock)), real: true } : { text: EXAMPLE, real: false };
 }
 

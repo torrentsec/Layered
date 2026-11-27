@@ -5,7 +5,7 @@ import { useState } from 'preact/hooks';
 import type { Forecast } from '../data/forecast-types';
 import { fmtDressFor, fmtTemp } from '../data/units';
 import { timeFmt } from '../data/format';
-import { ratings, settings, wardrobe } from '../data/store';
+import { ratings, settings, inventory, comfort } from '../data/store';
 import { rainSummary } from '../engine/rain';
 import type { Activity } from '../engine/types';
 import { planDay, restOfDay } from '../state/advice';
@@ -30,7 +30,7 @@ export function DayView({ forecast, date, activity, duration, commute, onCircleT
   const s = settings.value;
   const units = s.units;
   const [why, setWhy] = useState(false);
-  const plan = planDay(forecast, date, { settings: s, ratings: ratings.value, wardrobe: wardrobe.value, activity, duration, commute });
+  const plan = planDay(forecast, date, { settings: s, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value, activity, duration, commute });
   const info = forecast.days.find((d) => d.date === date);
   const fmt = timeFmt(units.clock);
 

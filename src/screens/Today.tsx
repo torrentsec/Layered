@@ -11,7 +11,7 @@ import { currentPlace, forecastState, loadForecast } from '../state/forecast';
 import { DayView } from './DayView';
 import { AirChips, FeedbackCard, HeadsUps } from '../components/TodayExtras';
 import { planDay } from '../state/advice';
-import { ratings, wardrobe } from '../data/store';
+import { ratings, inventory, comfort } from '../data/store';
 import { TitleBar } from '../components/TitleBar';
 import { PlaceSheet, placeLabel } from '../components/PlaceSheet';
 import { Segmented } from '../components/Segmented';
@@ -106,7 +106,7 @@ export function Today() {
                 <AirChips lat={place.lat} lon={place.lon} date={date} />
                 <HeadsUps hours={f.hours.filter((h) => h.time.slice(0, 13) >= now.slice(0, 13)).slice(0, 24)} units={s.units} />
                 {(() => {
-                  const plan = planDay(f, date, { settings: s, ratings: ratings.value, wardrobe: wardrobe.value, activity, duration });
+                  const plan = planDay(f, date, { settings: s, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value, activity, duration });
                   return plan ? <FeedbackCard now={now} advice={plan.advice} activity={activity} /> : null;
                 })()}
               </>

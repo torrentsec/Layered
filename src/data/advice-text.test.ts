@@ -59,8 +59,9 @@ describe('insulationWords', () => {
 
 describe('needsRows', () => {
   it('describes a wet, windy cold day in plain words', () => {
+    // 4.5° sits mid-band, clear of the edge hedge that would add a "Layers" row.
     const r = requirementsFor({
-      effective: 3,
+      effective: 4.5,
       band: 'coat',
       stats: { maxGust: 50, maxWind: 20 } as never,
       extras: [{ id: 'waterproof', label: '', tone: 'rain', reason: '' }],

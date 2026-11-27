@@ -6,7 +6,7 @@ import { ACTIVITIES, ACTIVITY_LABEL } from '../engine/activity';
 import { packingText } from '../engine/packing';
 import type { Activity } from '../engine/types';
 import { addDays, dayLabel, longDate } from '../data/format';
-import { ratings, settings, trips, uid, wardrobe, type Trip as TripT, type TripStop } from '../data/store';
+import { ratings, settings, trips, uid, inventory, comfort, type Trip as TripT, type TripStop } from '../data/store';
 import { orderedStops, planTrip, type TripPlan } from '../data/trip';
 import { fmtTemp } from '../data/units';
 import { go, href, route } from '../router';
@@ -173,7 +173,7 @@ function TripDetail({ trip, onEdit }: { trip: TripT; onEdit: () => void }) {
   useEffect(() => {
     let live = true;
     setFailed(false);
-    planTrip({ ...trip, stops: orderedStops(trip.stops) }, { manualOffset: s.manualOffset, ratings: ratings.value, wardrobe: wardrobe.value, today: todayIso() })
+    planTrip({ ...trip, stops: orderedStops(trip.stops) }, { manualOffset: s.manualOffset, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value, today: todayIso() })
       .then((p) => live && setPlan(p))
       .catch(() => live && setFailed(true));
     return () => {

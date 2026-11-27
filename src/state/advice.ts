@@ -9,7 +9,9 @@ import type { Activity, Advice, Hour } from '../engine/types';
 import type { Forecast } from '../data/forecast-types';
 import { timeFmt, weekday } from '../data/format';
 import type { Settings } from '../data/store';
-import type { Rating, WardrobeItem } from '../engine/types';
+import type { Rating } from '../engine/types';
+import type { Inventory } from '../engine/inventory';
+import type { ComfortProfile } from '../engine/comfort';
 
 export interface DayPlan {
   advice: Advice;
@@ -22,7 +24,8 @@ export interface DayPlan {
 interface Ctx {
   settings: Settings;
   ratings: Rating[];
-  wardrobe: WardrobeItem[];
+  inventory: Inventory;
+  comfort: ComfortProfile;
   activity?: Activity;
   duration?: number;
   commute?: boolean;
@@ -38,7 +41,7 @@ export function planDay(f: Forecast, date: string, ctx: Ctx): DayPlan | null {
   const activity = ctx.activity ?? s.activity;
   const now = localNow(f.utcOffsetSeconds);
   const isToday = now.startsWith(date);
-  const base = { activity, manualOffset: s.manualOffset, ratings: ctx.ratings, today: now.slice(0, 10), wardrobe: ctx.wardrobe };
+  const base = { activity, manualOffset: s.manualOffset, ratings: ctx.ratings, today: now.slice(0, 10), inventory: ctx.inventory, comfort: ctx.comfort };
 
   const commuteOn = ctx.commute ?? (s.commute.enabled && s.commute.days.includes(weekday(date)));
   let advice: Advice | null = null;

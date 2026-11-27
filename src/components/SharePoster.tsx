@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { Forecast } from '../data/forecast-types';
 import { longDate } from '../data/format';
-import { ratings, settings, wardrobe } from '../data/store';
+import { ratings, settings, inventory, comfort } from '../data/store';
 import { fmtTemp } from '../data/units';
 import type { Activity } from '../engine/types';
 import { planDay } from '../state/advice';
@@ -44,7 +44,7 @@ export function SharePoster({ forecast, date, place, activity, duration }: Props
   const onShare = async () => {
     haptic();
     const s = settings.value;
-    const plan = planDay(forecast, date, { settings: s, ratings: ratings.value, wardrobe: wardrobe.value, activity, duration });
+    const plan = planDay(forecast, date, { settings: s, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value, activity, duration });
     if (!plan) {
       toast('Nothing to share yet');
       return;

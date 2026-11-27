@@ -7,10 +7,12 @@ import { headsUps } from '../headsups';
 import { airChips, level } from '../air';
 import { packingList, packingText } from '../packing';
 import { notificationText } from '../notify';
-import type { Hour, WardrobeItem } from '../types';
+import type { Hour } from '../types';
+import type { Inventory } from '../inventory';
+import { bandFor } from '../bands';
 import { day } from './fixtures';
 
-const a = (hours: Hour[], wardrobe: WardrobeItem[] = []) => advise({ hours, activity: 'walking', wardrobe })!;
+const a = (hours: Hour[], inventory: Inventory = {}) => advise({ hours, activity: 'walking', inventory })!;
 
 describe('heads-ups', () => {
   const id = (h: Hour[]) => headsUps(h).map((x) => x.id);
@@ -79,43 +81,46 @@ describe('packing', () => {
   });
 });
 
-describe('wardrobe', () => {
-  const items: WardrobeItem[] = [
-    { id: '1', name: 'Navy puffer', layer: 'outer', warmth: 4, waterproof: false, windproof: true },
-    { id: '2', name: 'Yellow mac', layer: 'outer', warmth: 2, waterproof: true, windproof: true },
-    { id: '3', name: 'Grey merino', layer: 'mid', warmth: 3, waterproof: false, windproof: false },
-    { id: '4', name: 'Black beanie', layer: 'accessory', warmth: 2, waterproof: false, windproof: false },
-  ];
-  it('picks the outer layer whose warmth fits', () => {
-    expect(a(day(2, () => ({ feels: 4 })), items).layers.find((l) => l.kind === 'outer')?.item?.name).toBe('Navy puffer');
-    expect(a(day(2, () => ({ feels: 9 })), items).layers.find((l) => l.kind === 'outer')?.item?.name).toBe('Yellow mac');
+describe('inventory in advice', () => {
+  const inv: Inventory = {
+    'insulated-jacket': { counts: { medium: 1, thin: 0, thick: 0 }, nickname: 'navy puffer', water: 'none' },
+    'waterproof-jacket': { counts: { thin: 1, medium: 0, thick: 0 }, nickname: 'yellow mac' },
+    jumper: { counts: { thin: 0, medium: 1, thick: 1 } },
+  };
+  const outer = (adv: ReturnType<typeof a>) => adv.layers.find((l) => l.kind === 'outer');
+  it('picks the outer layer whose thickness fits', () => {
+    expect(outer(a(day(2, () => ({ feels: 4 })), inv))?.nickname).toBe('navy puffer');
+    expect(outer(a(day(2, () => ({ feels: 9 })), inv))?.nickname).toBe('yellow mac');
   });
-  it('prefers a waterproof when rain is likely', () => {
-    const wax: WardrobeItem = { id: '5', name: 'Wax jacket', layer: 'outer', warmth: 3, waterproof: true, windproof: true };
-    const dry = a(day(2, () => ({ feels: 5 })), [...items, wax]);
-    expect(dry.layers.find((l) => l.kind === 'outer')?.item?.name).toBe('Navy puffer');
-    const wet = a(day(2, () => ({ feels: 5, precipProb: 80 })), [...items, wax]);
-    expect(wet.layers.find((l) => l.kind === 'outer')?.item?.name).toBe('Wax jacket');
-    expect(wet.extras.map((e) => e.id)).not.toContain('waterproof');
-  });
-  it('keeps a warm coat over a thin waterproof, and still says waterproof', () => {
-    const adv = a(day(2, () => ({ feels: 5, precipProb: 80 })), items);
-    expect(adv.layers.find((l) => l.kind === 'outer')?.item?.name).toBe('Navy puffer');
-    expect(adv.extras.map((e) => e.id)).toContain('waterproof');
+  it('trades a thicker jumper for a waterproof shell in the rain', () => {
+    const wet = a(day(2, () => ({ feels: 5, precipProb: 80 })), inv);
+    expect(outer(wet)?.category).toBe('waterproof-jacket');
+    expect(wet.layers.find((l) => l.kind === 'mid')?.thickness).toBe('thick');
   });
   it('adds a shell when the band has no outer layer', () => {
-    const adv = a(day(2, () => ({ feels: 14, precipProb: 80 })), items);
-    expect(adv.layers.at(-1)?.item?.name).toBe('Yellow mac');
+    expect(a(day(2, () => ({ feels: 14, precipProb: 80 })), inv).layers.find((l) => l.kind === 'outer')?.nickname).toBe('yellow mac');
   });
-  it('names matching accessories', () => {
-    expect(a(day(2, () => ({ feels: 1 })), items).extras.find((e) => e.id === 'hat')?.item?.name).toBe('Black beanie');
+  it('drops the umbrella when you have none', () => {
+    const wet = day(2, () => ({ feels: 14, precipProb: 40 }));
+    expect(a(wet).extras.map((e) => e.id)).toContain('umbrella');
+    expect(a(wet, { umbrella: { counts: { medium: 0 } } }).extras.map((e) => e.id)).not.toContain('umbrella');
   });
-  it('falls back to generic advice when nothing fits', () => {
-    const adv = a(day(2, () => ({ feels: -5 })), [items[1]]);
-    expect(adv.layers.find((l) => l.kind === 'outer')?.item).toBeUndefined();
+  it('fills requirements and comfort offset', () => {
+    const adv = advise({ hours: day(2, () => ({ feels: 10 })), activity: 'walking', comfort: { sensitivity: 'cold' } })!;
+    expect(adv.why.comfortOffset).toBe(-2);
+    expect(adv.effective).toBe(8);
+    expect(adv.requirements?.band).toBe('jacket');
+    expect(adv.limitations).toEqual([]);
   });
-  it('works with an empty wardrobe', () => {
-    expect(a(day(2, () => ({ feels: 4 }))).layers.every((l) => !l.item)).toBe(true);
+  it('keeps generic layers with an empty inventory', () => {
+    for (const feels of [-5, 4, 9, 14, 19, 25]) {
+      const adv = a(day(2, () => ({ feels })));
+      expect(adv.layers.map(({ kind, label, optional }) => ({ kind, label, optional }))).toEqual(
+        bandFor(adv.effective).layers.map(({ kind, label, optional }) => ({ kind, label, optional })),
+      );
+      expect(adv.layers.every((l) => l.owned === 'unknown' && !l.category)).toBe(true);
+      expect(adv.alternatives).toEqual([]);
+    }
   });
 });
 

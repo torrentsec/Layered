@@ -9,6 +9,7 @@
 
 import type { Hour } from '../types';
 import { estimateRadiation, meanRadiantTemp, splitGhi, sunForHourMean, sunPosition } from './radiation';
+import { SITES, siteOf } from './site';
 import type { HourToWeatherFn, Radiation, SunPosition, Weather } from './types';
 
 /** MET Norway's parser assumes the same when a step has no humidity. */
@@ -60,7 +61,8 @@ function forecastRadiation(h: Hour, sun: SunPosition): Radiation | null {
 export const hourToWeather: HourToWeatherFn = (h, place): Weather => {
   const ta = h.temp;
   const rh = finite(h.rh) ? h.rh : DEFAULT_RH;
-  const wind10 = finite(h.wind) ? Math.max(0, h.wind) * KMH : 0;
+  const site = siteOf(place.site);
+  const wind10 = finite(h.wind) ? Math.max(0, h.wind) * KMH * SITES[site].windFactor : 0;
   const cloud = finite(h.cloud) ? h.cloud / 100 : cloudFromCode(h.code);
   const at = utcMs(h.time, finite(place.utcOffsetSeconds) ? place.utcOffsetSeconds : 0);
   if (!finite(place.lat) || !finite(place.lon) || !Number.isFinite(at)) {
@@ -71,9 +73,9 @@ export const hourToWeather: HourToWeatherFn = (h, place): Weather => {
   const meanSun = sunForHourMean(place.lat, place.lon, at);
   const forecast = forecastRadiation(h, meanSun);
   if (forecast) {
-    return { ta, rh, wind10, tmrt: meanRadiantTemp(ta, rh, cloud, meanSun, forecast), radiation: 'forecast' };
+    return { ta, rh, wind10, tmrt: meanRadiantTemp(ta, rh, cloud, meanSun, forecast, site), radiation: 'forecast' };
   }
   const sun = sunPosition(place.lat, place.lon, at);
   const estimated = estimateRadiation(sun, cloud);
-  return { ta, rh, wind10, tmrt: meanRadiantTemp(ta, rh, cloud, sun, estimated), radiation: 'estimated' };
+  return { ta, rh, wind10, tmrt: meanRadiantTemp(ta, rh, cloud, sun, estimated, site), radiation: 'estimated' };
 };

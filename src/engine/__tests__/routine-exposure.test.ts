@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { advise, mergedScience } from '../advise';
-import { adviseLegs, routineLegs, type Leg } from '../routines';
+import { adviseLegs, routineExposure, routineLegs, type Leg } from '../routines';
 import type { Advice } from '../types';
 import { day } from './fixtures';
 
@@ -18,6 +18,23 @@ describe('routine legs dress for their own length (#77)', () => {
     const [leg] = routineLegs(hours, '2026-11-26', [dogWalk]);
     expect(leg.hours).toHaveLength(2);
     expect(leg.exposureHours).toBe(0.5);
+  });
+
+  it.each([
+    ['before it starts', '2026-11-26T06:00', 3],
+    ['two hours in', '2026-11-26T11:00', 1],
+    ['once it is over', '2026-11-26T12:30', 0],
+    ['on another day', '2026-11-25T11:00', 3],
+    ['without a clock', undefined, 3],
+  ])('counts only the time left of a routine under way: %s', (_, now, left) => {
+    expect(routineExposure('2026-11-26', { time: '09:00', hours: 3 }, now)).toBe(left);
+  });
+
+  it('gives a routine in progress what is left of it', () => {
+    const hike = { ...dogWalk, id: 'hike', time: '09:00', hours: 3 };
+    const [leg] = routineLegs(hours, '2026-11-26', [hike], '2026-11-26T11:00');
+    expect(leg.hours.map((h) => h.time.slice(11, 13))).toEqual(['11']);
+    expect(leg.exposureHours).toBe(1);
   });
 
   it('passes that length to the science engine, not the hours it touches', () => {

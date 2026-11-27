@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 torrentsec
 
-import { advise, type AdviseInput } from './advise';
+import { advise, colderThan, mergedScience, type AdviseInput } from './advise';
 import { bandRank } from './bands';
 import { wetFrom } from './rain';
 import { fmt24, type TimeFormatter } from './time';
@@ -37,7 +37,7 @@ export function adviseCommute(
   const back = advise({ ...base, hours: backHours });
   if (!out || !back) return null;
 
-  const colder = back.effective < out.effective ? 'back' : 'out';
+  const colder = colderThan(back, out) ? 'back' : 'out';
   const cold = colder === 'out' ? out : back;
 
   const seen = new Set<string>();
@@ -69,6 +69,7 @@ export function adviseCommute(
     minFeels: Math.min(out.minFeels, back.minFeels),
     maxFeels: Math.max(out.maxFeels, back.maxFeels),
     hours: [...outHours, ...backHours],
+    ...(cold.science ? { science: mergedScience(cold, [out, back]) } : {}),
     why: { ...cold.why, rules: [`Dressing for ${legName[colder]}, the colder leg`, ...cold.why.rules, ...notes] },
   };
   return { advice, out, back, colder, notes };

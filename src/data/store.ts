@@ -5,6 +5,8 @@ import { effect, signal, type Signal } from '@preact/signals';
 import type { Activity, Effort, Rating, WardrobeItem } from '../engine/types';
 import type { Inventory } from '../engine/inventory';
 import { DEFAULT_COMFORT, type ComfortProfile } from '../engine/comfort';
+import type { BiasState } from '../engine/science/types';
+import { biasPrior, replayBias } from '../engine/science/personal';
 import type { Place } from './openmeteo';
 import { DEFAULT_UNITS, type Units } from './units';
 
@@ -60,6 +62,8 @@ export interface Settings {
   syncCode?: string;
   syncedAt?: number;
   installHintSeen?: boolean;
+  /** Developer flag: which engine dresses Today. Missing means 'bands'. */
+  engine?: 'bands' | 'science';
 }
 
 export interface TripStop {
@@ -152,6 +156,17 @@ export const history = persisted<DayRecord[]>('history', []);
 export const onboarded = persisted<boolean>('onboarded', false);
 export const trips = persisted<Trip[]>('trips', []);
 export const ratings = persisted<Rating[]>('ratings', []);
+/**
+ * Personal clo bias for the science engine. Derived from the comfort profile,
+ * the manual offset and every stored vote, and rebuilt when any of them
+ * changes, so a replaced or imported vote is never counted twice.
+ */
+export const cloBias = persisted<BiasState>('cloBias', biasPrior(DEFAULT_COMFORT, 0));
+effect(() => {
+  const next = replayBias(biasPrior(comfort.value, settings.value.manualOffset), ratings.value);
+  // Settings change for many reasons; skip the write when the bias itself hasn't moved.
+  if (JSON.stringify(next) !== JSON.stringify(cloBias.peek())) cloBias.value = next;
+});
 /** Last device location, kept so "Here" works offline. */
 export const here = persisted<Place | null>('here', null);
 
@@ -173,6 +188,8 @@ export interface Bundle {
   history?: DayRecord[];
   trips: Trip[];
   ratings: Rating[];
+  /** Carried for other readers of the file; on import it is rebuilt from the votes above. */
+  cloBias?: BiasState;
 }
 
 export function exportBundle(): Bundle {
@@ -189,6 +206,7 @@ export function exportBundle(): Bundle {
     history: history.value,
     trips: trips.value,
     ratings: ratings.value,
+    cloBias: cloBias.value,
   };
 }
 

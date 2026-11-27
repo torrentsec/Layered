@@ -54,12 +54,61 @@ Production smoke test after the Sprint 4 deploy: page, `/api/push/key`, `/api/fo
 
 ## Daily Scrum
 
-_Recorded per wave._
+The Developers coordinated on the team board: 53 entries, 15 questions and answers between Developers, 6 peer reviews. The SM read the board at each hand-back and removed impediments.
+
+| Developer | Item | Collaboration on the board |
+|---|---|---|
+| dev-09 | #70 bias from votes | Agreed with dev-07 to hand the bias over as a plain number; took dev-08's review finding and shared `sensitivityOffset` instead of repeating it; reviewed dev-10 and dropped two findings after checking them against `main` |
+| dev-08 | #68 Hour → Weather, cycling | Proposed `airSpeedAtBody` so the wind-plus-ride sum exists once; told dev-07 the new `ensembleClo` shape; reviewed dev-09 |
+| dev-10 | #71 "Why this?" | Proposed the `ScienceWhy` shape to dev-07 before either wrote code; reviewed dev-06 and found missing tests, an inline copy of the air-speed sum and a heat-rule edge |
+| dev-07 | #69 science behind the flag | Coded against claimed interfaces with test doubles; posted three failing golden days to dev-06 instead of patching their code; reviewed dev-08 |
+| dev-06 | #67 clothing target | Retuned the target after dev-07's golden-day failures; fixed dev-10's findings; reviewed dev-07 and found a NaN coldest-hour bug |
+
+**Impediments:**
+- **Usage limit.** Four Developers stopped mid-wave and resumed after the reset; nothing was lost.
+- **Rebased branches couldn't be pushed.** "Rebase before reporting" rewrites a branch that is already on GitHub, and force-pushes are refused, so dev-08's and dev-09's rebased branches stayed local. The SM integrated from the local refs.
+- **Stakeholder request mid-Sprint:** neutral location and credit (#74). Developers were told on the board; the SM fixed the remaining headers at integration.
+
+**Integration:** one seam. dev-07 had merged earlier copies of dev-06's and dev-08's files; the owners' current versions were kept. Fix-up wave: dev-06 switched to `airSpeedAtBody`, dev-07 fixed the NaN coldest hour. Combined: 1,585 tests, e2e, typecheck, lint and build pass.
 
 ## Sprint Review
 
-_After the Increment is deployed._
+**Sprint Goal met.** Behind `settings.engine: 'science'`, advice comes from the thermal model and every golden day gives the PO's expected verdict. The band engine is unchanged, and a test proves it.
+
+| Day | Expected | Band engine | Science engine |
+|---|---|---|---|
+| London, 26 Nov | `coat` | `bundle` | `coat` (1.38 clo), waterproof outer |
+| Mild and sunny | `two` | `two` | `two` (0.70–0.82 clo, near an edge) |
+| Madrid, summer | `tshirt` | `tshirt` | `tshirt`, sunscreen |
+| Oslo, January | `bundle` | `bundle` | `bundle` (1.65 clo), hat and gloves |
+| Sun against cloud | Clear day lighter | `coat` vs `bundle` | `two` vs `coat` |
+| Cycling | Same or warmer, windproof | `bundle` | `coat`, windproof outer |
+
+The science engine beats the band engine where it matters: it no longer overdresses a cold, wet London day, and it gives the sun credit. "Why this?" explains the advice in plain words with clo and UTCI as detail, and feels-like sits beside the real temperature.
+
+**Tests:** 1,480 → 1,585.
+
+**Product Backlog changes (PO):**
+- **Sprint 6: switch-over.** Make the science engine the default; remove the band engine's insulation rules (tech debt D2).
+- **New items found this Sprint:** a settings control for the engine; routine legs should use the routine's own length as exposure; commute and routine feels-like ranges merged across legs; the hero number and hourly strip should show UTCI under the science engine; the mild golden day sits on a band edge (watch after switch-over).
+- **Tech debt:** D3 (Graphify index) is paid off: the index now follows `main`.
 
 ## Sprint Retrospective
 
-_After the Review._
+**What went well**
+- **The Developers ran the how.** Interfaces were agreed on the board before code, shared helpers were claimed once, failures went to the owner instead of being patched, and every branch had a peer review. The SM wrote no feature code.
+- **No duplicate implementations.** Reviews caught the one inline copy (the air-speed sum) and its owner removed it.
+- **Peer reviews found real bugs.** A NaN coldest hour, missing tests, a heat-rule edge. Reviewers also checked their own findings and dropped two that were wrong.
+- **Golden days written first.** The PO's expected verdicts drove the target's tuning instead of being fitted afterwards.
+
+**What didn't**
+- **Rebase versus no force-push.** The brief's "rebase before reporting" can't work once a branch is on GitHub. Two Developers ended with local-only branches.
+- **Early merges of moving branches.** dev-07 merged copies of dependencies before their owners finished, which caused the one integration seam.
+- **Usage limit mid-wave** again stopped four Developers.
+- **Old headers in new files.** The credit change landed mid-Sprint and only one Developer updated their files.
+- **The SM tried to archive the raw board in the repo.** It holds workspace paths, so it was blocked; the Daily Scrum above summarises it instead.
+
+**Improvements committed for Sprint 6**
+1. **Merge, don't rebase, once pushed.** Developers merge `origin/main` into a branch that is already on GitHub; rebase only before the first push.
+2. **Depend on pushed commits, named on the board.** A Developer who needs another's work merges the commit hash the owner posts as stable, and re-merges when the owner posts a newer one.
+3. **Per-story history.** The Sprint PR is merged with a merge commit so each story's commits stay visible on `main` (tech debt D5).

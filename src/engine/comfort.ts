@@ -31,13 +31,18 @@ export const ACTIVE_ACTIVITIES: readonly Activity[] = ['walking', 'hiking', 'run
 // An office day's exposure is mostly waiting at stops and crossings.
 export const STILL_ACTIVITIES: readonly Activity[] = ['standing', 'transport', 'night', 'office'];
 
+/** °C for the base sensitivity alone, without the per-activity preferences. */
+export function sensitivityOffset(profile: ComfortProfile): number {
+  // Imported or synced profiles may carry a sensitivity from a later version.
+  return SENSITIVITY_OFFSET[profile.sensitivity] ?? 0;
+}
+
 /**
  * Offset from the comfort profile for an activity, applied alongside the
  * activity offset and the manual and learned offsets.
  */
 export function comfortOffset(profile: ComfortProfile, activity: Activity): number {
-  // Imported or synced profiles may carry a sensitivity from a later version.
-  let offset = SENSITIVITY_OFFSET[profile.sensitivity] ?? 0;
+  let offset = sensitivityOffset(profile);
   if (profile.overheatWhenWalking && ACTIVE_ACTIVITIES.includes(activity)) offset += OVERHEAT_WHEN_ACTIVE_OFFSET;
   if (profile.coldWhenStill && STILL_ACTIVITIES.includes(activity)) offset += COLD_WHEN_STILL_OFFSET;
   return offset;

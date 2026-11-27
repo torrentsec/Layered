@@ -3,7 +3,7 @@
 
 import { advise, type AdviseInput } from './advise';
 import { bandRank } from './bands';
-import { firstWet, wetWord } from './rain';
+import { wetFrom } from './rain';
 import { fmt24, type TimeFormatter } from './time';
 import type { Advice, Extra, Hour } from './types';
 
@@ -20,8 +20,8 @@ const legName = { out: 'the way there', back: 'the way home' } as const;
 
 function differenceNote(e: Extra, leg: 'out' | 'back', hours: Hour[], fmt: TimeFormatter): string {
   if (e.tone === 'rain') {
-    const wet = firstWet(hours);
-    const when = wet ? ` — ${wetWord(hours)} from ${fmt(wet.time)}` : '';
+    const wet = wetFrom(hours, fmt);
+    const when = wet ? ` — ${wet}` : '';
     return `${e.label} for ${legName[leg]}${when}`;
   }
   return `${e.label} for ${legName[leg]}`;

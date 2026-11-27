@@ -129,7 +129,7 @@ describe('notification text', () => {
     const hours = day(12, (i) => ({ feels: 5, ...(i >= 8 ? { precipProb: 60, code: 80, precip: 0.4 } : {}) }));
     const adv = a(hours.slice(0, 2));
     expect(notificationText({ ...adv, extras: [...adv.extras, { id: 'umbrella', label: 'Umbrella', tone: 'rain', reason: '' }] }, hours)).toBe(
-      'Coat + umbrella today · showers from 16:00',
+      'Coat + umbrella today · showers from around 16:00',
     );
   });
   it('says dry when it is', () => {

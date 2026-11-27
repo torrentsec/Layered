@@ -4,7 +4,8 @@
 import { useEffect, useRef } from 'preact/hooks';
 import { localNow } from '../engine/time';
 import { fmtTemp } from '../data/units';
-import { dayLabel, longDate } from '../data/format';
+import { dayLabel, daysBetween, longDate } from '../data/format';
+import { CERTAINTY_LABEL, certaintyFor } from '../engine/certainty';
 import { ratings, settings, inventory, comfort } from '../data/store';
 import { currentPlace, forecastState, loadForecast } from '../state/forecast';
 import { planDay } from '../state/advice';
@@ -53,13 +54,16 @@ export function Week() {
         <ul class="group days" style={{ listStyle: 'none', padding: 0 }}>
           {days.map((d) => {
             const plan = planDay(f, d.date, { settings: s, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value });
+            const marker = CERTAINTY_LABEL[certaintyFor(daysBetween(today, d.date), plan?.advice.hours ?? [])];
             return (
               <li key={d.date}>
                 <a class="row-item day-row" href={href('week', d.date)} style={{ color: 'inherit', textDecoration: 'none' }}>
                   <MiniMark feels={plan?.advice.effective ?? d.feelsMin} rain={d.precipProbMax} />
                   <span class="grow">
                     <strong>{dayLabel(d.date, today)}</strong>
-                    <span class="sub">{plan ? [plan.advice.verdict, outerText(plan.advice.layers)].filter(Boolean).join(' · ') : '—'}{d.precipProbMax >= 30 ? ` · ${Math.round(d.precipProbMax)}% rain` : ''}</span>
+                    <span class="sub">{plan ? [plan.advice.verdict, outerText(plan.advice.layers)].filter(Boolean).join(' · ') : '—'}{d.precipProbMax >= 30 ? ` · ${Math.round(d.precipProbMax)}% rain` : ''}
+                      {marker && <> · <span class="certainty">{marker}</span></>}
+                    </span>
                   </span>
                   <span class="range num" aria-label={`Feels ${fmtTemp(d.feelsMin, u.temp)} to ${fmtTemp(d.feelsMax, u.temp)}`}>
                     {fmtTemp(d.feelsMin, u.temp)} <span style={{ color: 'var(--ink-2)' }}>/</span> {fmtTemp(d.feelsMax, u.temp)}

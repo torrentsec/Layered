@@ -31,9 +31,33 @@ export function firstWet(hours: Hour[]): Hour | undefined {
 }
 
 /**
- * One plain-English sentence about rain across `hours`, e.g. "Dry until
- * 15:00, then showers". Callers pass the rest of the day; the sentence talks
- * about "all day" only if the range runs to the evening.
+ * Hourly data can't pin a start to the minute, so every forecast time is
+ * hedged; a sentence that sounds exact is where trust breaks when it's wrong.
+ */
+const around = (fmt: TimeFormatter, h: Hour) => `around ${fmt(h.time)}`;
+const about = (fmt: TimeFormatter, h: Hour) => `about ${fmt(h.time)}`;
+
+/**
+ * The wet hours' peak chance, as " (70% chance)". Left off when rain is near
+ * certain, where the figure adds nothing, and when an hour is wet only by its
+ * measured amount, where "20% chance" next to "Rain" reads as a contradiction.
+ */
+export function chanceNote(hours: Hour[]): string {
+  const peak = Math.max(0, ...hours.filter(isWet).map((h) => h.precipProb));
+  return peak >= 40 && peak < 95 ? ` (${Math.round(peak)}% chance)` : '';
+}
+
+/** e.g. "showers from around 16:00", shared by the notification and commute notes. */
+export function wetFrom(hours: Hour[], fmt: TimeFormatter = fmt24): string | undefined {
+  const wet = firstWet(hours);
+  return wet ? `${wetWord(hours)} from ${around(fmt, wet)}` : undefined;
+}
+
+/**
+ * One plain-English sentence about rain across `hours`, e.g. "Dry until about
+ * 15:00, then rain (70% chance)". Callers pass the rest of the day; the
+ * sentence talks about "all day" only if the range runs to the evening. The
+ * range's own end is exact, since it's ours rather than the forecast's.
  */
 export function rainSummary(hours: Hour[], fmt: TimeFormatter = fmt24): string {
   if (!hours.length) return '';
@@ -42,26 +66,31 @@ export function rainSummary(hours: Hour[], fmt: TimeFormatter = fmt24): string {
   const end = hours[hours.length - 1];
   const toEvening = hourOf(end.time) >= 20 || end.time.slice(0, 10) !== hours[0].time.slice(0, 10);
   const span = toEvening ? 'all day' : `until ${fmt(end.time)}`;
+  const chance = chanceNote(hours);
 
   if (!wet.some(Boolean)) return toEvening ? 'Dry all day' : `Dry ${span}`;
-  if (wet.every(Boolean)) return `${cap(word)} ${span}`;
+  if (wet.every(Boolean)) return `${cap(word)} ${span}${chance}`;
 
   const firstWetIdx = wet.indexOf(true);
   const firstDryIdx = wet.indexOf(false);
 
   if (firstWetIdx === 0) {
     const backIdx = wet.indexOf(true, firstDryIdx);
-    const clears = fmt(hours[firstDryIdx].time);
+    const clears = about(fmt, hours[firstDryIdx]);
     if (backIdx < 0) return `${cap(word)} clearing by ${clears}`;
-    return `${cap(word)} easing by ${clears}, back from ${fmt(hours[backIdx].time)}`;
+    return `${cap(word)} easing by ${clears}, back from ${around(fmt, hours[backIdx])}${chance}`;
   }
 
-  const startsAt = fmt(hours[firstWetIdx].time);
+  const starts = hours[firstWetIdx];
   const dryAgainIdx = wet.indexOf(false, firstWetIdx);
-  if (dryAgainIdx < 0) return `Dry until ${startsAt}, then ${word}`;
+  if (dryAgainIdx < 0) {
+    // Showers come and go, so "dry until" would promise too much of the hours before.
+    if (word === 'showers') return `Showers from ${around(fmt, starts)}${chance}`;
+    return `Dry until ${about(fmt, starts)}, then ${word}${chance}`;
+  }
   const anotherIdx = wet.indexOf(true, dryAgainIdx);
   if (anotherIdx < 0) {
-    return `${cap(word)} ${startsAt}–${fmt(hours[dryAgainIdx].time)}, otherwise dry`;
+    return `${cap(word)} from ${around(fmt, starts)} to ${fmt(hours[dryAgainIdx].time)}, otherwise dry${chance}`;
   }
-  return `Dry until ${startsAt}, then on and off ${word}`;
+  return `On and off ${word} from ${around(fmt, starts)}${chance}`;
 }

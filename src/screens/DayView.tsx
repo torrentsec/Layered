@@ -4,12 +4,14 @@
 import { useState } from 'preact/hooks';
 import type { Forecast } from '../data/forecast-types';
 import { fmtDressFor, fmtTemp } from '../data/units';
-import { timeFmt } from '../data/format';
+import { daysBetween, timeFmt } from '../data/format';
 import { ratings, settings, inventory, comfort } from '../data/store';
+import { ROUGH_GUIDE_NOTE, certaintyFor, hedgeRequirements } from '../engine/certainty';
 import { rainSummary } from '../engine/rain';
+import { localNow } from '../engine/time';
 import type { Activity } from '../engine/types';
 import { planDay, restOfDay } from '../state/advice';
-import { ExtraChips, HourlyStrip, LayerList, Limitations, WhyBody } from '../components/AdviceParts';
+import { ExtraChips, FeelsActual, HourlyStrip, LayerList, Limitations, WhyBody } from '../components/AdviceParts';
 import { Hero } from '../components/Hero';
 import { Sheet } from '../components/Sheet';
 
@@ -42,7 +44,11 @@ export function DayView({ forecast, date, activity, duration, commute, onCircleT
       </div>
     );
   }
-  const { advice, commute: c } = plan;
+  const { commute: c } = plan;
+  const certainty = certaintyFor(daysBetween(localNow(forecast.utcOffsetSeconds).slice(0, 10), date), plan.advice.hours);
+  const advice = plan.advice.requirements
+    ? { ...plan.advice, requirements: hedgeRequirements(plan.advice.requirements, certainty) }
+    : plan.advice;
   const rain = restOfDay(plan.dayHours, date);
   const maxRain = Math.max(0, ...advice.hours.map((h) => h.precipProb));
 
@@ -52,15 +58,13 @@ export function DayView({ forecast, date, activity, duration, commute, onCircleT
       <div class="readout">
         <div>
           <div class="feels num" aria-label={`Dress for ${fmtDressFor(advice.effective, units.temp)}`}>{fmtDressFor(advice.effective, units.temp)}</div>
-          <div class="feels-label">
-            Feels {fmtTemp(advice.minFeels, units.temp)} to {fmtTemp(advice.maxFeels, units.temp)}
-            {c ? ' across both legs' : ' while you’re out'}
-          </div>
+          <FeelsActual advice={advice} units={units} context={c ? 'across both legs' : 'while you’re out'} />
         </div>
         <button type="button" class="text-btn" onClick={() => setWhy(true)}>Why this?</button>
       </div>
       <h2 class="verdict">{advice.verdict}</h2>
       <p class="summary">{advice.summary}</p>
+      {certainty === 'low' && <p class="rough-guide">{ROUGH_GUIDE_NOTE}</p>}
 
       <LayerList advice={advice} />
       <ExtraChips advice={advice} units={units} />

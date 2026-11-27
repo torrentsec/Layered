@@ -4,6 +4,7 @@
 import { useState } from 'preact/hooks';
 import type { Advice, Hour, LayerAdvice } from '../engine/types';
 import { ACTIVITY_LABEL } from '../engine/activity';
+import { actualRange } from '../engine/actual';
 import type { Units } from '../data/units';
 import { fmtDressFor, fmtTemp, localiseTemp, localiseWind } from '../data/units';
 import { timeFmt } from '../data/format';
@@ -75,6 +76,23 @@ export function ExtraChips({ advice, units }: { advice: Advice; units: Units }) 
   );
 }
 
+export function FeelsActual({ advice, units, context }: { advice: Advice; units: Units; context: string }) {
+  const t = (c: number) => fmtTemp(c, units.temp);
+  const actual = actualRange(advice.hours);
+  return (
+    <div class="feels-label">
+      <span class="nowrap">Feels {t(advice.minFeels)} to {t(advice.maxFeels)}</span>
+      {actual && (
+        <>
+          {' · '}
+          <span class="nowrap">actual {t(actual.min)} to {t(actual.max)}</span>
+        </>
+      )}
+      <span class="feels-context">{context}</span>
+    </div>
+  );
+}
+
 export function HourlyStrip({ hours, inWindow, units }: { hours: Hour[]; inWindow: Set<string>; units: Units }) {
   const fmt = timeFmt(units.clock);
   return (
@@ -104,12 +122,16 @@ export function WhyBody({ advice, units }: { advice: Advice; units: Units }) {
   const owned = advice.layers.filter(fromWardrobe);
   const general = advice.layers.filter((l) => !fromWardrobe(l));
   const r = advice.requirements;
+  const actual = actualRange(advice.hours);
   return (
     <div class="why">
       <h2 class="why-title">The weather</h2>
       <ul class="group">
         <li class="row-item plain"><span class="grow">Coldest hour</span><span class="meta num">{fmt(w.coldestHour)} · feels {t(w.coldestFeels)}</span></li>
         <li class="row-item plain"><span class="grow">Feels like</span><span class="meta num">{t(advice.minFeels)} to {t(advice.maxFeels)}</span></li>
+        {actual && (
+          <li class="row-item plain"><span class="grow">Actual temperature</span><span class="meta num">{t(actual.min)} to {t(actual.max)}</span></li>
+        )}
       </ul>
 
       <h2 class="why-title">You</h2>

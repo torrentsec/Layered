@@ -16,6 +16,10 @@ export function AboutSection() {
         <span class="grow">Weather data by Open-Meteo.com<span class="sub">CC BY 4.0</span></span>
         <span class="meta">›</span>
       </a>
+      <a class="row-item plain" href="https://api.met.no/" target="_blank" rel="noopener" style={{ color: 'inherit', textDecoration: 'none' }}>
+        <span class="grow">Fallback forecasts by MET Norway<span class="sub">CC BY 4.0</span></span>
+        <span class="meta">›</span>
+      </a>
       <div class="row-item plain">
         <span class="grow">Version</span>
         <span class="meta num">{__APP_VERSION__}</span>

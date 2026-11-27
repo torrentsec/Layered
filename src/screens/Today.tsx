@@ -68,12 +68,12 @@ export function Today() {
           f ? (
             <>
               {longDate(date)}
-              {st.stale && (
-                <>
-                  <br />
-                  <span class="stale">Offline · Last updated {fmt(new Date(f.fetchedAt + f.utcOffsetSeconds * 1000).toISOString().slice(0, 16))}</span>
-                </>
-              )}
+              <br />
+              {(() => {
+                const at = fmt(localNow(f.utcOffsetSeconds, f.fetchedAt));
+                const via = f.source === 'met-norway' ? ' · via MET Norway' : '';
+                return st.stale ? <span class="stale">Offline · Last updated {at}{via}</span> : <span>Updated {at}{via}</span>;
+              })()}
             </>
           ) : undefined
         }

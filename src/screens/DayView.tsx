@@ -89,7 +89,7 @@ export function DayView({ forecast, date, activity, duration, commute, onCircleT
       <h2 class="group-title">Next hours</h2>
       <HourlyStrip hours={plan.dayHours} inWindow={plan.windowTimes} units={units} />
       {rain.length > 0 && <p class="card" style={{ margin: '4px 0 12px' }}><strong>{rainSummary(rain, fmt)}</strong></p>}
-      {info && (
+      {info?.sunrise && info.sunset && (
         <p class="small-print" style={{ margin: '0 4px' }}>
           Sunrise {fmt(info.sunrise)} · Sunset {fmt(info.sunset)}
         </p>

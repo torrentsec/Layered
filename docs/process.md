@@ -60,6 +60,7 @@ An Increment is Done when:
 
 - **Trunk-based development** with short-lived branches: `feat/<issue>-<slug>`, `fix/<issue>-<slug>`.
 - **Contracts first.** Shared types and module boundaries are agreed at Sprint Planning and land on `main` before parallel work starts, so the two teams work on separate files.
+- **Developers collaborate through a team board.** Each wave shares one board. Developers post what they need and offer before coding, claim shared helpers so each exists once, ask the owner instead of copying, and review each other's branches before integration. The SM facilitates and removes blockers; it doesn't decide code.
 - **Conventional Commits** and squash merges keep `main` readable.
 - **Security.** Cloudflare credentials live only in GitHub Actions secrets, and runtime keys in Worker secrets.
 

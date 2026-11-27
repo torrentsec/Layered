@@ -106,4 +106,8 @@ Tests: 698 → 1,480. Typecheck, lint and build pass. `ireq` runs in about 0.003
 1. Re-index Graphify at `main` at every Sprint Planning, before Developers start.
 2. A spike runs each formula against its acceptance tests before the formula goes into the backlog.
 3. Confirm external API field names with one live request at Planning, before the build wave.
-4. **No duplicate implementations.** At Planning the SM lists every function more than one story in the wave calls. Small ones (a few lines) land on `main` with tests before branching; larger ones get one owner, and the others code against the contract and a test double, never a copy. Briefs never say "implement it locally". The SM checks each hand-back with `rg` for re-implemented contract functions before integrating.
+4. **Developers own the how, together.** The Scrum Guide makes Developers self-managing; the SM facilitates and does not decide code. Sprint 4 got this wrong: the SM's briefs dictated where helpers lived and told one Developer to copy one, and the five Developers never spoke to each other.
+   - **Team board.** Each wave shares one board (`team/board.md`, outside the worktrees). Before coding, every Developer posts what they need from others and what they offer. Shared helpers are claimed there by one Developer; everyone else imports from the claimed path or codes against a test double until it lands.
+   - **Ask, don't copy.** A Developer who needs something another owns asks on the board and carries on with other work; the owner answers and pushes it first.
+   - **Peer review.** Each branch is reviewed by another Developer in the wave (rotation on the board) with `code-review`, before the SM integrates. Review checks for re-implemented code as well as bugs.
+   - **SM role.** The SM writes the Sprint Goal and the outcome each item needs, keeps the board readable and removes blockers. Briefs say what and why, never which lines of code.

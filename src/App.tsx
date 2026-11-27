@@ -32,18 +32,22 @@ const TAB_DEFS: TabDef[] = [
 ];
 
 const screens = signal<Partial<Record<Tab, FunctionComponent>>>({ today: Today });
+/** The tab whose chunk failed to arrive, typically offline before the service worker cached it. */
+const failed = signal<Tab | null>(null);
 const pending = new Set<Tab>();
 
 function loadScreen(def: TabDef): void {
   if (screens.peek()[def.id] || pending.has(def.id)) return;
   pending.add(def.id);
+  failed.value = null;
   def
     .load()
     .then((screen) => {
       screens.value = { ...screens.peek(), [def.id]: screen };
     })
-    // Offline before the service worker cached the chunk; the next visit retries.
-    .catch(() => undefined)
+    .catch(() => {
+      failed.value = def.id;
+    })
     .finally(() => pending.delete(def.id));
 }
 
@@ -59,10 +63,22 @@ export function App() {
   const r = route.value;
   const active = TAB_DEFS.find((t) => t.id === r.tab) ?? TAB_DEFS[0];
   const Screen = screens.value[active.id];
-  if (!Screen) loadScreen(active);
+  const broken = !Screen && failed.value === active.id;
+  if (!Screen && !broken) loadScreen(active);
   return (
     <>
-      <div class="app">{Screen && <Screen key={active.id} />}</div>
+      <div class="app">
+        {Screen && <Screen key={active.id} />}
+        {broken && (
+          <div class="empty" role="alert">
+            <h2>Couldn’t open {active.label}</h2>
+            <p>It needs a connection the first time. Check you’re online.</p>
+            <button type="button" class="btn" onClick={() => loadScreen(active)}>
+              Try again
+            </button>
+          </div>
+        )}
+      </div>
       {TAB_DEFS.length > 1 && (
         <nav class="tabbar" aria-label="Sections">
           {TAB_DEFS.map((t) => (

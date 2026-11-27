@@ -18,6 +18,10 @@ render(<App />, document.getElementById('app')!);
 // bring the whole Notifications section into the start-up bundle.
 addEventListener(
   'load',
-  () => void import('./screens/settings/Notifications').then((m) => m.watchPushSettings()),
+  () =>
+    void import('./screens/settings/Notifications')
+      .then((m) => m.watchPushSettings())
+      // Offline on first run; the signature check retries on the next launch.
+      .catch(() => undefined),
   { once: true },
 );

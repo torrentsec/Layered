@@ -11,10 +11,12 @@ import type { Forecast } from '../data/forecast-types';
 import { timeFmt, weekday } from '../data/format';
 import { fmtTemp } from '../data/units';
 import { garmentWarmth, type Routine, type Settings } from '../data/store';
+import { biasState } from '../data/bias';
 import type { GarmentWarmth } from '../engine/garment-learning';
 import type { Rating } from '../engine/types';
 import type { Inventory } from '../engine/inventory';
 import type { ComfortProfile } from '../engine/comfort';
+import type { BiasState } from '../engine/science/types';
 
 export interface DayPlan {
   advice: Advice;
@@ -39,6 +41,8 @@ interface Ctx {
   routines?: Routine[];
   /** Defaults to the persisted learned warmth, so every screen dresses you the same way. */
   garmentWarmth?: GarmentWarmth;
+  /** Personal insulation bias for the science engine; defaults to the persisted one. */
+  bias?: Pick<BiasState, 'mean' | 'count'>;
 }
 
 /**
@@ -53,7 +57,17 @@ export function planDay(f: Forecast, date: string, ctx: Ctx): DayPlan | null {
   const now = localNow(f.utcOffsetSeconds);
   const isToday = now.startsWith(date);
   const fmt = timeFmt(s.units.clock);
-  const shared = { manualOffset: s.manualOffset, ratings: ctx.ratings, today: now.slice(0, 10), inventory: ctx.inventory, comfort: ctx.comfort, garmentWarmth: ctx.garmentWarmth ?? garmentWarmth.value };
+  const bias = ctx.bias ?? biasState();
+  const science = s.engine === 'science' ? { place: { lat: f.lat, lon: f.lon, utcOffsetSeconds: f.utcOffsetSeconds }, bias: bias.mean, biasCount: bias.count } : undefined;
+  const shared = {
+    manualOffset: s.manualOffset,
+    ratings: ctx.ratings,
+    today: now.slice(0, 10),
+    inventory: ctx.inventory,
+    comfort: ctx.comfort,
+    garmentWarmth: ctx.garmentWarmth ?? garmentWarmth.value,
+    ...(science ? { science } : {}),
+  };
   const base = { ...shared, activity, effort };
   const hourNow = now.slice(0, 13);
   const live = (hs: Hour[]) => !isToday || hs.some((h) => h.time.slice(0, 13) >= hourNow);
@@ -85,8 +99,9 @@ export function planDay(f: Forecast, date: string, ctx: Ctx): DayPlan | null {
   }
   if (!advice) {
     const start = isToday ? now : `${date}T${s.commute.enabled ? s.commute.out : '08:00'}`;
-    const hours = selectWindow(f.hours, start, ctx.duration ?? s.duration);
-    advice = advise({ ...base, hours });
+    const duration = ctx.duration ?? s.duration;
+    const hours = selectWindow(f.hours, start, duration);
+    advice = advise({ ...base, hours, ...(science ? { science: { ...science, exposureHours: duration } } : {}) });
     dayLegs.push(
       isToday
         ? { id: 'day', label: 'Rest of the day', phrase: 'the rest of the day', activity, effort, hours }

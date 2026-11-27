@@ -7,12 +7,15 @@ import './styles/app.css';
 import './styles/advice.css';
 import './styles/wardrobe.css';
 import './styles/forecast.css';
+import './styles/notifications.css';
 import { App } from './App';
 import { initTheme } from './theme';
 import { printBanner } from './banner';
 import { runWardrobeMigration } from './data/migrate';
+import { watchPushSettings } from './screens/settings/Notifications';
 
 runWardrobeMigration();
 initTheme();
 printBanner();
+watchPushSettings();
 render(<App />, document.getElementById('app')!);

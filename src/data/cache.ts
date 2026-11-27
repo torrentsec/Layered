@@ -15,6 +15,20 @@ export function cachedForecast(lat: number, lon: number): Forecast | null {
   }
 }
 
+/** Our MET Norway proxy, tried when Open-Meteo is down. */
+export async function fetchFallback(lat: number, lon: number, tz: string, f: typeof fetch = fetch): Promise<Forecast> {
+  const q = new URLSearchParams({ lat: lat.toFixed(2), lon: lon.toFixed(2), tz });
+  const res = await f(`/api/forecast?${q}`);
+  if (!res.ok) throw new Error(`Fallback forecast unavailable (${res.status})`);
+  const forecast = (await res.json()) as Forecast;
+  if (!Array.isArray(forecast?.hours) || !forecast.hours.length) throw new Error('Fallback forecast was empty');
+  return forecast;
+}
+
+/** The place's own zone when we've seen it before, else the device's, so local hours line up. */
+const zoneFor = (cached: Forecast | null) =>
+  cached?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+
 export interface ForecastResult {
   forecast: Forecast;
   /** True when the network failed and this is the last good copy. */
@@ -26,7 +40,8 @@ const inflight = new Map<string, Promise<ForecastResult>>();
 /**
  * Fresh copies younger than 15 minutes are served without a request. On a
  * failed request the last good copy is returned and marked stale, so the app
- * can say "Last updated 08:12" rather than going blank.
+ * can say "Last updated 08:12" rather than going blank. MET Norway is tried
+ * before settling for the stale copy.
  */
 export function getForecast(lat: number, lon: number, force = false): Promise<ForecastResult> {
   const k = key(lat, lon);
@@ -36,6 +51,7 @@ export function getForecast(lat: number, lon: number, force = false): Promise<Fo
   if (running) return running;
 
   const p = fetchForecast(lat, lon)
+    .catch(() => fetchFallback(lat, lon, zoneFor(cached)))
     .then((forecast) => {
       try {
         localStorage.setItem(k, JSON.stringify(forecast));

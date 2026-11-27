@@ -19,7 +19,8 @@ export interface Requirements {
   /**
    * Upper-body insulation needed, in warmth points. Thin = 1, medium = 2 and
    * thick = 3 per layer, and outerwear counts the same way, so a T-shirt day
-   * is 1 and a thermal + thick jumper + heavy coat day is about 9.
+   * is 1 and a thermal + thick jumper + heavy coat day is about 9. When `clo`
+   * is set, matching aims at `clo.icl` instead and this is the band plan's points.
    */
   insulation: number;
   layers: {
@@ -42,7 +43,7 @@ export interface Requirements {
   /** Why `removable` is set, when it is. */
   removableWhy?: 'warming' | 'edge';
   accessories: ExtraId[];
-  /** Set when the science engine chose the band and layers. */
+  /** Set when the science engine chose the band and layers; matching then reaches `clo.icl` in basic clo. */
   clo?: ClothingTarget;
 }
 
@@ -194,7 +195,8 @@ const ACCESSORY_IDS: ExtraId[] = ['hat', 'gloves', 'scarf', 'sunglasses', 'sunsc
 /** Stage 2: what the day demands. */
 export function requirementsFor(x: RequirementsInput): Requirements {
   const sci = x.science && scienceVerdict(x.science, x.activity, x.effort);
-  // Until matching works in clo, the science band reaches the matcher as its own plan's points.
+  // With the science engine the matcher works from `clo`; the band's plan still
+  // sets the slots and planned thickness, and its points serve the simple bands path.
   const layers = sci ? layerPlan(sci.band) : layersForTarget(insulationTarget(x.effective));
   const insulation = sci ? insulationPoints(layers) : insulationTarget(x.effective);
   const ids = new Set(x.extras.map((e) => e.id));

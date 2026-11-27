@@ -235,10 +235,17 @@ describe('golden days, feels like in what you wear', () => {
     expect(line('cloudy8')).toMatchObject({ tone: 'covered', line: 'Warm enough in your coat for your 30 min out.', sub: 'Good for about 60 min in all.' });
   });
 
-  it('London: the matched layers sum below the target, and the line says so', () => {
-    const a = run('london', DEFAULT_PATH);
-    expect(a.science!.outfit!.basic).toBeLessThan(a.science!.target.icl);
-    expect(line('london')?.tone).toBe('cool');
+  // #92: matching in clo. London 26 Nov summed 1.17 against 1.38 while matching worked in points.
+  it('a complete wardrobe reaches the target, less 0.1 clo at most', () => {
+    for (const id of Object.keys(DAYS) as DayId[]) for (const activity of ['walking', 'cycling'] as const) {
+      const a = run(id, DEFAULT_PATH, activity);
+      expect(a.science!.outfit!.basic, `${id} ${activity}`).toBeGreaterThanOrEqual(a.science!.target.icl - 0.1);
+    }
+    expect(run('london', DEFAULT_PATH).science!.outfit!.basic).toBeCloseTo(1.38, 1);
+  });
+
+  it('London: the matched outfit covers the walk, and the line says so', () => {
+    expect(line('london')?.tone).toBe('covered');
   });
 
   it('Oslo for an hour: the heaviest plan is not enough, and the line asks for a layer', () => {

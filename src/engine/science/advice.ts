@@ -3,8 +3,8 @@
 
 /**
  * Glue between the thermal model and the band pipeline (backlog S7c): the
- * clothing target picks the band, and the band's plan stays what matching
- * works from until matching moves to clo (thermal-model §9.1).
+ * clothing target picks the band, whose plan sets the layer slots, and the
+ * matcher fills them until the outfit reaches the target in clo (thermal-model §9.2).
  */
 
 import { RAIN, type WindowStats } from '../extras';

@@ -76,10 +76,12 @@ export interface ScienceWhyInput {
 /** The numbers behind the advice, for "Why this?". The coldest hour is the one with the lowest UTCI. */
 export function scienceWhy(x: ScienceWhyInput): ScienceWhy {
   const results = x.science.weather.map(utciOf);
-  let i = 0;
+  // A NaN never compares lower, so it would stick as the coldest if it came first.
+  let i = -1;
   results.forEach((r, j) => {
-    if (r.utci < results[i].utci) i = j;
+    if (Number.isFinite(r.utci) && (i < 0 || r.utci < results[i].utci)) i = j;
   });
+  if (i < 0) i = 0;
   const w = x.science.weather[i];
   const trusted = results.filter((r) => !r.outOfRange).map((r) => r.utci);
   const metabolic = metabolicRate(x.activity, x.effort);

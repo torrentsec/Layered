@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { advise, colderThan, mergedScience } from '../advise';
 import type { WindowStats } from '../extras';
 import { insulationPoints, layerPlan, requirementsFor, type RequirementsInput } from '../requirements';
-import { scienceVerdict, wetState, type ScienceInput } from '../science/advice';
+import { scienceVerdict, scienceWhy, wetState, type ScienceInput } from '../science/advice';
 import { bandForClo, clothingTarget } from '../science/target';
 import type { Weather } from '../science/types';
 import type { Advice } from '../types';
@@ -78,6 +78,14 @@ describe('advise with the science engine', () => {
     expect(a.why.rules[0]).toMatch(/^Needs about \d\.\d clo/);
     expect(a.science).toMatchObject({ exposureMinutes: 30, biasCount: 4, ta: 3 });
     expect(a.science!.feels.min).toBeLessThanOrEqual(a.science!.feels.max);
+  });
+
+  it('skips an hour whose UTCI is not a number when picking the coldest', () => {
+    const verdict = scienceVerdict(sci(), 'walking');
+    const s: ScienceInput = { weather: [weather({ ta: Number.NaN }), weather({ ta: 5, tmrt: 5 }), weather({ ta: 1, tmrt: 1 })], exposureHours: 0.5, bias: 0 };
+    const why = scienceWhy({ hours: day(3), science: s, target: verdict.target, activity: 'walking', layers: [], inventory: {}, stats: STILL, biasCount: 0 });
+    expect(why.coldestHour).toBe(day(3)[2].time);
+    expect(Number.isFinite(why.utci.utci)).toBe(true);
   });
 
   it('defaults the exposure to the window length', () => {

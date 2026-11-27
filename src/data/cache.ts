@@ -2,6 +2,7 @@
 // Copyright (c) 2026 torrentsec
 
 import { fetchForecast, type Forecast } from './forecast-types';
+import { packForecast, unpackForecast } from './forecast-pack';
 
 export const FRESH_MS = 15 * 60 * 1000;
 const key = (lat: number, lon: number) => `layered:fc:${lat.toFixed(2)},${lon.toFixed(2)}`;
@@ -9,7 +10,7 @@ const key = (lat: number, lon: number) => `layered:fc:${lat.toFixed(2)},${lon.to
 export function cachedForecast(lat: number, lon: number): Forecast | null {
   try {
     const raw = localStorage.getItem(key(lat, lon));
-    return raw ? (JSON.parse(raw) as Forecast) : null;
+    return raw ? unpackForecast(JSON.parse(raw)) : null;
   } catch {
     return null;
   }
@@ -54,7 +55,7 @@ export function getForecast(lat: number, lon: number, force = false): Promise<Fo
     .catch(() => fetchFallback(lat, lon, zoneFor(cached)))
     .then((forecast) => {
       try {
-        localStorage.setItem(k, JSON.stringify(forecast));
+        localStorage.setItem(k, JSON.stringify(packForecast(forecast)));
       } catch {
         // Storage full or blocked; the in-memory copy still works this session.
       }

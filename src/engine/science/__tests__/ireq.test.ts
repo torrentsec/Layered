@@ -2,9 +2,9 @@
 // Copyright (c) 2026 torrentsec
 
 import { describe, expect, it } from 'vitest';
-import fixture from './__fixtures__/ireq.json';
-import { DLE_CEILING_H, dle, ireq, lightestIclFor, minWalkSpeed } from './ireq';
-import type { IreqParams, IreqResult } from './types';
+import fixture from '../__fixtures__/ireq.json';
+import { DLE_CEILING_H, dle, ireq, lightestIclFor, minWalkSpeed } from '../ireq';
+import type { IreqParams, IreqResult } from '../types';
 
 type Dle = number | string | null;
 interface Case {

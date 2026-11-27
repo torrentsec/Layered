@@ -2,7 +2,8 @@
 // Copyright (c) 2026 torrentsec
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getForecast } from './cache';
+import { cachedForecast, getForecast } from './cache';
+import { PACK_VERSION } from './forecast-pack';
 import type { Forecast } from './forecast-types';
 
 const metno: Forecast = {
@@ -46,5 +47,12 @@ describe('getForecast fallback', () => {
     const r = await getForecast(51.51, -0.13, true);
     expect(r).toEqual({ forecast: old, stale: true });
     expect(String((f.mock.calls as unknown as string[][])[1][0])).toContain('tz=Asia%2FTokyo');
+  });
+
+  it('saves the columns format and reads it back as the same forecast', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => (url.startsWith('/api/forecast') ? new Response(JSON.stringify(metno)) : new Response('down', { status: 500 }))));
+    await getForecast(51.51, -0.13, true);
+    expect(JSON.parse(store.get('layered:fc:51.51,-0.13')!).v).toBe(PACK_VERSION);
+    expect(cachedForecast(51.51, -0.13)).toEqual(metno);
   });
 });

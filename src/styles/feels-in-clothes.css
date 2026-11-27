@@ -1,0 +1,26 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later
+   Copyright (c) 2026 torrentsec */
+
+/* ---------- #85 prototype: feels like in what you wear ---------- */
+
+.clothes-line {
+  margin: 8px 0 4px;
+  padding: 8px 12px;
+  border-left: 4px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.clothes-line[data-tone='cool'] {
+  border-left-color: var(--blue);
+}
+
+.clothes-line[data-tone='cold'] {
+  border-left-color: var(--red);
+}
+
+.clothes-sub {
+  color: var(--ink-2);
+}

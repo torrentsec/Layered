@@ -302,12 +302,12 @@ describe('golden days, feels like in what you wear', () => {
 
   it('says nothing on a hot day, and warm all day on mild ones', () => {
     expect(line('madrid')).toBeUndefined();
-    expect(line('mild')?.line).toBe('Warm enough in this outfit all day.');
+    expect(line('mild')).toMatchObject({ line: 'Warm enough in this outfit for your 30 min out.', sub: 'Good for hours.' });
     expect(line('sunny8')?.tone).toBe('covered');
   });
 
   it('cloudy 8 °C: the coat covers a 30-minute walk', () => {
-    expect(line('cloudy8')).toMatchObject({ tone: 'covered', line: 'Warm enough in your coat for about 60 min.', sub: 'You’re out for 30 min.' });
+    expect(line('cloudy8')).toMatchObject({ tone: 'covered', line: 'Warm enough in your coat for your 30 min out.', sub: 'Good for about 60 min in all.' });
   });
 
   it('London: the matched layers sum below the target, and the line says so', () => {

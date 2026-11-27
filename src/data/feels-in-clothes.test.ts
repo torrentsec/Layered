@@ -34,8 +34,8 @@ describe('feelsInClothes', () => {
   it('is warm the whole time in plenty of clothes, naming the wardrobe coat', () => {
     const l = feelsInClothes(advice(2.0, 30), LONDON)!;
     expect(l.tone).toBe('covered');
-    expect(l.line).toMatch(/^Warm enough in your navy puffer (all day|for about .+)\.$/);
-    expect(l.sub).toBe('You’re out for 30 min.');
+    expect(l.line).toBe('Warm enough in your navy puffer for your 30 min out.');
+    expect(l.sub).toMatch(/^Good for (hours|about .+ in all)\.$/);
   });
 
   it('turns a little cool when the time outside runs past the warm time', () => {
@@ -48,8 +48,8 @@ describe('feelsInClothes', () => {
   it('asks for a layer when even mild discomfort would run out', () => {
     const l = feelsInClothes(advice(0.6, 120), LONDON)!;
     expect(l.tone).toBe('cold');
-    expect(l.line).toMatch(/^Warm in your navy puffer for .+, cold after .+\.$/);
-    expect(l.sub).toBe('You’re out for 2 h. Add a layer or warm up indoors on the way.');
+    expect(l.line).toMatch(/^Warm in your navy puffer for .+, then cold\.$/);
+    expect(l.sub).toBe('You’re out for 2 h. Add a layer or warm up indoors partway.');
   });
 
   it('says "this outfit" for generic advice and uses the band plan when layers could not be summed', () => {

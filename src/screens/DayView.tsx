@@ -15,6 +15,8 @@ import { placeOf } from '../data/day-plan';
 import { feelsRange, heroReading, hourlyFeels } from '../data/why-science';
 import { ExtraChips, FeelsActual, HourlyStrip, LayerList, Limitations, WhyBody } from '../components/AdviceParts';
 import { Hero } from '../components/Hero';
+import { FeelsInClothes } from '../components/FeelsInClothes';
+import { flagOn } from '../data/flags';
 import { Sheet } from '../components/Sheet';
 
 interface Props {
@@ -71,6 +73,7 @@ export function DayView({ forecast, date, activity, duration, commute, effort, r
         </div>
         <button type="button" class="text-btn" onClick={() => setWhy(true)}>Why this?</button>
       </div>
+      {flagOn('feels-in-clothes') && <FeelsInClothes advice={advice} place={placeOf(forecast)} />}
       <h2 class="verdict">{advice.verdict}</h2>
       <p class="summary">{advice.summary}</p>
       {certainty === 'low' && <p class="rough-guide">{ROUGH_GUIDE_NOTE}</p>}

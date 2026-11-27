@@ -61,16 +61,17 @@ export function feelsInClothes(a: Advice, place: WeatherPlace): ClothesLine | un
   if (!time) return undefined;
 
   const out = s.exposureMinutes;
-  const sub = `You’re out for ${fmtMinutes(out)}.`;
+  const trip = fmtMinutes(out);
   const who = whose(a);
   const warm = time.warm * 60;
   const bearable = time.bearable * 60;
-  if (!Number.isFinite(warm)) return { line: `Warm enough in ${who} all day.`, sub, tone: 'covered', time };
-  if (warm >= out) return { line: `Warm enough in ${who} for ${fmtWarmFor(warm)}.`, sub, tone: 'covered', time };
-  if (bearable >= out) return { line: `Warm in ${who} for ${fmtWarmFor(warm)}, then a little cool.`, sub, tone: 'cool', time };
+  // Lead with the answer to "will I be warm on this trip?", then the margin.
+  if (!Number.isFinite(warm)) return { line: `Warm enough in ${who} for your ${trip} out.`, sub: 'Good for hours.', tone: 'covered', time };
+  if (warm >= out) return { line: `Warm enough in ${who} for your ${trip} out.`, sub: `Good for ${fmtWarmFor(warm)} in all.`, tone: 'covered', time };
+  if (bearable >= out) return { line: `Warm in ${who} for ${fmtWarmFor(warm)}, then a little cool.`, sub: `You’re out for ${trip}.`, tone: 'cool', time };
   return {
-    line: `Warm in ${who} for ${fmtWarmFor(warm)}, cold after ${fmtWarmFor(bearable)}.`,
-    sub: `${sub} Add a layer or warm up indoors on the way.`,
+    line: `Warm in ${who} for ${fmtWarmFor(warm)}, then cold.`,
+    sub: `You’re out for ${trip}. Add a layer or warm up indoors partway.`,
     tone: 'cold',
     time,
   };

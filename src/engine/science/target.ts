@@ -76,17 +76,19 @@ export interface HourTarget {
 export const NEUTRAL_REACH_CLO = BAND_PLAN_CLO.coat;
 
 /**
- * Air temperature by which the sun's warmth has faded out of the target. The
- * IREQ extension above 10 °C was only cross-checked against PMV, which has no
- * direct sun, so radiant gain counts in full up to 10 °C and linearly less up
- * to here. A clear-sky deficit always counts.
+ * Air temperatures between which the sun's warmth fades out of the target.
+ * The IREQ extension above 10 °C was only cross-checked against PMV, which
+ * has no direct sun, so radiant gain is phased out over 5 K either side of
+ * that limit; a sharper fade would let a sunny day ask for less as it cools.
+ * A clear-sky deficit always counts.
  */
-export const SUN_FADE_TA = 15;
+export const SUN_FADE_TA = [ISO_11079_LIMITS.taMax - 5, ISO_11079_LIMITS.taMax + 5] as const;
 
 function radiantTemp(w: Weather): number {
   const gain = w.tmrt - w.ta;
   if (gain <= 0) return w.tmrt;
-  const share = Math.min(1, Math.max(0, (SUN_FADE_TA - w.ta) / (SUN_FADE_TA - ISO_11079_LIMITS.taMax)));
+  const [full, none] = SUN_FADE_TA;
+  const share = Math.min(1, Math.max(0, (none - w.ta) / (none - full)));
   return w.ta + share * gain;
 }
 
@@ -122,7 +124,8 @@ export function targetHour(w: Weather, activity: Activity, effort: Effort | unde
     const tshirt = HEAT.has(u.category) || needed < LIGHT_LAYER_CLO;
     return { ...base, icl: tshirt ? BAND_PLAN_CLO.tshirt : BAND_PLAN_CLO.light, basis: 'heat-ladder' };
   }
-  return { ...base, icl: needed, basis: steady.extended ? 'ireq-extended' : 'ireq' };
+  // Just past the ladder the target meets the ladder's light plan, so a colder hour never asks for less.
+  return { ...base, icl: Math.max(needed, BAND_PLAN_CLO.light), basis: steady.extended ? 'ireq-extended' : 'ireq' };
 }
 
 /**

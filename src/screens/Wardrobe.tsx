@@ -1,135 +1,231 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Daniel Woo
 
-import { useState } from 'preact/hooks';
-import type { ItemKind, WardrobeItem } from '../engine/types';
-import { uid, wardrobe } from '../data/store';
+import { useId, useState } from 'preact/hooks';
+import {
+  CATALOGUE,
+  category,
+  ownership,
+  type Category,
+  type CategoryId,
+  type Group,
+  type InventoryEntry,
+  type Level,
+  type Material,
+  type Thickness,
+  type WaterResistance,
+} from '../engine/inventory';
+import { inventory } from '../data/store';
+import { clearCounts, dontOwn, patchDetails, stepCount, summarise, thicknessesOf, withEntry } from '../data/inventory-edit';
 import { TitleBar } from '../components/TitleBar';
 import { Sheet } from '../components/Sheet';
 import { Segmented } from '../components/Segmented';
 import { LayerMark } from '../components/Marks';
+import { haptic } from '../components/haptics';
 
-const KINDS: { value: ItemKind; label: string; hint: string }[] = [
-  { value: 'base', label: 'Base', hint: 'T-shirts, long sleeves, thermals' },
-  { value: 'mid', label: 'Mid', hint: 'Jumpers, fleeces, overshirts' },
-  { value: 'outer', label: 'Outer', hint: 'Jackets and coats' },
-  { value: 'accessory', label: 'Extras', hint: 'Hats, gloves, scarves, umbrellas' },
+const GROUPS: { id: Group; label: string }[] = [
+  { id: 'base', label: 'Base' },
+  { id: 'mid', label: 'Mid' },
+  { id: 'outer', label: 'Outer' },
+  { id: 'bottoms', label: 'Bottoms' },
+  { id: 'footwear', label: 'Footwear' },
+  { id: 'accessory', label: 'Accessories' },
 ];
 
-const WARMTH = ['Very light', 'Light', 'Medium', 'Warm', 'Very warm'];
+const THICK_LABEL: Record<Thickness, string> = { thin: 'Thin', medium: 'Medium', thick: 'Thick' };
+const LEVELS: Level[] = ['low', 'medium', 'high'];
+const WATER: WaterResistance[] = ['none', 'resistant', 'waterproof'];
+const MATERIALS: Material[] = ['wool', 'cotton', 'synthetic', 'fleece', 'down'];
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const plural = (name: string) => (name.endsWith('s') ? name : `${name}s`).toLowerCase();
 
-const blank = (layer: ItemKind = 'outer'): WardrobeItem => ({ id: uid(), name: '', layer, warmth: 3, waterproof: false, windproof: false });
+const save = (id: CategoryId, e: InventoryEntry | undefined) => {
+  inventory.value = withEntry(inventory.value, id, e);
+};
 
 export function Wardrobe() {
-  const [editing, setEditing] = useState<WardrobeItem | null>(null);
-  const items = wardrobe.value;
-
-  const save = (item: WardrobeItem) => {
-    wardrobe.value = items.some((i) => i.id === item.id) ? items.map((i) => (i.id === item.id ? item : i)) : [...items, item];
-    setEditing(null);
-  };
+  const [open, setOpen] = useState<CategoryId | null>(null);
+  const [details, setDetails] = useState<CategoryId | null>(null);
+  const inv = inventory.value;
+  const set = CATALOGUE.filter((c) => ownership(inv, c.id) !== 'unknown').length;
+  const total = CATALOGUE.length;
 
   return (
     <>
-      <TitleBar short="Wardrobe" title="Wardrobe" action={<button type="button" class="text-btn" onClick={() => setEditing(blank())}>Add</button>} />
+      <TitleBar short="Wardrobe" title="Wardrobe" />
       <main>
-        {items.length === 0 && (
-          <div class="empty">
-            <h2>Your clothes, by name</h2>
-            <p>Add what you actually own and Layered will say “your navy puffer” instead of “warm coat”. It works fine without.</p>
-            <button type="button" class="btn" onClick={() => setEditing(blank())}>Add an item</button>
+        {set === 0 && (
+          <div class="empty wd-empty">
+            <h2>No wardrobe needed</h2>
+            <p>Layered gives sound advice without one. Set the categories you like and it will suggest from what you own.</p>
           </div>
         )}
-        {KINDS.map((k) => {
-          const list = items.filter((i) => i.layer === k.value).sort((a, b) => a.warmth - b.warmth);
-          if (!list.length) return null;
-          return (
-            <section key={k.value} aria-labelledby={`wk-${k.value}`}>
-              <h2 class="group-title" id={`wk-${k.value}`}>{k.label}</h2>
-              <ul class="group" style={{ listStyle: 'none', padding: 0 }}>
-                {list.map((i) => (
-                  <li key={i.id}>
-                    <button type="button" class="row-item" onClick={() => setEditing(i)}>
-                      <LayerMark kind={i.layer} />
-                      <span class="grow">
-                        {i.name}
-                        <span class="sub">
-                          {WARMTH[i.warmth - 1]}
-                          {i.waterproof ? ' · waterproof' : ''}
-                          {i.windproof ? ' · windproof' : ''}
-                        </span>
-                      </span>
-                      {i.color && <span class="swatch" style={{ background: i.color }} aria-hidden="true" />}
-                      <span class="meta" aria-hidden="true">›</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          );
-        })}
-        {items.length > 0 && <p class="group-foot">Layered picks the item whose warmth best fits the day, and prefers waterproof outerwear when rain is likely.</p>}
+        <section class="card wd-progress" aria-label="Wardrobe completeness">
+          <p class="wd-progress-line">
+            <strong class="num">{set}</strong> of <span class="num">{total}</span> categories set
+          </p>
+          <progress max={total} value={set} aria-label={`${set} of ${total} categories set`} />
+          <p class="small-print">“Not set” gets general advice. “Don’t own” means Layered won’t suggest it. Changes save as you go.</p>
+        </section>
+        {GROUPS.map((g) => (
+          <section key={g.id} aria-labelledby={`wg-${g.id}`}>
+            <h2 class="group-title" id={`wg-${g.id}`}>
+              {g.label}
+            </h2>
+            <ul class="group wd-list">
+              {CATALOGUE.filter((c) => c.group === g.id).map((c) => (
+                <CategoryRow
+                  key={c.id}
+                  cat={c}
+                  entry={inv[c.id]}
+                  open={open === c.id}
+                  onToggle={() => setOpen(open === c.id ? null : c.id)}
+                  onDetails={() => setDetails(c.id)}
+                />
+              ))}
+            </ul>
+          </section>
+        ))}
       </main>
-      {editing && (
-        <ItemEditor
-          item={editing}
-          isNew={!items.some((i) => i.id === editing.id)}
-          onSave={save}
-          onDelete={() => {
-            wardrobe.value = items.filter((i) => i.id !== editing.id);
-            setEditing(null);
-          }}
-          onClose={() => setEditing(null)}
-        />
-      )}
+      {details && <DetailsSheet cat={category(details)} entry={inv[details]} onClose={() => setDetails(null)} />}
     </>
   );
 }
 
-function ItemEditor({ item, isNew, onSave, onDelete, onClose }: { item: WardrobeItem; isNew: boolean; onSave: (i: WardrobeItem) => void; onDelete: () => void; onClose: () => void }) {
-  const [i, setI] = useState(item);
-  const kind = KINDS.find((k) => k.value === i.layer)!;
+function CategoryRow({ cat, entry, open, onToggle, onDetails }: { cat: Category; entry?: InventoryEntry; open: boolean; onToggle: () => void; onDetails: () => void }) {
+  const id = useId();
+  const status = summarise(entry, cat);
+  const state = ownership({ [cat.id]: entry }, cat.id);
   return (
-    <Sheet open title={isNew ? 'Add an item' : 'Edit item'} onClose={onClose}>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (i.name.trim()) onSave({ ...i, name: i.name.trim() });
-        }}
-      >
+    <li class="wd-cat">
+      <button type="button" class="row-item" aria-expanded={open} aria-controls={id} onClick={onToggle}>
+        <LayerMark kind={cat.group} />
+        <span class="grow">
+          {cat.name}
+          {cat.description && <span class="sub">{cat.description}</span>}
+          {entry?.nickname && <span class="sub">“{entry.nickname}”</span>}
+        </span>
+        <span class="meta wd-status" data-state={state}>
+          {status}
+        </span>
+        <span class="meta wd-chev" aria-hidden="true">
+          ›
+        </span>
+      </button>
+      {open && (
+        <div class="wd-edit" id={id}>
+          {cat.thickness && <p class="small-print">Thickness is a rough guide to warmth, not a measurement.</p>}
+          {thicknessesOf(cat).map((t) => (
+            <Stepper key={t} cat={cat} entry={entry} t={t} />
+          ))}
+          <div class="wd-actions">
+            <button type="button" class="btn secondary" aria-pressed={state === 'none'} onClick={() => save(cat.id, dontOwn(entry, cat))}>
+              Don’t own
+            </button>
+            <button type="button" class="btn secondary" disabled={status === 'Not set'} onClick={() => save(cat.id, clearCounts(entry))}>
+              Clear
+            </button>
+            <button type="button" class="text-btn wd-more" onClick={onDetails}>
+              Details
+            </button>
+          </div>
+        </div>
+      )}
+    </li>
+  );
+}
+
+function Stepper({ cat, entry, t }: { cat: Category; entry?: InventoryEntry; t: Thickness }) {
+  const id = useId();
+  const n = entry?.counts[t];
+  const what = cat.thickness ? `${t} ${plural(cat.name)}` : plural(cat.name);
+  const canDown = n !== undefined && n > 0;
+  const step = (d: 1 | -1) => {
+    if (d < 0 && !canDown) return;
+    haptic();
+    save(cat.id, stepCount(entry, t, d));
+  };
+  return (
+    <div class="wd-step" role="group" aria-labelledby={id}>
+      <span class="grow">
+        <span id={id}>{cat.thickness ? THICK_LABEL[t] : 'How many'}</span>
+        {cat.examples && <span class="sub">{cat.examples[t]}</span>}
+      </span>
+      <button type="button" class="wd-btn" aria-label={`Fewer ${what}`} aria-disabled={!canDown} onClick={() => step(-1)}>
+        −
+      </button>
+      <output class="wd-count num" aria-live="polite" data-unset={n === undefined}>
+        {n === undefined ? 'Not set' : n}
+      </output>
+      <button type="button" class="wd-btn" aria-label={`More ${what}`} onClick={() => step(1)}>
+        +
+      </button>
+    </div>
+  );
+}
+
+function DetailsSheet({ cat, entry, onClose }: { cat: Category; entry?: InventoryEntry; onClose: () => void }) {
+  const matId = useId();
+  const patch = (p: Partial<Omit<InventoryEntry, 'counts'>>) => save(cat.id, patchDetails(entry, p));
+  const mats = entry?.material ?? [];
+  return (
+    <Sheet open title={cat.name} onClose={onClose}>
+      <p class="small-print wd-sheet-lead">All optional. Anything not set uses Layered’s usual guess for {plural(cat.name)}.</p>
+      <div class="field">
+        <span>Insulation</span>
+        <Segmented<string>
+          label="Insulation"
+          value={entry?.insulation ?? ''}
+          options={[{ value: '', label: 'Not set' }, ...LEVELS.map((l) => ({ value: l, label: cap(l) }))]}
+          onChange={(v) => patch({ insulation: (v || undefined) as Level | undefined })}
+        />
+        <span class="small-print">How warm it is for its thickness. Overrides the guess from thickness.</span>
+      </div>
+      <div class="field">
+        <span>Water resistance</span>
+        <Segmented<string>
+          label="Water resistance"
+          value={entry?.water ?? ''}
+          options={[{ value: '', label: 'Not set' }, ...WATER.map((w) => ({ value: w, label: cap(w) }))]}
+          onChange={(v) => patch({ water: (v || undefined) as WaterResistance | undefined })}
+        />
+        <span class="small-print">If not set: {cat.defaults.water}.</span>
+      </div>
+      <div class="field">
+        <span>Wind resistance</span>
+        <Segmented<string>
+          label="Wind resistance"
+          value={entry?.wind ?? ''}
+          options={[{ value: '', label: 'Not set' }, ...LEVELS.map((l) => ({ value: l, label: cap(l) }))]}
+          onChange={(v) => patch({ wind: (v || undefined) as Level | undefined })}
+        />
+        <span class="small-print">If not set: {cat.defaults.wind}.</span>
+      </div>
+      <div class="field">
+        <span id={matId}>Materials</span>
+        <div class="wd-mats" role="group" aria-labelledby={matId}>
+          {MATERIALS.map((m) => {
+            const on = mats.includes(m);
+            return (
+              <button key={m} type="button" aria-pressed={on} onClick={() => patch({ material: on ? mats.filter((x) => x !== m) : [...mats, m] })}>
+                {cap(m)}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      {cat.group === 'outer' && (
         <label class="field">
-          <span>Name</span>
-          <input type="text" required value={i.name} placeholder="Navy puffer" onInput={(e) => setI({ ...i, name: e.currentTarget.value })} />
+          <span>Nickname</span>
+          <input type="text" value={entry?.nickname ?? ''} placeholder="navy puffer" maxLength={40} autocomplete="off" onInput={(e) => patch({ nickname: e.currentTarget.value.trimStart() })} />
+          <span class="small-print">Advice will say “your {entry?.nickname?.trim() || 'navy puffer'}”.</span>
         </label>
-        <div class="field">
-          <span id="layer-label">Layer</span>
-          <Segmented<ItemKind> label="Layer" value={i.layer} options={KINDS.map((k) => ({ value: k.value, label: k.label }))} onChange={(layer) => setI({ ...i, layer })} />
-          <span class="small-print">{kind.hint}</span>
-        </div>
-        <div class="field">
-          <span>Warmth: {WARMTH[i.warmth - 1]}</span>
-          <Segmented<number> label="Warmth" value={i.warmth} options={[1, 2, 3, 4, 5].map((w) => ({ value: w, label: String(w) }))} onChange={(w) => setI({ ...i, warmth: w as WardrobeItem['warmth'] })} />
-        </div>
-        <div class="group" style={{ background: 'var(--paper)' }}>
-          <label class="row-item plain">
-            <span class="grow">Waterproof</span>
-            <input type="checkbox" class="check" checked={i.waterproof} onChange={(e) => setI({ ...i, waterproof: e.currentTarget.checked })} />
-          </label>
-          <label class="row-item plain">
-            <span class="grow">Windproof</span>
-            <input type="checkbox" class="check" checked={i.windproof} onChange={(e) => setI({ ...i, windproof: e.currentTarget.checked })} />
-          </label>
-          <label class="row-item plain">
-            <span class="grow">Colour<span class="sub">Optional</span></span>
-            <input type="color" value={i.color ?? '#1e4fa0'} onInput={(e) => setI({ ...i, color: e.currentTarget.value })} style={{ width: '44px', height: '36px', border: 0, background: 'none' }} />
-          </label>
-        </div>
-        <div class="sheet-actions">
-          {!isNew && <button type="button" class="btn danger" style={{ marginRight: 'auto' }} onClick={onDelete}>Delete</button>}
-          <button type="button" class="btn secondary" onClick={onClose}>Cancel</button>
-          <button type="submit" class="btn">Save</button>
-        </div>
-      </form>
+      )}
+      <div class="sheet-actions">
+        <button type="button" class="btn" onClick={onClose}>
+          Done
+        </button>
+      </div>
     </Sheet>
   );
 }

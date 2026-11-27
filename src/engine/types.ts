@@ -34,6 +34,7 @@ export type ItemKind = LayerKind | 'accessory';
 
 export type BandId = 'tshirt' | 'light' | 'two' | 'jacket' | 'coat' | 'bundle';
 
+/** A named item from wardrobe v1, kept only so old data can be migrated to the category inventory. */
 export interface WardrobeItem {
   id: string;
   name: string;
@@ -48,8 +49,6 @@ export interface LayerAdvice {
   kind: LayerKind | 'bottoms' | 'footwear';
   label: string;
   optional?: boolean;
-  /** Legacy named item from wardrobe v1. Replaced by the category inventory. */
-  item?: WardrobeItem;
   category?: CategoryId;
   thickness?: Thickness;
   /** Outerwear nickname, shown as "your <nickname>". */
@@ -77,7 +76,6 @@ export interface Extra {
   label: string;
   tone: 'rain' | 'cold' | 'sun' | 'warn' | 'info';
   reason: string;
-  item?: WardrobeItem;
 }
 
 export interface Rating {

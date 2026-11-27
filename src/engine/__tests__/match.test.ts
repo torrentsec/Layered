@@ -2,11 +2,13 @@
 // Copyright (c) 2026 torrentsec
 
 import { describe, expect, it } from 'vitest';
+import { advise } from '../advise';
 import { BANDS } from '../bands';
 import type { Inventory } from '../inventory';
-import { LIMITATION, matchInventory } from '../match';
+import { LIMITATION, matchInventory, withoutCovered } from '../match';
 import { insulationPoints, layerPlan, type Requirements } from '../requirements';
-import type { BandId, LayerAdvice } from '../types';
+import type { BandId, Extra, LayerAdvice } from '../types';
+import { day } from './fixtures';
 
 const EFFECTIVE: Record<BandId, number> = { tshirt: 24, light: 18, two: 14, jacket: 9, coat: 4, bundle: -4 };
 
@@ -238,5 +240,52 @@ describe('matchInventory: alternatives', () => {
   it('does not offer a drier alternative that is less waterproof', () => {
     const m = matchInventory(req('coat', { rain: 'waterproof' }), { longsleeve: own('medium'), jumper: own('medium'), 'waterproof-jacket': own('medium'), coat: own('medium') });
     for (const alt of m.alternatives) expect(find(alt, 'outer')?.category).toBe('waterproof-jacket');
+  });
+});
+
+describe('withoutCovered', () => {
+  const base: Inventory = { longsleeve: own('medium'), jumper: own('medium') };
+  const chips: Extra[] = [
+    { id: 'umbrella', label: 'Umbrella', tone: 'rain', reason: '' },
+    { id: 'waterproof', label: 'Waterproof', tone: 'rain', reason: '' },
+    { id: 'hood', label: 'Hooded waterproof', tone: 'rain', reason: '' },
+  ];
+  const kept = (band: BandId, inv: Inventory) => {
+    const m = matchInventory(req(band, { rain: 'waterproof' }), inv);
+    return withoutCovered(chips, m.layers, inv).map((e) => e.id);
+  };
+  it('drops the waterproof chip when the outer layer is a waterproof', () => {
+    expect(kept('coat', { ...base, 'waterproof-jacket': own('medium') })).toEqual(['umbrella', 'hood']);
+  });
+  it('uses the water resistance the user recorded over the catalogue default', () => {
+    expect(kept('coat', { ...base, coat: { ...own('medium'), water: 'waterproof' } })).toEqual(['umbrella', 'hood']);
+    expect(kept('coat', { ...base, 'waterproof-jacket': { ...own('medium'), water: 'resistant' } })).toEqual(['umbrella', 'waterproof', 'hood']);
+  });
+  it('keeps it with a showerproof or ordinary coat', () => {
+    expect(kept('coat', { ...base, 'insulated-jacket': own('medium') })).toContain('waterproof');
+    expect(kept('coat', { ...base, coat: own('medium') })).toContain('waterproof');
+  });
+  it('drops it for a shell worn over a band without an outer layer', () => {
+    expect(kept('two', { ...base, 'waterproof-jacket': own('thin') })).toEqual(['umbrella', 'hood']);
+  });
+  it('keeps it with generic advice', () => {
+    expect(kept('coat', {})).toContain('waterproof');
+  });
+});
+
+describe('advise: redundant chips', () => {
+  const soaking = day(3, () => ({ feels: 5, precipProb: 80, precip: 1 }));
+  const inv: Inventory = { longsleeve: own('medium'), jumper: own('medium'), 'waterproof-jacket': own('medium') };
+  const ids = (a: ReturnType<typeof advise>) => a!.extras.map((e) => e.id);
+  it('drops the waterproof chip when a waterproof is already in the list', () => {
+    expect(ids(advise({ hours: soaking, activity: 'walking' }))).toContain('waterproof');
+    expect(ids(advise({ hours: soaking, activity: 'walking', inventory: inv }))).not.toContain('waterproof');
+  });
+  it('keeps the umbrella chip alongside it', () => {
+    expect(ids(advise({ hours: soaking, activity: 'walking', inventory: inv }))).toContain('umbrella');
+  });
+  it('keeps the hood chip, since hoods are not recorded', () => {
+    const gusty = day(3, () => ({ feels: 5, precipProb: 80, precip: 1, gusts: 60 }));
+    expect(ids(advise({ hours: gusty, activity: 'walking', inventory: inv }))).toContain('hood');
   });
 });

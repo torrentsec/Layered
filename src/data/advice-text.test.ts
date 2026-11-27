@@ -2,11 +2,9 @@
 // Copyright (c) 2026 torrentsec
 
 import { describe, expect, it } from 'vitest';
-import { choiceOptions, fromWardrobe, genericName, insulationWords, layerText, needsRows } from './advice-text';
+import { choiceOptions, fromWardrobe, genericName, insulationWords, layerText, needsRows, outerText } from './advice-text';
 import { insulationPoints, layerPlan, requirementsFor } from '../engine/requirements';
-import type { LayerAdvice, WardrobeItem } from '../engine/types';
-
-const item: WardrobeItem = { id: 'w1', name: 'Grey Hoodie', layer: 'mid', warmth: 2, waterproof: false, windproof: false };
+import type { LayerAdvice } from '../engine/types';
 
 describe('layerText', () => {
   it('keeps the plain label when the engine gives no inventory detail', () => {
@@ -27,19 +25,14 @@ describe('layerText', () => {
     expect(layerText(l)).toEqual({ title: 'Your green parka', sub: 'Medium coat', general: false });
   });
 
-  it('keeps legacy wardrobe items as before', () => {
-    expect(layerText({ kind: 'mid', label: 'Warm mid layer', item })).toEqual({ title: 'Your grey hoodie', sub: 'Warm mid layer', general: false });
-  });
-
   it('marks unmatched rows as general advice', () => {
     expect(layerText({ kind: 'base', label: 'T-shirt', owned: 'unknown' }).general).toBe(true);
   });
 });
 
 describe('fromWardrobe', () => {
-  it('counts owned and legacy items, not unknown or unset ones', () => {
+  it('counts owned layers, not unknown or unset ones', () => {
     expect(fromWardrobe({ kind: 'base', label: 'x', owned: 'owned' })).toBe(true);
-    expect(fromWardrobe({ kind: 'base', label: 'x', item })).toBe(true);
     expect(fromWardrobe({ kind: 'base', label: 'x', owned: 'unknown' })).toBe(false);
     expect(fromWardrobe({ kind: 'base', label: 'x' })).toBe(false);
   });
@@ -90,5 +83,23 @@ describe('choiceOptions', () => {
   it('labels one or two alternatives and caps at two', () => {
     expect(choiceOptions(1).map((o) => o.label)).toEqual(['Suggested', 'Alternative']);
     expect(choiceOptions(5).map((o) => o.label)).toEqual(['Suggested', 'Alternative 1', 'Alternative 2']);
+  });
+});
+
+describe('outerText', () => {
+  const base: LayerAdvice = { kind: 'base', label: 'T-shirt', owned: 'owned', category: 'tshirt' };
+  it('names an owned outer layer by its nickname', () => {
+    expect(outerText([base, { kind: 'outer', label: 'Padded jacket', category: 'insulated-jacket', nickname: 'navy puffer', owned: 'owned' }])).toBe('Your navy puffer');
+  });
+  it('falls back to the matched label without a nickname', () => {
+    expect(outerText([base, { kind: 'outer', label: 'Padded jacket', category: 'insulated-jacket', owned: 'owned' }])).toBe('Your padded jacket');
+  });
+  it('uses the general label when nothing is matched', () => {
+    expect(outerText([{ kind: 'outer', label: 'Warm coat', owned: 'unknown' }])).toBe('Warm coat');
+    expect(outerText([{ kind: 'outer', label: 'Warm coat' }])).toBe('Warm coat');
+  });
+  it('says nothing without an outer layer', () => {
+    expect(outerText([base])).toBeUndefined();
+    expect(outerText([{ kind: 'outer', label: 'Light jacket', optional: true }])).toBeUndefined();
   });
 });

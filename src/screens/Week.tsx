@@ -10,6 +10,7 @@ import { currentPlace, forecastState, loadForecast } from '../state/forecast';
 import { planDay } from '../state/advice';
 import { go, href, route } from '../router';
 import { DayView } from './DayView';
+import { outerText } from '../data/advice-text';
 import { TitleBar } from '../components/TitleBar';
 import { MiniMark } from '../components/Marks';
 import { placeLabel } from '../components/PlaceSheet';
@@ -58,7 +59,7 @@ export function Week() {
                   <MiniMark feels={plan?.advice.effective ?? d.feelsMin} rain={d.precipProbMax} />
                   <span class="grow">
                     <strong>{dayLabel(d.date, today)}</strong>
-                    <span class="sub">{plan ? plan.advice.verdict : '—'}{d.precipProbMax >= 30 ? ` · ${Math.round(d.precipProbMax)}% rain` : ''}</span>
+                    <span class="sub">{plan ? [plan.advice.verdict, outerText(plan.advice.layers)].filter(Boolean).join(' · ') : '—'}{d.precipProbMax >= 30 ? ` · ${Math.round(d.precipProbMax)}% rain` : ''}</span>
                   </span>
                   <span class="range num" aria-label={`Feels ${fmtTemp(d.feelsMin, u.temp)} to ${fmtTemp(d.feelsMax, u.temp)}`}>
                     {fmtTemp(d.feelsMin, u.temp)} <span style={{ color: 'var(--ink-2)' }}>/</span> {fmtTemp(d.feelsMax, u.temp)}
@@ -78,7 +79,7 @@ function TomorrowCard({ date }: { date: string }) {
   const f = forecastState.value.forecast!;
   const plan = planDay(f, date, { settings: settings.value, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value });
   if (!plan) return null;
-  const layers = plan.advice.layers.filter((l) => !l.optional).map((l) => (l.item ? l.item.name : l.label));
+  const layers = plan.advice.layers.filter((l) => !l.optional).map((l) => (l.nickname ? `Your ${l.nickname}` : l.label));
   const extras = plan.advice.extras.filter((e) => e.tone === 'rain' || e.tone === 'cold').map((e) => e.label.toLowerCase());
   return (
     <a class="card" href={href('week', date)} style={{ display: 'block', color: 'inherit', textDecoration: 'none', borderLeft: '6px solid var(--yellow)' }}>

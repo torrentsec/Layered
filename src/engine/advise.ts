@@ -7,7 +7,7 @@ import { extrasFor, windowStats } from './extras';
 import { comfortOffset as comfortOffsetFor, type ComfortProfile } from './comfort';
 import { ownership, type Inventory } from './inventory';
 import { learnedFor } from './learning';
-import { matchInventory } from './match';
+import { matchInventory, withoutCovered } from './match';
 import { requirementsFor } from './requirements';
 import type { Activity, Advice, Hour, Rating } from './types';
 
@@ -49,7 +49,7 @@ export function advise(input: AdviseInput): Advice | null {
   const requirements = requirementsFor({ effective, band: band.id, stats, extras, activity, comfort: input.comfort });
   const { layers, limitations, alternatives } = matchInventory(requirements, inventory);
   // An umbrella the user has said they don't own is no use as advice.
-  const finalExtras = ownership(inventory, 'umbrella') === 'none' ? extras.filter((e) => e.id !== 'umbrella') : extras;
+  const finalExtras = withoutCovered(ownership(inventory, 'umbrella') === 'none' ? extras.filter((e) => e.id !== 'umbrella') : extras, layers, inventory);
 
   const rules = [`Effective ${effective}° is in the “${band.verdict}” band`, ...finalExtras.map((e) => `${e.label}: ${e.reason}`)];
 

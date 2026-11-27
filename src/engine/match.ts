@@ -4,7 +4,7 @@
 import { BANDS } from './bands';
 import { category, ownership, THICKNESSES, type CategoryId, type Inventory, type Level, type Thickness, type WaterResistance } from './inventory';
 import type { Requirements } from './requirements';
-import type { LayerAdvice, LayerKind } from './types';
+import type { Extra, LayerAdvice, LayerKind } from './types';
 
 /**
  * Stage 3 of the engine: turn requirements into garments the user has said
@@ -66,6 +66,18 @@ const FOOT_PREFS: Record<Requirements['footwear'], Prefs> = {
   waterproof: { 'waterproof-shoes': 0, boots: 0.1, trainers: 0.3 },
   boots: { boots: 0, 'waterproof-shoes': 0.5, trainers: 1.5 },
 };
+
+const byPref = (p: Prefs) => (Object.entries(p) as [CategoryId, number][]).sort((a, b) => a[1] - b[1]).map(([id]) => id);
+
+/** Categories that can fill each slot today, best fit first. Slots the day doesn't need are left out. */
+export function slotCategories(r: Requirements): Partial<Record<LayerKind | 'footwear', CategoryId[]>> {
+  return {
+    base: byPref(basePrefs(r.band)),
+    ...(r.layers.mid && !r.layers.midOptional ? { mid: byPref(MID_PREFS) } : {}),
+    ...(r.layers.outer ? { outer: byPref(OUTER_PREFS[r.layers.outer]) } : {}),
+    footwear: byPref(FOOT_PREFS[r.footwear]),
+  };
+}
 
 const LABELS: Partial<Record<CategoryId, Record<Thickness, string>>> = {
   tshirt: { thin: 'Light T-shirt', medium: 'T-shirt', thick: 'Heavy T-shirt' },
@@ -319,4 +331,14 @@ export function matchInventory(r: Requirements, inv: Inventory = {}): Match {
   }
 
   return { layers: [...upper, ...extra, ...lower], limitations, alternatives };
+}
+
+/**
+ * Drops extras the suggested clothes already provide, so a chip doesn't
+ * repeat the list. Hoods aren't recorded, so a hooded-waterproof chip still
+ * says something the list doesn't and stays.
+ */
+export function withoutCovered(extras: Extra[], layers: LayerAdvice[], inv: Inventory = {}): Extra[] {
+  const waterproof = layers.some((l) => l.kind === 'outer' && l.category && water(inv, l.category) === 'waterproof');
+  return waterproof ? extras.filter((e) => e.id !== 'waterproof') : extras;
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 torrentsec
 
-import { useId, useState } from 'preact/hooks';
+import { useEffect, useId, useState } from 'preact/hooks';
 import {
   CATALOGUE,
   category,
@@ -15,7 +15,12 @@ import {
   type Thickness,
   type WaterResistance,
 } from '../engine/inventory';
-import { inventory } from '../data/store';
+import { comfort, inventory, ratings, settings } from '../data/store';
+import { missingForToday, type Gap } from '../engine/gaps';
+import { localNow } from '../engine/time';
+import { currentPlace, forecastState, loadForecast } from '../state/forecast';
+import { planDay } from '../state/advice';
+import { route } from '../router';
 import { clearCounts, dontOwn, patchDetails, stepCount, summarise, thicknessesOf, withEntry } from '../data/inventory-edit';
 import { TitleBar } from '../components/TitleBar';
 import { Sheet } from '../components/Sheet';
@@ -43,12 +48,45 @@ const save = (id: CategoryId, e: InventoryEntry | undefined) => {
   inventory.value = withEntry(inventory.value, id, e);
 };
 
+const isCategory = (s?: string): s is CategoryId => CATALOGUE.some((c) => c.id === s);
+const rowId = (id: CategoryId) => `wd-cat-${id}`;
+
+/** Today's gaps, with the default activity, once a forecast is to hand. */
+function todaysGaps(): Gap[] {
+  const f = forecastState.value.forecast;
+  if (!currentPlace.value || !f) return [];
+  const plan = planDay(f, localNow(f.utcOffsetSeconds).slice(0, 10), { settings: settings.value, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value });
+  return plan?.advice.requirements ? missingForToday(plan.advice.requirements, inventory.value) : [];
+}
+
 export function Wardrobe() {
-  const [open, setOpen] = useState<CategoryId | null>(null);
+  const param = route.value.param;
+  const [open, setOpen] = useState<CategoryId | null>(isCategory(param) ? param : null);
   const [details, setDetails] = useState<CategoryId | null>(null);
   const inv = inventory.value;
   const set = CATALOGUE.filter((c) => ownership(inv, c.id) !== 'unknown').length;
   const total = CATALOGUE.length;
+  const gaps = todaysGaps();
+
+  useEffect(() => {
+    void loadForecast();
+  }, [currentPlace.value?.id]);
+
+  // Opened from a link such as #/wardrobe/gloves: bring that row into view.
+  useEffect(() => {
+    if (!isCategory(param)) return;
+    setOpen(param);
+    document.getElementById(rowId(param))?.scrollIntoView({ block: 'center' });
+  }, [param]);
+
+  const openGap = (id: CategoryId) => {
+    setOpen(id);
+    requestAnimationFrame(() => {
+      const row = document.getElementById(rowId(id));
+      row?.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? ('instant' as ScrollBehavior) : 'smooth' });
+      row?.querySelector<HTMLButtonElement>('button')?.focus({ preventScroll: true });
+    });
+  };
 
   return (
     <>
@@ -59,6 +97,26 @@ export function Wardrobe() {
             <h2>No wardrobe needed</h2>
             <p>Layered gives sound advice without one. Set the categories you like and it will suggest from what you own.</p>
           </div>
+        )}
+        {gaps.length > 0 && (
+          <section class="card wd-gaps" aria-labelledby="wd-gaps-title">
+            <h2 id="wd-gaps-title">Set these to improve today’s advice</h2>
+            <ul>
+              {gaps.map((g) => (
+                <li key={g.id}>
+                  <button type="button" class="wd-gap" onClick={() => openGap(g.id)}>
+                    <span class="grow">
+                      {category(g.id).name}
+                      <span class="sub">{g.reason}</span>
+                    </span>
+                    <span class="wd-chev" aria-hidden="true">
+                      ›
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
         <section class="card wd-progress" aria-label="Wardrobe completeness">
           <p class="wd-progress-line">
@@ -97,7 +155,7 @@ function CategoryRow({ cat, entry, open, onToggle, onDetails }: { cat: Category;
   const status = summarise(entry, cat);
   const state = ownership({ [cat.id]: entry }, cat.id);
   return (
-    <li class="wd-cat">
+    <li class="wd-cat" id={rowId(cat.id)}>
       <button type="button" class="row-item" aria-expanded={open} aria-controls={id} onClick={onToggle}>
         <LayerMark kind={cat.group} />
         <span class="grow">

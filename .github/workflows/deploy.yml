@@ -37,3 +37,39 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  worker:
+    # The push Worker reads the same D1 as the site, so it ships only after the tests in `pages` pass.
+    needs: pages
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Migrate D1 and deploy layered-push
+        # The database id is looked up at deploy time and written only to a temporary
+        # config next to the real one, so relative paths still resolve; it is never echoed.
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::warning::CLOUDFLARE_API_TOKEN is not set; skipping the push Worker deploy."
+            exit 0
+          fi
+          DB_ID=$(npx wrangler d1 list --json | node -e '
+            let s = ""; process.stdin.on("data", (c) => (s += c)).on("end", () => {
+              const db = JSON.parse(s).find((d) => d.name === "layered-db");
+              if (!db) { console.error("layered-db not found"); process.exit(1); }
+              process.stdout.write(db.uuid);
+            });')
+          echo "::add-mask::$DB_ID"
+          CONFIG=worker/wrangler.deploy.toml
+          trap 'rm -f "$CONFIG"' EXIT
+          sed "s/LAYERED_DB_ID/$DB_ID/" worker/wrangler.toml > "$CONFIG"
+          npx wrangler d1 migrations apply layered-db --remote --config "$CONFIG"
+          npx wrangler deploy --config "$CONFIG"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

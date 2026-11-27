@@ -16,8 +16,11 @@ const SHORT: Record<BandId, string> = {
 
 const PRIORITY = ['hood', 'waterproof', 'umbrella', 'gloves', 'hat', 'sunscreen', 'boots'] as const;
 
-/** e.g. "Coat + umbrella today · showers from around 16:00". Short enough for a lock screen. */
-export function notificationText(advice: Advice, dayHours = advice.hours, fmt: TimeFormatter = fmt24): string {
+/**
+ * e.g. "Coat + umbrella today · showers from around 16:00". Short enough for a lock
+ * screen. The evening heads-up (US-061) says "tomorrow" instead.
+ */
+export function notificationText(advice: Advice, dayHours = advice.hours, fmt: TimeFormatter = fmt24, day: 'today' | 'tomorrow' = 'today'): string {
   const ids = new Set(advice.extras.map((e) => e.id));
   const bits = [SHORT[advice.band]];
   for (const id of PRIORITY) {
@@ -27,5 +30,5 @@ export function notificationText(advice: Advice, dayHours = advice.hours, fmt: T
     bits.push(advice.extras.find((e) => e.id === id)!.label.toLowerCase());
     if (bits.length === 3) break;
   }
-  return `${bits.join(' + ')} today · ${wetFrom(dayHours, fmt) ?? 'dry'}`;
+  return `${bits.join(' + ')} ${day} · ${wetFrom(dayHours, fmt) ?? 'dry'}`;
 }

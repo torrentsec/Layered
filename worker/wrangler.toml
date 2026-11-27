@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 torrentsec
+
+# Sends the morning, evening and change-alert notifications. It has no public
+# URL: the cron trigger is its only entry point.
+name = "layered-push"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"
+workers_dev = false
+preview_urls = false
+
+[triggers]
+crons = ["*/15 * * * *"]
+
+# The id is substituted at deploy time by CI from `wrangler d1 list`, so no
+# account's database id lives in the repository.
+[[d1_databases]]
+binding = "DB"
+database_name = "layered-db"
+database_id = "LAYERED_DB_ID"
+migrations_dir = "../migrations"
+
+[vars]
+VAPID_SUBJECT = "https://layered-a9i.pages.dev"
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+
+[observability.traces]
+enabled = true
+head_sampling_rate = 0.1

@@ -6,6 +6,7 @@ import './styles/app.css';
 // One stylesheet per feature, so parallel work never collides at the end of a shared file.
 import './styles/advice.css';
 import './styles/wardrobe.css';
+import './styles/forecast.css';
 import { App } from './App';
 import { initTheme } from './theme';
 import { printBanner } from './banner';

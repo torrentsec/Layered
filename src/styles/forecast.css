@@ -1,0 +1,26 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later
+   Copyright (c) 2026 Daniel Woo */
+
+/* ---------- honest forecast: real temperature and certainty ---------- */
+
+.feels-label .nowrap {
+  white-space: nowrap;
+}
+
+/* Own line, so the two ranges stay together at phone width. */
+.feels-context {
+  display: block;
+}
+
+.rough-guide {
+  margin: 0 0 8px;
+  padding: 8px 12px;
+  border-left: 3px solid var(--line);
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.certainty {
+  white-space: nowrap;
+  font-style: italic;
+}

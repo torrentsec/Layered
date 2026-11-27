@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 torrentsec
 
-import { windAtBody } from '../radiation';
 import { describe, expect, it } from 'vitest';
 import fixture from '../__fixtures__/clothing.json';
 import { CATALOGUE, THICKNESSES, type CategoryId, type Thickness } from '../../inventory';
@@ -16,12 +15,16 @@ import {
   resultantIcl,
   WET_FACTOR,
 } from '../clothing';
+import { metabolicRate } from '../metabolic';
+import { windAtBody } from '../radiation';
 import type { GarmentClo } from '../types';
 
 const tol = fixture.meta.tolerance;
 type FixtureGarment = { clo?: number; source: string } & Partial<Record<Thickness, number>>;
 const garments = fixture.garments as unknown as Record<string, FixtureGarment>;
 const asGarments = (gs: { category: string; thickness?: string }[]) => gs as GarmentClo[];
+/** On foot: walking speed only, no ride. */
+const on = (walk: number) => ({ walk, ride: 0 });
 const sumOf = (gs: GarmentClo[]) => BASE_ALLOWANCE_CLO + gs.reduce((s, g) => s + garmentClo(g), 0);
 
 describe('garment table', () => {
@@ -83,23 +86,23 @@ describe('ISO 9920 ensemble summation', () => {
   it.each(rows)('$label', ({ garments: gs, sumClo, icl }) => {
     const g = asGarments(gs);
     expect(sumOf(g)).toBeCloseTo(sumClo, 6);
-    const e = ensembleClo(g, 0, 0, 'dry');
+    const e = ensembleClo(g, 0, on(0), 'dry');
     expect(Math.abs(e.basic - icl)).toBeLessThanOrEqual(tol.icl);
   });
 
   it('is monotonic in each garment', () => {
     const plan = asGarments(fixture.bandPlans[4].garments);
-    const base = ensembleClo(plan, 4, 1, 'dry');
+    const base = ensembleClo(plan, 4, on(1), 'dry');
     for (let i = 0; i < plan.length; i++) {
       const warmer = plan.map((g, j) => (j === i ? { ...g, clo: garmentClo(g) + 0.05 } : g));
-      const e = ensembleClo(warmer, 4, 1, 'dry');
+      const e = ensembleClo(warmer, 4, on(1), 'dry');
       expect(e.basic).toBeGreaterThan(base.basic);
       expect(e.resultant).toBeGreaterThan(base.resultant);
     }
   });
 
   it('counts the base allowance with nothing else worn', () => {
-    expect(ensembleClo([], 0, 0, 'dry').basic).toBeCloseTo(0.835 * 0.06 + 0.161, 6);
+    expect(ensembleClo([], 0, on(0), 'dry').basic).toBeCloseTo(0.835 * 0.06 + 0.161, 6);
   });
 });
 
@@ -136,7 +139,7 @@ describe('resultant insulation', () => {
 
   it('equals basic insulation standing in still air', () => {
     for (const icl of [0.2, 0.36, 0.6, 1.38, 2]) expect(resultantIcl(icl, 0.15, 0)).toBeCloseTo(icl, 9);
-    const e = ensembleClo(coat, 0, 0, 'dry');
+    const e = ensembleClo(coat, 0, on(0), 'dry');
     expect(e.resultant).toBeCloseTo(e.basic, 9);
     expect(e.windLoss).toBeCloseTo(0, 9);
   });
@@ -146,28 +149,49 @@ describe('resultant insulation', () => {
   });
 
   it('scales 10 m wind to body height with the shared profile', () => {
-    const e = ensembleClo(coat, 5, 0, 'dry');
+    const e = ensembleClo(coat, 5, on(0), 'dry');
     expect(e.resultant).toBeCloseTo(resultantIcl(e.basic, windAtBody(5), 0), 9);
   });
 
   it('uses walking speed as the air speed in calm air', () => {
-    const e = ensembleClo(coat, 0, 1.2, 'dry');
+    const e = ensembleClo(coat, 0, on(1.2), 'dry');
     expect(e.resultant).toBeCloseTo(resultantIcl(e.basic, 1.2, 1.2), 9);
   });
 
   it('loses insulation as wind and walking rise, and stops at the clamp', () => {
     let prev = Infinity;
     for (let w10 = 0; w10 <= 30; w10 += 0.5) {
-      const r = ensembleClo(coat, w10, 1, 'dry').resultant;
+      const r = ensembleClo(coat, w10, on(1), 'dry').resultant;
       expect(r).toBeLessThanOrEqual(prev + tol.factor * 2);
       prev = r;
     }
-    expect(ensembleClo(coat, 30, 1, 'dry').resultant).toBe(ensembleClo(coat, 3.5 / 0.68, 1, 'dry').resultant);
-    expect(ensembleClo(coat, 3, 1.2, 'dry').resultant).toBeLessThan(ensembleClo(coat, 3, 0.6, 'dry').resultant);
+    expect(ensembleClo(coat, 30, on(1), 'dry').resultant).toBe(ensembleClo(coat, 3.5 / 0.68, on(1), 'dry').resultant);
+    expect(ensembleClo(coat, 3, on(1.2), 'dry').resultant).toBeLessThan(ensembleClo(coat, 3, on(0.6), 'dry').resultant);
+  });
+
+  it('adds a cyclist\'s ride speed to the wind at the body', () => {
+    const ride = { walk: 0.5, ride: 2 };
+    const e = ensembleClo(coat, 1, ride, 'dry');
+    expect(e.resultant).toBeCloseTo(resultantIcl(e.basic, windAtBody(1) + 2, 0.5), 9);
+  });
+
+  it('leaves a cyclist less insulated than a walker in light wind', () => {
+    for (const effort of ['easy', 'steady', 'hard'] as const) {
+      for (const w10 of [0, 1, 2]) {
+        const cycling = ensembleClo(coat, w10, metabolicRate('cycling', effort), 'dry').resultant;
+        const walking = ensembleClo(coat, w10, metabolicRate('walking'), 'dry').resultant;
+        expect(cycling, `${effort} ${w10}`).toBeLessThan(walking);
+      }
+    }
+  });
+
+  it('reaches the air-speed clamp at steady riding even in calm air', () => {
+    const ride = metabolicRate('cycling', 'steady');
+    expect(ensembleClo(coat, 0, ride, 'dry').resultant).toBeCloseTo(resultantIcl(ensembleClo(coat, 0, ride, 'dry').basic, 3.5, ride.walk), 9);
   });
 
   it('reports a wind loss in the range the spike quotes for a breezy walk', () => {
-    const e = ensembleClo(coat, 4.4, 1.2, 'dry'); // 3 m/s at the body
+    const e = ensembleClo(coat, 4.4, on(1.2), 'dry'); // 3 m/s at the body
     expect(e.windLoss).toBeGreaterThan(0.25);
     expect(e.windLoss).toBeLessThan(0.6);
     expect(e.windLoss).toBeCloseTo(1 - e.resultant / e.basic, 9);
@@ -177,7 +201,7 @@ describe('resultant insulation', () => {
 describe('wet clothing', () => {
   const coat = asGarments(fixture.bandPlans[4].garments);
   const at = (wet: 'dry' | 'showers' | 'rain', water?: 'none' | 'resistant' | 'waterproof') =>
-    ensembleClo(coat, 0, 0, wet, water ? { water, wind: 'medium' } : undefined);
+    ensembleClo(coat, 0, on(0), wet, water ? { water, wind: 'medium' } : undefined);
 
   it('applies 0.85 in showers and 0.70 in rain without protection', () => {
     expect(at('showers').resultant).toBeCloseTo(at('dry').basic * 0.85, 9);
@@ -208,19 +232,19 @@ describe('wet clothing', () => {
 describe('permeability', () => {
   it('is 8 under a windproof or waterproof outer layer', () => {
     const shell = asGarments([{ category: 'jumper' }, { category: 'waterproof-jacket' }]);
-    expect(ensembleClo(shell, 0, 0, 'dry', { water: 'waterproof', wind: 'medium' }).permeability).toBe(PERMEABILITY.shell);
-    expect(ensembleClo(shell, 0, 0, 'dry', { water: 'none', wind: 'high' }).permeability).toBe(8);
+    expect(ensembleClo(shell, 0, on(0), 'dry', { water: 'waterproof', wind: 'medium' }).permeability).toBe(PERMEABILITY.shell);
+    expect(ensembleClo(shell, 0, on(0), 'dry', { water: 'none', wind: 'high' }).permeability).toBe(8);
   });
 
   it('is 1000 when knitwear is the outermost layer', () => {
     const knit = asGarments([{ category: 'longsleeve' }, { category: 'jumper' }, { category: 'jeans' }]);
-    expect(ensembleClo(knit, 0, 0, 'dry').permeability).toBe(1000);
-    expect(ensembleClo(knit, 0, 0, 'dry', { water: 'none', wind: 'low' }).permeability).toBe(1000);
+    expect(ensembleClo(knit, 0, on(0), 'dry').permeability).toBe(1000);
+    expect(ensembleClo(knit, 0, on(0), 'dry', { water: 'none', wind: 'low' }).permeability).toBe(1000);
   });
 
   it('is 50 otherwise', () => {
     const jacket = asGarments([{ category: 'jumper' }, { category: 'light-jacket' }]);
-    expect(ensembleClo(jacket, 0, 0, 'dry', { water: 'none', wind: 'medium' }).permeability).toBe(50);
-    expect(ensembleClo(asGarments([{ category: 'tshirt' }]), 0, 0, 'dry').permeability).toBe(50);
+    expect(ensembleClo(jacket, 0, on(0), 'dry', { water: 'none', wind: 'medium' }).permeability).toBe(50);
+    expect(ensembleClo(asGarments([{ category: 'tshirt' }]), 0, on(0), 'dry').permeability).toBe(50);
   });
 });

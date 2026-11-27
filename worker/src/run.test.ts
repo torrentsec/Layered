@@ -13,7 +13,10 @@ import { changed, parseSummary, planFor, summarise } from './plan';
 import { groupByPlace, jobsFor, placeKey, runOnce, type Kind } from './run';
 import type { SubscriptionRow } from '../../functions/_lib/push-db';
 
+// Pinned to the bands: these fixtures vary apparent temperature only, which the science engine doesn't read.
+// Agreement with the app under both engines is checked in src/state/notify-agree.test.ts.
 const PROFILE: PushProfile = {
+  engine: 'bands',
   units: { temp: 'c', wind: 'kmh', clock: '24' },
   activity: 'walking',
   manualOffset: 0,

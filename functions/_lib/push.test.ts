@@ -63,6 +63,22 @@ describe('subscribe validation', () => {
     if (r.ok) expect([r.body.lat, r.body.lon]).toEqual([51.51, -0.13]);
   });
 
+  it('keeps the engine inputs the Worker plans with, and strips routine names', () => {
+    const r = request();
+    Object.assign(r.profile, {
+      engine: 'science',
+      duration: 4,
+      bias: -0.12,
+      learned: { at: '2026-11-26', all: -0.75, any: true, by: { cycling: -1.2 } },
+      routines: [{ time: '07:00', hours: 0.5, days: [3, 1], activity: 'walking', name: 'Dog walk' }],
+    });
+    const out = parse(r);
+    expect(out.ok).toBe(true);
+    if (!out.ok) return;
+    expect(out.body.profile).toMatchObject({ engine: 'science', duration: 4, bias: -0.12, learned: { at: '2026-11-26', all: -0.75, any: true, by: { cycling: -1.2 } } });
+    expect(out.body.profile.routines).toEqual([{ time: '07:00', hours: 0.5, days: [1, 3], activity: 'walking' }]);
+  });
+
   it('strips fields the Worker does not need', () => {
     const extra = request();
     (extra.profile as unknown as Record<string, unknown>).name = 'Alex';
@@ -122,6 +138,15 @@ describe('subscribe validation', () => {
     ['a bad tolerance', (p) => (p.comfort = { sensitivity: 'cold', windTolerance: 'extreme' })],
     ['a bad commute time', (p) => (p.commute = { enabled: true, out: '8am', back: '17:30', legHours: 1, days: [1] })],
     ['a zero leg', (p) => (p.commute = { enabled: true, out: '08:00', back: '17:30', legHours: 0, days: [1] })],
+    ['an unknown engine', (p) => (p.engine = 'magic')],
+    ['no time outside', (p) => (p.duration = 0)],
+    ['a bias past any preference', (p) => (p.bias = 3)],
+    ['a vote pull without a date', (p) => (p.learned = { all: 1, any: true, by: {} })],
+    ['a vote pull for an unknown activity', (p) => (p.learned = { at: '2026-11-26', all: 1, any: true, by: { sleeping: 1 } })],
+    ['a huge vote pull', (p) => (p.learned = { at: '2026-11-26', all: 1e9, any: true, by: {} })],
+    ['a routine at a bad time', (p) => (p.routines = [{ time: '7pm', hours: 1, days: [1], activity: 'walking' }])],
+    ['a routine with a bad effort', (p) => (p.routines = [{ time: '07:00', hours: 1, days: [1], activity: 'running', effort: 'max' }])],
+    ['too many routines', (p) => (p.routines = Array.from({ length: 21 }, () => ({ time: '07:00', hours: 1, days: [1], activity: 'walking' })))],
   ])('rejects a profile with %s', (_, mutate) => {
     const r = request();
     mutate(r.profile as unknown as Record<string, unknown>);

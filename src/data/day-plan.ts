@@ -11,10 +11,10 @@ import type { ComfortProfile } from '../engine/comfort';
 import type { GarmentWarmth } from '../engine/garment-learning';
 import type { LearnSnapshot } from '../engine/learning';
 import type { BiasState, WeatherPlace } from '../engine/science/types';
+import type { EngineChoice } from './engine-choice';
 import type { Forecast } from './forecast-types';
 import { timeFmt, weekday } from './format';
 import { fmtTemp, type Units } from './units';
-import type { Commute } from './store';
 
 export interface DayPlan {
   advice: Advice;
@@ -31,13 +31,14 @@ export interface DayPlan {
  * device, so the app and the push Worker plan with the same code and inputs.
  */
 export interface PlanInput {
-  engine: 'bands' | 'science';
+  engine: EngineChoice;
   units: Pick<Units, 'temp' | 'clock'>;
   activity: Activity;
   effort?: Effort;
   /** Hours outside for the day window; also the science engine's exposure. */
   duration: number;
-  commute: Commute;
+  /** As Settings keeps it; the push profile carries the same shape. */
+  commute: { enabled: boolean; out: string; back: string; legHours: number; days: number[]; mode?: Activity };
   /** Overrides whether the commute applies (DayView's toggle); missing means its days decide. */
   commuteOn?: boolean;
   manualOffset: number;

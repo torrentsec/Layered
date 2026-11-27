@@ -2,7 +2,7 @@
 // Copyright (c) 2026 torrentsec
 
 import { describe, expect, it } from 'vitest';
-import { activityOffsets, addRating, learnedFor, learnOffset, LEARN_CAP } from '../learning';
+import { activityOffsets, addRating, learnedFor, learnedFromSnapshot, learnOffset, learnSnapshot, LEARN_CAP } from '../learning';
 import { advise } from '../advise';
 import type { Rating } from '../types';
 import { day } from './fixtures';
@@ -70,5 +70,30 @@ describe('addRating with detail and corrections (US-036, US-037)', () => {
   it('keeps other activities on the same day', () => {
     const walk: Rating = { ...r('2026-11-26', 0), corrections: [{ category: 'coat', thickness: 'medium', verdict: 'too-cool' }] };
     expect(addRating([walk], r('2026-11-26', 1, 'cycling'))).toHaveLength(2);
+  });
+
+  describe('snapshot', () => {
+    const votes = [r('2026-09-01', -1), r('2026-10-15', -1), r('2026-11-01', -1, 'cycling'), r('2026-11-02', 0, 'cycling'), r('2026-11-20', -1, 'cycling'), r('2026-11-24', 1)];
+    it('gives learnedFor for every activity on the day it was taken and on any later day', () => {
+      const snap = learnSnapshot(votes, '2026-11-24');
+      for (const today of ['2026-11-24', '2026-11-30', '2027-01-15', '2027-06-01']) {
+        for (const a of ['walking', 'cycling', 'running'] as const) expect(learnedFromSnapshot(snap, a, today)).toEqual(learnedFor(votes, a, today));
+      }
+    });
+    it('reads as nothing learned without votes, and as learned from all with only "just right"', () => {
+      expect(learnedFromSnapshot(learnSnapshot([], '2026-11-24'), 'walking', '2026-11-30')).toEqual({ offset: 0, from: 'none' });
+      expect(learnedFromSnapshot(learnSnapshot([r('2026-11-24', 0)], '2026-11-24'), 'walking', '2026-11-30')).toEqual(learnedFor([r('2026-11-24', 0)], 'walking', '2026-11-30'));
+    });
+    it('keeps the cap after ageing a capped pull', () => {
+      const many = Array.from({ length: 20 }, (_, i) => r(`2026-11-${String(i + 1).padStart(2, '0')}`, -1));
+      const snap = learnSnapshot(many, '2026-11-20');
+      for (const today of ['2026-11-20', '2026-12-20', '2027-02-01']) expect(learnedFromSnapshot(snap, 'walking', today)).toEqual(learnedFor(many, 'walking', today));
+    });
+    it('stands in for ratings in advise', () => {
+      const hours = day(24, () => ({ feels: 4 }));
+      const today = hours[0].time.slice(0, 10);
+      const near = votes.map((v) => ({ ...v, date: today }));
+      expect(advise({ hours, activity: 'walking', learned: learnSnapshot(near, today), today })).toEqual(advise({ hours, activity: 'walking', ratings: near, today }));
+    });
   });
 });

@@ -4,6 +4,7 @@
 import type { ComfortProfile } from '../engine/comfort';
 import type { LearnSnapshot } from '../engine/learning';
 import type { Activity, Effort } from '../engine/types';
+import type { EngineChoice } from './engine-choice';
 import type { Units } from './units';
 
 /**
@@ -43,7 +44,7 @@ export interface PushProfile {
    * the default engine, Settings' default time outside, the bias prior from
    * comfort and manual offset, no votes and no routines.
    */
-  engine?: 'bands' | 'science';
+  engine?: EngineChoice;
   /** Hours outside, from Settings. */
   duration?: number;
   /** The device's learned clo bias. A single number: the votes behind it stay on the device. */

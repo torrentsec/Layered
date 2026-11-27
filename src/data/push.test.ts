@@ -3,6 +3,8 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_COMFORT } from '../engine/comfort';
+import { learnSnapshot } from '../engine/learning';
+import type { Rating } from '../engine/types';
 import { PUSH_API, type SubscribeRequest } from './push-api';
 import {
   base64UrlToBytes,
@@ -140,9 +142,35 @@ describe('request building', () => {
       manualOffset: -1,
       comfort: { sensitivity: 'cold', windTolerance: 'low' },
       commute: { enabled: false, out: '08:00', back: '17:30', legHours: 1, days: [1, 2, 3, 4, 5] },
+      engine: 'science',
+      duration: DEFAULT_SETTINGS.duration,
     });
     const withMode = buildProfile(settingsWith({ commute: { ...DEFAULT_SETTINGS.commute, mode: 'transport' } }), DEFAULT_COMFORT);
     expect(withMode.commute.mode).toBe('transport');
+  });
+
+  it('carries the bias, the vote pull dated at the newest vote, and routines without names', () => {
+    const ratings: Rating[] = [
+      { date: '2026-11-20', activity: 'walking', rating: -1, effective: 5 },
+      { date: '2026-11-25', activity: 'walking', rating: 1, effective: 5 },
+    ];
+    const p = buildProfile(settingsWith({ engine: 'bands' }), DEFAULT_COMFORT, {
+      bias: 0.12,
+      ratings,
+      routines: [{ id: 'r1', name: 'Dog walk', time: '07:00', hours: 0.5, days: [1], activity: 'walking' }],
+    });
+    expect(p.engine).toBe('bands');
+    expect(p.bias).toBe(0.12);
+    expect(p.learned).toEqual(learnSnapshot(ratings, '2026-11-25'));
+    expect(p.routines).toEqual([{ time: '07:00', hours: 0.5, days: [1], activity: 'walking' }]);
+    expect(JSON.stringify(p)).not.toContain('Dog walk');
+  });
+
+  it('leaves out what the device has not learned, so the Worker falls back', () => {
+    const p = buildProfile(settingsWith(), DEFAULT_COMFORT, { bias: Number.NaN, ratings: [], routines: [] });
+    expect(p).not.toHaveProperty('bias');
+    expect(p).not.toHaveProperty('learned');
+    expect(p).not.toHaveProperty('routines');
   });
 
   it('builds a full subscribe request, with the id only when updating', () => {

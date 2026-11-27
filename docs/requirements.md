@@ -48,24 +48,24 @@ Thresholds are named constants with unit tests, so they can be recalibrated from
 | US-001 | Personal profile | P0 | Adapted | The device profile is the profile. The sync code (E10) carries it between devices. |
 | US-002 | Primary location | P0 | Done | Search, Home/Work/Gym/custom, switcher on Today, "Use my location". |
 | US-003 | Location permission control | P0 | Done | Asked only on tap, with a reason given. Works fully without it. No background tracking. |
-| US-004 | Temperature sensitivity (cold / average / warm) | P0 | Planned | Three choices that set a base offset. The manual slider stays for fine-tuning. |
-| US-005 | Comfort preferences (overheat walking, cold when still, wind/rain tolerance) | P1 | Planned | Each adjusts a specific activity offset or threshold. All optional. |
-| US-006 | Progressive onboarding | P0 | Planned | First run: place, then sensitivity (skippable), then an optional quick wardrobe. Missing data never blocks advice. |
+| US-004 | Temperature sensitivity (cold / average / warm) | P0 | Done | Three choices that set a base offset. The manual slider stays for fine-tuning. |
+| US-005 | Comfort preferences (overheat walking, cold when still, wind/rain tolerance) | P1 | Done | Each adjusts a specific activity offset or threshold. All optional. |
+| US-006 | Progressive onboarding | P0 | Done | First run: place, then sensitivity (skippable), then an optional quick wardrobe. Missing data never blocks advice. |
 
 ### E02: Clothing inventory
 
 | ID | Story | Pri | Status | Notes |
 |---|---|---|---|---|
-| US-007 | Category catalogue | P0 | Planned | Base, mid, outer, bottoms, footwear, accessories, using the backlog's taxonomy. |
-| US-008 | Quantities per category | P0 | Planned | Non-negative whole numbers. 0 means "don't own"; blank means "not set". |
-| US-009 | Thin / medium / thick | P0 | Planned | Quantities are recorded per thickness. |
-| US-010 | Thickness explanations | P0 | Planned | Category-specific examples, shown while editing. |
-| US-011 | Material | P2 | Planned | Optional: wool, cotton, synthetic, fleece, down. |
-| US-012 | Water and wind resistance | P1 | Planned | Water: none / resistant / waterproof. Wind: low / medium / high. Jackets are never assumed waterproof. |
-| US-013 | Insulation separate from thickness | P1 | Planned | Optional low / medium / high. Overrides the thickness-based default. |
-| US-014 | Edit inventory | P0 | Planned | Edited in place, saved automatically. |
-| US-015 | Inventory completeness | P1 | Planned | Shows configured versus not set, and which missing categories matter for today. |
-| US-016 | Works with a partial wardrobe | P0 | Partial | Generic advice works today. The "not set versus don't own" distinction arrives with the category model. |
+| US-007 | Category catalogue | P0 | Done | Base, mid, outer, bottoms, footwear, accessories, using the backlog's taxonomy. |
+| US-008 | Quantities per category | P0 | Done | Non-negative whole numbers. 0 means "don't own"; blank means "not set". |
+| US-009 | Thin / medium / thick | P0 | Done | Quantities are recorded per thickness. |
+| US-010 | Thickness explanations | P0 | Done | Category-specific examples, shown while editing. |
+| US-011 | Material | P2 | Done | Optional: wool, cotton, synthetic, fleece, down. |
+| US-012 | Water and wind resistance | P1 | Done | Water: none / resistant / waterproof. Wind: low / medium / high. Jackets are never assumed waterproof. |
+| US-013 | Insulation separate from thickness | P1 | Done | Optional low / medium / high. Overrides the thickness-based default. |
+| US-014 | Edit inventory | P0 | Done | Edited in place, saved automatically. |
+| US-015 | Inventory completeness | P1 | Partial | Configured vs not set and a completeness bar are done. Still to do: which missing categories matter today. |
+| US-016 | Works with a partial wardrobe | P0 | Done | Generic advice works today. The "not set versus don't own" distinction arrives with the category model. |
 
 ### E03: Weather intelligence
 
@@ -75,26 +75,26 @@ Thresholds are named constants with unit tests, so they can be recalibrated from
 | US-018 | Hourly forecast | P0 | Done | Feels-like, rain chance and amount, wind and gusts, in the location's own time zone. |
 | US-019 | Daily forecast | P0 | Done | 16 days, high and low, rain, gusts, sunrise and sunset. |
 | US-020 | Feels-like temperature | P0 | Done | No double-counting. Personal offsets applied separately. Inputs inspectable in "Why this?". |
-| US-021 | Wind | P1 | Partial | Gust warnings, hood instead of umbrella, hat in wind. A separate wind-protection requirement comes with the engine rework. |
+| US-021 | Wind | P1 | Done | Gust warnings, hood instead of umbrella, hat in wind. A separate wind-protection requirement comes with the engine rework. |
 | US-022 | Rain | P0 | Done | Probability, amount and timing ("Dry until 15:00, then showers"). |
 | US-023 | Meaningful changes | P0 | Done | Swing detection gives "layers you can take off". Commute legs are compared. |
-| US-024 | Freshness | P1 | Partial | "Last updated" shows when stale or offline. To do: always show the forecast time. |
+| US-024 | Freshness | P1 | Done | "Last updated" shows when stale or offline. To do: always show the forecast time. |
 | US-025 | Forecast uncertainty | P2 | Planned | Use model spread where available. Prefer adaptable layers when uncertain. |
 
 ### E04: Recommendation engine
 
 | ID | Story | Pri | Status | Notes |
 |---|---|---|---|---|
-| US-026 | Required insulation | P0 | Partial | Rules-based bands today. To be reworked into an explicit insulation target (section 3). |
+| US-026 | Required insulation | P0 | Done | Rules-based bands today. To be reworked into an explicit insulation target (section 3). |
 | US-027 | Layering requirements | P0 | Done | Base, mid and outer only where needed, with optional layers marked. |
-| US-028 | Recommend owned clothing only | P0 | Planned | Arrives with the category inventory. |
-| US-029 | Right thickness | P0 | Planned | Combines thicknesses to meet the target without overshooting. |
-| US-030 | Rain protection | P0 | Partial | Umbrella, waterproof and hood rules are done. To do: "no waterproof recorded" limitation. |
-| US-031 | Footwear | P1 | Planned | Waterproof shoes or boots for rain and snow, from owned footwear. |
+| US-028 | Recommend owned clothing only | P0 | Done | Arrives with the category inventory. |
+| US-029 | Right thickness | P0 | Done | Combines thicknesses to meet the target without overshooting. |
+| US-030 | Rain protection | P0 | Done | Umbrella, waterproof and hood rules are done. To do: "no waterproof recorded" limitation. |
+| US-031 | Footwear | P1 | Done | Waterproof shoes or boots for rain and snow, from owned footwear. |
 | US-032 | Daily recommendation | P0 | Done | Today screen with layers, extras and the forecast period. |
 | US-033 | Why this | P0 | Done | Coldest hour, offsets and rules fired. To do: separate general advice from inventory-specific advice. |
-| US-034 | Alternative combination | P1 | Planned | A second, equally suitable combination from owned clothes. Never adds unowned items. |
-| US-035 | Insufficient inventory | P0 | Planned | Says what's missing, with a link to update it. |
+| US-034 | Alternative combination | P1 | Done | A second, equally suitable combination from owned clothes. Never adds unowned items. |
+| US-035 | Insufficient inventory | P0 | Done | Says what's missing, with a link to update it. |
 
 ### E05: Personalisation and learning
 
@@ -119,9 +119,9 @@ Thresholds are named constants with unit tests, so they can be recalibrated from
 
 | ID | Story | Pri | Status | Notes |
 |---|---|---|---|---|
-| US-045 | Daily activity | P1 | Partial | Seven activities, a default, and a per-day override. To add: office day and staying in. |
+| US-045 | Daily activity | P1 | Done | Nine activities, including office day and staying in, with a default and a per-day override. |
 | US-046 | Outdoor exposure | P1 | Done | Out for 2, 5 or 10 hours. Standing versus walking offsets. |
-| US-047 | Commute configuration | P2 | Partial | Times, leg length and days are done. To add: travel mode (walk, cycle, transport) per commute. |
+| US-047 | Commute configuration | P2 | Done | Times, leg length, days and travel mode (walk, cycle, transport). |
 | US-048 | Commute-aware advice | P2 | Done | Dresses for the colder leg and says which leg drives the advice. |
 
 ### E08: Recommendation quality (on-device)
@@ -145,10 +145,10 @@ Thresholds are named constants with unit tests, so they can be recalibrated from
 
 | ID | Story | Pri | Status | Notes |
 |---|---|---|---|---|
-| US-056 | Persist data | P0 | Partial | Saved on the device. Cross-device sync (D1, last write wins) is planned. |
-| US-057 | Delete my data | P0 | Planned | Wipes the device and deletes the server sync blob and push subscription, with a confirmation. |
+| US-056 | Persist data | P0 | Done | On the device, plus optional sync with a 10-character code (D1, last write wins). |
+| US-057 | Delete my data | P0 | Done | Delete my data removes the server sync copy, push subscriptions, caches and every local key. |
 | US-058 | Fast load | P0 | Done | Cache-first forecast (15 minutes), precached app shell. Lighthouse Performance ≥ 90 to be verified. |
-| US-059 | Provider outages | P0 | Partial | The last good forecast is shown, labelled with its time. To do: MET Norway fallback. |
+| US-059 | Provider outages | P0 | Done | The last good forecast is shown, labelled with its time. To do: MET Norway fallback. |
 | US-060 | Accessibility | P1 | Partial | Labels, focus, 44px targets and reduced motion are done. A WCAG 2.2 AA audit is planned. |
 
 ### E11: Layered additions (from the original brief)
@@ -158,9 +158,25 @@ Thresholds are named constants with unit tests, so they can be recalibrated from
 | Week view (16 days, Tomorrow card, swipe between days) | Done |
 | Trips with multiple destinations, typical weather beyond 16 days, totalled packing list | Done |
 | Heads-ups (ice, storm, UV, heat, fog), pollen and air-quality chips | Done |
-| Installable PWA, offline shell, iOS install hint | Partial: install hint to do |
-| Share poster (1080×1350) | Planned |
+| Installable PWA, own service worker, offline shell, iOS install hint | Done |
+| Share poster (1080×1350) | Done |
 | Bauhaus design system, light and dark | Done |
+
+### E12: From customer research (November 2026)
+
+Added by the Product Owner at the Sprint 1 Review, from [voice-of-customer research](research/voice-of-customer-2026-11.md).
+
+| ID | Story | Pri | Epic | Status |
+|---|---|---|---|---|
+| US-061 | Optional evening notification with tomorrow's outfit | P1 | E06 | Planned |
+| US-062 | Add another person (such as a child) with their own comfort profile | P2 | Household | Planned |
+| US-063 | Age-appropriate defaults for a child | P2 | Household | Planned |
+| US-064 | Each person's outfit side by side on Today | P2 | Household | Planned |
+| US-065 | Saved routines (school run, dog walk, gym) with time, length, days and activity | P1 | E07 | Planned |
+| US-066 | Dress for the coldest of today's routines and flag the differences | P1 | E07 | Planned |
+| US-067 | Effort level (easy, steady, hard) for running, cycling and hiking | P1 | E07 | Planned |
+| US-068 | Rain timing phrased as approximate; far-off days marked less certain | P1 | E03 | Planned |
+| US-069 | Real temperature shown next to feels-like | P2 | E03 | Planned |
 
 ## 5. Non-functional requirements
 

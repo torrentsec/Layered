@@ -15,7 +15,7 @@
  * upper edge of each bin inclusive as in pythermalcomfort.
  */
 
-import type { UtciCategory, UtciCategoryFn, UtciFn } from './types';
+import type { UtciCategory, UtciCategoryFn, UtciFn, UtciResult, Weather } from './types';
 
 /** Wind at 10 m that the polynomial was fitted for, m/s. Calm forecast hours sit below 0.5. */
 export const UTCI_WIND_RANGE = [0.5, 17] as const;
@@ -322,3 +322,8 @@ export const utci: UtciFn = (ta, tr, va10, rh) => {
   const value = utciPolynomial(t, d, v, pa);
   return { utci: value, category: utciCategory(value), clamped, outOfRange: false };
 };
+
+/** UTCI of one hour's Weather: the only place the advice, "Why this?" and the strip read it from. */
+export function weatherUtci(w: Weather): UtciResult {
+  return utci(w.ta, w.tmrt, w.wind10, w.rh);
+}

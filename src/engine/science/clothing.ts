@@ -20,6 +20,7 @@
  */
 
 import { CATALOGUE, type CategoryId, type Level, type Thickness, type WaterResistance } from '../inventory';
+import { windAtBody } from './radiation';
 import type { EnsembleClo, EnsembleCloFn, GarmentClo, GarmentCloFn, WetState } from './types';
 
 export interface GarmentCloRow {
@@ -113,13 +114,6 @@ export function correctionFactor(icl: number, vr: number, vw: number): number {
  * would make a gale look warmer than a breeze.
  */
 export const resultantIcl = (icl: number, vr: number, vw: number): number => icl * correctionFactor(icl, vr, vw);
-
-/**
- * 10 m wind to body height (1.1 m), neutral log profile over open ground with
- * z0 = 0.01 m: ln(1.1/0.01) / ln(10/0.01) ≈ 0.68 (thermal-model §2.2). Kept
- * private until radiation.ts exports the shared `windAtBody`.
- */
-const windAtBody = (wind10: number): number => 0.68 * Math.max(0, wind10);
 
 /**
  * Relative air speed at the body. Head- and tailwind legs of a walk average

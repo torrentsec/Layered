@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Daniel Woo
 
+import { windAtBody } from '../radiation';
 import { describe, expect, it } from 'vitest';
 import fixture from '../__fixtures__/clothing.json';
 import { CATALOGUE, THICKNESSES, type CategoryId, type Thickness } from '../../inventory';
@@ -144,9 +145,9 @@ describe('resultant insulation', () => {
     for (const icl of [0.3, 1.38]) expect(resultantIcl(icl, 2, 1)).toBeCloseTo(icl * correctionFactor(icl, 2, 1), 9);
   });
 
-  it('scales 10 m wind by 0.68 to body height', () => {
+  it('scales 10 m wind to body height with the shared profile', () => {
     const e = ensembleClo(coat, 5, 0, 'dry');
-    expect(e.resultant).toBeCloseTo(resultantIcl(e.basic, 3.4, 0), 9);
+    expect(e.resultant).toBeCloseTo(resultantIcl(e.basic, windAtBody(5), 0), 9);
   });
 
   it('uses walking speed as the air speed in calm air', () => {

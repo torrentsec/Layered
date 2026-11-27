@@ -197,7 +197,7 @@ temperature read differently.
 As a commuter I want advice that knows I am outside for 25 minutes, not all day.
 
 * Port ISO 11079 Annex: both criteria, step-halving loop (start 0.5 m²K/W, step 0.5,
-  stop at |B| ≤ 0.01, max 150), resultant→basic conversion, DLE with Qlim 40 kJ/m².
+  stop at |B| ≤ 0.01, max 150), resultant→basic conversion, DLE with Qlim 40 W·h/m² (144 kJ/m²).
 * `extended` when outside ISO limits; still compute (needed up to 20 °C).
 * `lightestIclFor`: bisection on 0.3–3.0 clo for `DLE_neutral ≥ exposure`, then
   `DLE_min`; returns `iclMin` when even 3.0 clo is not enough.

@@ -2,7 +2,7 @@
 // Copyright (c) 2026 torrentsec
 
 import { effortOffset } from './activity';
-import { bandFor } from './bands';
+import { BANDS, bandFor } from './bands';
 import { extrasFor, windowStats } from './extras';
 import { comfortOffset as comfortOffsetFor, type ComfortProfile } from './comfort';
 import type { GarmentWarmth } from './garment-learning';
@@ -10,6 +10,9 @@ import { ownership, type Inventory } from './inventory';
 import { learnedFor } from './learning';
 import { matchInventory, withoutCovered } from './match';
 import { requirementsFor } from './requirements';
+import { scienceWhy } from './science/advice';
+import type { WeatherPlace } from './science/types';
+import { hourToWeather } from './science/weather';
 import type { Activity, Advice, Effort, Hour, Rating } from './types';
 
 export interface AdviseInput {
@@ -27,6 +30,36 @@ export interface AdviseInput {
   comfort?: ComfortProfile;
   /** Learned garment warmth (US-039); missing means none learned. */
   garmentWarmth?: GarmentWarmth;
+  /** Set to dress from the thermal model's clothing target (engine 'science'); missing keeps the bands. */
+  science?: AdviseScience;
+}
+
+export interface AdviseScience {
+  place: WeatherPlace;
+  /** Personal insulation bias, clo. */
+  bias: number;
+  /** Ratings behind `bias`, for "Why this?". */
+  biasCount: number;
+  /** Hours outside; missing means the whole window. */
+  exposureHours?: number;
+}
+
+/**
+ * Whether `a` calls for warmer clothes than `b`. Both come from the same
+ * engine: the science engine compares clothing targets, the bands compare
+ * effective temperatures.
+ */
+export function colderThan(a: Advice, b: Advice): boolean {
+  const ca = a.requirements?.clo?.icl;
+  const cb = b.requirements?.clo?.icl;
+  return ca !== undefined && cb !== undefined ? ca > cb : a.effective < b.effective;
+}
+
+/** UTCI range across several pieces of science advice, so a merged day reads its whole span. */
+export function mergedScience(cold: Advice, all: Advice[]): Advice['science'] {
+  if (!cold.science) return undefined;
+  const ranges = all.flatMap((a) => (a.science ? [a.science.feels] : []));
+  return { ...cold.science, feels: { min: Math.min(...ranges.map((r) => r.min)), max: Math.max(...ranges.map((r) => r.max)) } };
 }
 
 const round1 = (n: number) => Math.round(n * 10) / 10;
@@ -46,17 +79,21 @@ export function advise(input: AdviseInput): Advice | null {
   const comfortOffset = input.comfort ? comfortOffsetFor(input.comfort, activity) : 0;
   const effective = round1(coldest.feels + activityOffset + comfortOffset + manualOffset + learned.offset);
 
-  const band = bandFor(effective);
   const stats = windowStats(hours);
   const extras = extrasFor(stats, effective, activity);
 
   const inventory = input.inventory ?? {};
-  const requirements = requirementsFor({ effective, band: band.id, stats, extras, activity, comfort: input.comfort });
+  const sci = input.science;
+  const science = sci && { weather: hours.map((h) => hourToWeather(h, sci.place)), exposureHours: sci.exposureHours ?? hours.length, bias: sci.bias };
+  const requirements = requirementsFor({ effective, band: bandFor(effective).id, stats, extras, activity, comfort: input.comfort, effort: input.effort, science });
+  const band = BANDS.find((b) => b.id === requirements.band)!;
   const { layers, limitations, alternatives } = matchInventory(requirements, inventory, input.garmentWarmth);
   // An umbrella the user has said they don't own is no use as advice.
   const finalExtras = withoutCovered(ownership(inventory, 'umbrella') === 'none' ? extras.filter((e) => e.id !== 'umbrella') : extras, layers, inventory);
 
-  const rules = [`Effective ${effective}° is in the “${band.verdict}” band`, ...finalExtras.map((e) => `${e.label}: ${e.reason}`)];
+  const rules = [
+    requirements.clo ? `Needs about ${requirements.clo.icl.toFixed(1)} clo, the “${band.verdict}” band` : `Effective ${effective}° is in the “${band.verdict}” band`,
+    ...finalExtras.map((e) => `${e.label}: ${e.reason}`)];
 
   return {
     requirements,
@@ -84,5 +121,20 @@ export function advise(input: AdviseInput): Advice | null {
       band: band.id,
       rules,
     },
+    ...(science && requirements.clo
+      ? {
+          science: scienceWhy({
+            hours,
+            science,
+            target: requirements.clo,
+            activity,
+            effort: input.effort,
+            layers,
+            inventory,
+            stats,
+            biasCount: sci.biasCount,
+          }),
+        }
+      : {}),
   };
 }

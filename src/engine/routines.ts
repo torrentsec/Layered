@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 torrentsec
 
-import { advise, type AdviseInput } from './advise';
+import { advise, colderThan, mergedScience, type AdviseInput } from './advise';
 import { bandRank } from './bands';
 import { firstWet, wetWord } from './rain';
 import { fmt24, type TimeFormatter } from './time';
@@ -171,8 +171,8 @@ export function adviseLegs(
   let cold = judged[0];
   let warm = judged[0];
   for (const j of judged) {
-    if (j.advice.effective < cold.advice.effective) cold = j;
-    if (j.advice.effective > warm.advice.effective) warm = j;
+    if (colderThan(j.advice, cold.advice)) cold = j;
+    if (colderThan(warm.advice, j.advice)) warm = j;
   }
   cold.coldest = true;
 
@@ -209,6 +209,7 @@ export function adviseLegs(
     minFeels: Math.min(...judged.map((j) => j.advice.minFeels)),
     maxFeels: Math.max(...judged.map((j) => j.advice.maxFeels)),
     hours,
+    ...(cold.advice.science ? { science: mergedScience(cold.advice, judged.map((j) => j.advice)) } : {}),
     why: {
       ...cold.advice.why,
       rules: judged.length > 1 ? [`Dressing for ${cold.leg.phrase}, ${which}`, ...cold.advice.why.rules, ...notes] : cold.advice.why.rules,

@@ -5,7 +5,9 @@ import { BANDS } from './bands';
 import type { ComfortProfile } from './comfort';
 import { RAIN, SWING_DEGREES, type WindowStats } from './extras';
 import type { Level, Thickness } from './inventory';
-import type { Activity, BandId, Extra, ExtraId } from './types';
+import { scienceVerdict, type ScienceInput } from './science/advice';
+import type { ClothingTarget } from './science/types';
+import type { Activity, BandId, Effort, Extra, ExtraId } from './types';
 
 /**
  * Stage 2 of the engine: what the day demands, independent of what anyone
@@ -40,6 +42,8 @@ export interface Requirements {
   /** Why `removable` is set, when it is. */
   removableWhy?: 'warming' | 'edge';
   accessories: ExtraId[];
+  /** Set when the science engine chose the band and layers. */
+  clo?: ClothingTarget;
 }
 
 type LayerPlan = Requirements['layers'];
@@ -180,21 +184,26 @@ export interface RequirementsInput {
   extras: Extra[];
   activity: Activity;
   comfort?: ComfortProfile;
+  effort?: Effort;
+  /** When present, the band and layers come from the clothing target in clo instead of `effective`. */
+  science?: ScienceInput;
 }
 
 const ACCESSORY_IDS: ExtraId[] = ['hat', 'gloves', 'scarf', 'sunglasses', 'sunscreen', 'reflective'];
 
 /** Stage 2: what the day demands. */
 export function requirementsFor(x: RequirementsInput): Requirements {
-  const insulation = insulationTarget(x.effective);
-  const layers = layersForTarget(insulation);
+  const sci = x.science && scienceVerdict(x.science, x.activity, x.effort);
+  // Until matching works in clo, the science band reaches the matcher as its own plan's points.
+  const layers = sci ? layerPlan(sci.band) : layersForTarget(insulationTarget(x.effective));
+  const insulation = sci ? insulationPoints(layers) : insulationTarget(x.effective);
   const ids = new Set(x.extras.map((e) => e.id));
   const rain = rainProtection(x.extras, x.stats, x.comfort?.rainTolerance);
   const warming = ids.has('swing') || x.stats.warming >= SWING_DEGREES;
-  const edge = nearBandEdge(x.effective);
+  const edge = sci ? sci.edge : nearBandEdge(x.effective);
   return {
     effective: x.effective,
-    band: x.band,
+    band: sci ? sci.band : x.band,
     insulation,
     layers,
     rain,
@@ -204,5 +213,6 @@ export function requirementsFor(x: RequirementsInput): Requirements {
     removable: warming || edge,
     ...(warming ? { removableWhy: 'warming' as const } : edge ? { removableWhy: 'edge' as const } : {}),
     accessories: [...ids].filter((id) => ACCESSORY_IDS.includes(id)),
+    ...(sci ? { clo: sci.target } : {}),
   };
 }

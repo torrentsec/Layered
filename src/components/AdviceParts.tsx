@@ -114,7 +114,7 @@ export function HourlyStrip({ hours, inWindow, units, feels }: { hours: Hour[]; 
           <li key={h.time} class={inWindow.has(h.time) ? 'in' : undefined}>
             <span class="meta">{fmt(h.time)}</span>
             <span class="dot" style={{ background: tempColor(f ?? h.temp) }} aria-hidden="true" />
-            {feels && <span class="visually-hidden">feels like</span>}
+            {feels && <span class="visually-hidden">feels like </span>}
             <span class="t num">{f === null ? <><span aria-hidden="true">–</span><span class="visually-hidden">too hot and humid to put a number on</span></> : fmtTemp(f ?? h.feels, units.temp)}</span>
             {feels && <span class="a num"><span class="visually-hidden">actual </span>{fmtTemp(h.temp, units.temp)}</span>}
             <span class="p">{h.precipProb >= 10 ? `${Math.round(h.precipProb)}%` : ''}</span>

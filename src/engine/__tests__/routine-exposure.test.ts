@@ -57,6 +57,14 @@ describe('feels-like merged across legs (#77)', () => {
     expect(a.advice.science!.feels.min).toBeLessThan(a.advice.science!.feels.max);
   });
 
+  it('words a leg’s cold note in UTCI at the UTCI-coldest hour', () => {
+    const a = adviseLegs({ science }, [out, lunch])!;
+    const s = a.legs[0].advice.science!;
+    const hat = a.notes.find((n) => n.startsWith('Hat for the way there'));
+    expect(hat).toBe(`Hat for the way there — feels ${Math.round(s.utci.utci)}° at ${s.coldestHour.slice(11)}`.replace('-', '−'));
+    expect(Math.round(s.utci.utci)).not.toBe(Math.round(a.legs[0].advice.minFeels));
+  });
+
   it('leaves out a leg with no usable UTCI instead of dropping the whole range', () => {
     const good = advise({ activity: 'walking', hours: out.hours, science })!;
     const broken: Advice = { ...good, science: { ...good.science!, feels: { min: Number.NaN, max: Number.NaN } } };

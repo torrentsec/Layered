@@ -3,7 +3,7 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import { LONDON } from '../../src/data/metno.fixture';
-import { metnoForecast, offsetFor, parseQuery, USER_AGENT } from './forecast';
+import { metnoForecast, offsetFor, onRequestGet, parseQuery, USER_AGENT } from './forecast';
 
 const params = (q: string) => new URLSearchParams(q);
 
@@ -73,5 +73,26 @@ describe('metnoForecast', () => {
   it('throws on an unexpected document', async () => {
     const f = vi.fn(async () => new Response('{"type":"Feature"}', { status: 200 }));
     await expect(metnoForecast(q, { fetch: f as unknown as typeof fetch, origin: 'https://layered.test', now })).rejects.toThrow('unexpected');
+  });
+});
+
+describe('onRequestGet', () => {
+  it('calls fetch with the global receiver, as the Workers runtime requires', async () => {
+    // Mirrors the runtime's "Illegal invocation" check that Node doesn't make.
+    const strictFetch = vi.fn(function (this: unknown) {
+      if (this !== undefined && this !== globalThis) throw new TypeError('Illegal invocation');
+      return Promise.resolve(new Response(JSON.stringify(LONDON), { status: 200 }));
+    });
+    vi.stubGlobal('fetch', strictFetch);
+    vi.stubGlobal('caches', { default: { match: async () => undefined, put: async () => undefined } });
+    try {
+      const request = new Request('https://layered.test/api/forecast?lat=51.49&lon=0.07&tz=Europe/London');
+      const res = await onRequestGet({ request } as unknown as Parameters<typeof onRequestGet>[0]);
+      expect(res.status).toBe(200);
+      expect(((await res.json()) as { source: string }).source).toBe('met-norway');
+      expect(strictFetch).toHaveBeenCalledOnce();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

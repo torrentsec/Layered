@@ -102,7 +102,9 @@ export const onRequestGet: PagesFunction = async ({ request }) => {
   const q = parseQuery(url.searchParams);
   if (typeof q === 'string') return json({ error: q }, 400);
   try {
-    const forecast = await metnoForecast(q, { fetch, cache: edgeCache(), origin: url.origin });
+    // Workers rejects `fetch` called with any receiver but the global, so it
+    // can't be handed over as a bare method on the deps object.
+    const forecast = await metnoForecast(q, { fetch: (input, init) => fetch(input, init), cache: edgeCache(), origin: url.origin });
     return json(forecast, 200, { 'Cache-Control': 'no-store' });
   } catch (err) {
     return json({ error: err instanceof Error ? err.message : 'Forecast unavailable' }, 502);

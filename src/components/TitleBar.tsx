@@ -11,16 +11,24 @@ interface Props {
   subtitle?: ComponentChildren;
 }
 
-/** iOS-style large title that collapses into the bar as you scroll (CSS scroll timeline). */
+/**
+ * iOS-style navigation: a slim bar stays pinned while the large title scrolls
+ * away beneath it, and the bar's own title fades in as it does (CSS scroll
+ * timeline, so there is no scroll listener).
+ */
 export function TitleBar({ title, short, action, subtitle }: Props) {
   return (
-    <header class="titlebar">
-      <div class="row">
-        <span class="small" aria-hidden="true">{short}</span>
-        {action}
+    <>
+      <header class="titlebar">
+        <div class="row">
+          <span class="small" aria-hidden="true">{short}</span>
+          {action}
+        </div>
+      </header>
+      <div class="large-head">
+        <h1 class="large-title">{title}</h1>
+        {subtitle && <p class="subtitle">{subtitle}</p>}
       </div>
-      <h1 class="large-title">{title}</h1>
-      {subtitle && <p class="subtitle">{subtitle}</p>}
-    </header>
+    </>
   );
 }

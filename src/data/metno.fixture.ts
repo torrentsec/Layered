@@ -20,6 +20,7 @@ const RAW = {
       "updated_at": "2026-11-26T07:41:12Z",
       "units": {
         "air_temperature": "celsius",
+        "cloud_area_fraction": "%",
         "precipitation_amount": "mm",
         "relative_humidity": "%",
         "wind_speed": "m/s"

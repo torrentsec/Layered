@@ -132,7 +132,7 @@ fixture comparison noisier.
 ### 2.5 Duration Limited Exposure and the exposure-aware target
 
 When worn insulation is below `IREQ`, body heat is lost and the DLE is the time
-until a tolerable loss `Qlim = 40 kJ/m²` (`DLE = Qlim/|S|`, hours). It is found by
+until a tolerable loss `Qlim = 40 W·h/m²` (144 kJ/m²) (`DLE = Qlim/|S|`, hours). It is found by
 a second iteration on the storage rate `S` with the worn insulation. Values above
 8 h are reported as "more than 8".
 

@@ -63,6 +63,7 @@ describe('metnoForecast', () => {
     expect(first).toMatchObject({ source: 'met-norway', timezone: 'Europe/London', utcOffsetSeconds: 0, fetchedAt: now, lat: 51.51, lon: -0.13 });
     expect(second.fetchedAt).toBe(now);
     expect(second.hours.length).toBe(first.hours.length);
+    expect(second.hours[0]).toMatchObject({ rh: 84.1, cloud: 60 });
   });
 
   it('throws on an upstream error', async () => {

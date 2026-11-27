@@ -16,9 +16,13 @@ Every Sprint Retrospective adds at least one improvement here. Each one is plann
 | 10 | Sprint 2 | Each feature imports its own stylesheet from its component | Sprint 3 | **Kept.** No style-import conflicts in Sprint 3 (#55) |
 | 11 | Sprint 2 | One owner per hot-spot file (`Today`, `DayView`, `SharePoster`) per Sprint | Sprint 3 | **Kept.** Others recorded history from `src/state/` and put feedback UI in `TodayExtras`; zero hot-spot conflicts |
 | 12 | Sprint 2 | Never create links inside a tracked tree; each worktree installs its own dependencies | Sprint 3 | **Kept.** No links committed. Extended by #13 |
-| 13 | Sprint 3 | Reinstall dependencies in the integration worktree whenever the lockfile changes on `main` | Sprint 4 | Pending |
-| 14 | Sprint 3 | Developers stop the servers they start; the SM clears leftover previews before integrating | Sprint 4 | Pending |
-| 15 | Sprint 3 | State lives in git: decisions land in the Sprint doc or this log as they're made | Sprint 4 | Pending |
+| 13 | Sprint 3 | Reinstall dependencies in the integration worktree whenever the lockfile changes on `main` | Sprint 4 | **Kept.** One `npm ci` before checks; no false type errors |
+| 14 | Sprint 3 | Developers stop the servers they start; the SM clears leftover previews before integrating | Sprint 4 | **Kept.** No port conflicts |
+| 15 | Sprint 3 | State lives in git: decisions land in the Sprint doc or this log as they're made | Sprint 4 | **Adjusted.** PO decisions were captured at each hand-back but landed in git at Review, not as made. Keep, and commit them with the integration branch as it grows |
+| 16 | Sprint 4 | Re-index Graphify at `main` at every Sprint Planning | Sprint 5 | Pending |
+| 17 | Sprint 4 | A spike runs each formula against its acceptance tests before writing it into the backlog | Sprint 5 | Pending |
+| 18 | Sprint 4 | Confirm external API field names with one live request at Planning | Sprint 5 | Pending |
+| 19 | Sprint 4 (stakeholder) | Developers self-manage the how: a shared team board for needs, offers and claimed helpers; ask instead of copy; peer review by another Developer. The SM facilitates and never dictates code | Sprint 5 | Pending |
 
 ## Metrics we watch
 
@@ -27,3 +31,4 @@ Every Sprint Retrospective adds at least one improvement here. Each one is plann
 | 1 | 10 | 10 | 6 | 4 (3 code, 1 CSS) | 111 → 360 | Usage limit stopped every Developer once |
 | 2 | 5 | 5 | 2 | 7 (`main.tsx` ×3, Week, DayView, Settings, SharePoster) | 361 → 630 | SM-caused `node_modules` link (#40) |
 | 3 | 5 | 5 | 4 | 1 (Settings) | 630 → 698 + 5 e2e + axe + Lighthouse | Session restart; stale dependencies; a port held by a leftover server |
+| 4 | 5 | 5 | 1 (one Sprint PR) | 1 (`windAtBody` duplicate) | 698 → 1,480 | Open-Meteo quota spent; GitHub connection dropped after restart |

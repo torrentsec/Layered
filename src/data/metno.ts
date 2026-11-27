@@ -21,6 +21,7 @@ export interface MetnoStep {
       details: {
         air_temperature?: number;
         relative_humidity?: number;
+        cloud_area_fraction?: number;
         wind_speed?: number;
         wind_speed_of_gust?: number;
         ultraviolet_index_clear_sky?: number;
@@ -148,6 +149,15 @@ function buildHour(time: string, ta: number, rh: number, ws: number, gust: numbe
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
 /**
+ * Interpolated science input that stays undefined when the step has none, so
+ * the engine knows to fall back rather than trust a made-up value.
+ */
+const lerpOpt = (a: number | undefined, b: number | undefined, t: number) => {
+  const from = num(a, NaN);
+  return Number.isNaN(from) ? undefined : round1(lerp(from, num(b, from), t));
+};
+
+/**
  * MET Norway steps are hourly for about two days, then six-hourly. The engine
  * expects one row per hour, so the coarse tail is filled in: instant values
  * are interpolated towards the next step and the period's rain is spread
@@ -176,7 +186,13 @@ export function parseMetno(json: MetnoResponse, utcOffsetSeconds: number, fetche
       const g0 = num(cur.wind_speed_of_gust, num(cur.wind_speed) * GUST_FACTOR);
       const g1 = num(nxt.wind_speed_of_gust, num(nxt.wind_speed, num(cur.wind_speed)) * GUST_FACTOR);
       const uv = lerp(num(cur.ultraviolet_index_clear_sky), num(nxt.ultraviolet_index_clear_sky, num(cur.ultraviolet_index_clear_sky)), f);
-      hours.push(buildHour(time, ta, rh, ws, lerp(g0, g1, f), uv, sliceAt(step, k)));
+      const hour = buildHour(time, ta, rh, ws, lerp(g0, g1, f), uv, sliceAt(step, k));
+      // No radiation from MET Norway: the engine estimates it from cloud cover.
+      const rhOut = lerpOpt(cur.relative_humidity, nxt.relative_humidity, f);
+      const cloud = lerpOpt(cur.cloud_area_fraction, nxt.cloud_area_fraction, f);
+      if (rhOut !== undefined) hour.rh = rhOut;
+      if (cloud !== undefined) hour.cloud = cloud;
+      hours.push(hour);
     }
   });
 

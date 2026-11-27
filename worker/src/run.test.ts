@@ -6,6 +6,7 @@ import type { Hour } from '../../src/engine';
 import type { Forecast } from '../../src/data/forecast-types';
 import type { PushPayload, PushProfile, PushSchedule } from '../../src/data/push-api';
 import { LONDON } from '../../src/data/metno.fixture';
+import { OPEN_METEO_LONDON } from '../../src/data/openmeteo.fixture';
 import { FakePushD1 } from '../../functions/_lib/fake-push-d1';
 import { fetchForecast, FORECAST_DAYS } from './forecast';
 import { changed, parseSummary, planFor, summarise } from './plan';
@@ -214,6 +215,16 @@ describe('forecast fetch', () => {
     expect(out.source).toBe('open-meteo');
   });
 
+  it('gets humidity, cloud and radiation from the same single request', async () => {
+    const f = vi.fn(async (_u: string | URL | Request, _i?: RequestInit) => Response.json(OPEN_METEO_LONDON));
+    const out = await fetchForecast(51.51, -0.13, 0, f as unknown as typeof fetch, 5);
+    expect(f).toHaveBeenCalledTimes(1);
+    const hourly = new URL(String(f.mock.calls[0][0])).searchParams.get('hourly')!;
+    expect(hourly).toContain('relative_humidity_2m');
+    expect(hourly).toContain('direct_normal_irradiance');
+    expect(out.hours[3]).toMatchObject({ rh: 82, cloud: 95, ghi: 58, direct: 14, diffuse: 44, dni: 75.3 });
+  });
+
   it('falls back to MET Norway with the local offset', async () => {
     const f = vi.fn(async (u: string | URL | Request, _i?: RequestInit) =>
       String(u).includes('open-meteo') ? new Response('down', { status: 502 }) : Response.json(LONDON),
@@ -222,6 +233,8 @@ describe('forecast fetch', () => {
     expect(out.source).toBe('met-norway');
     expect(out.utcOffsetSeconds).toBe(3600);
     expect(out.hours.length).toBeGreaterThan(24);
+    expect(out.hours[0]).toMatchObject({ rh: 84.1, cloud: 60 });
+    expect(out.hours[0].ghi).toBeUndefined();
     expect((f.mock.calls[1][1]!.headers as Record<string, string>)['User-Agent']).toMatch(/^Layered\//);
   });
 

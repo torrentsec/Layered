@@ -30,7 +30,7 @@ Five Developers, not ten (retro improvement 4). The other five carry no Sprint w
 
 ### Platform (Scrum Master)
 
-- Create the `layered-push` Worker's secrets after its first deploy. The VAPID pair is generated inside Cloudflare, and the private key is never written anywhere else.
+- Create the `layered-push` Worker's secrets after its first deploy. The VAPID pair is created inside Cloudflare, and the private key is never written anywhere else.
 - Apply migration `0002` to production `layered-db`.
 
 ### Applying last Sprint's improvements
@@ -86,7 +86,7 @@ Held without interrupting the Developers: the SM inspected each worktree's chang
 | #45 | Push backend and Worker | dev-10 | Clean. CI deployed `layered-push` and applied `0002` |
 | #40 | Hotfix: untrack `node_modules` link | sm | Impediment caused by the SM |
 
-**Platform (SM):** the VAPID key pair was generated inside Cloudflare. The private key went straight to a Worker secret and was never seen or stored elsewhere; the public key went to the Worker and to the Pages environment.
+**Platform (SM):** the VAPID key pair was created inside Cloudflare. The private key went straight to a Worker secret and was never seen or stored elsewhere; the public key went to the Worker and to the Pages environment.
 
 ## Sprint Review
 

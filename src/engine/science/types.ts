@@ -108,6 +108,8 @@ export interface BiasState {
   variance: number;       // clo²
   updated: string;        // YYYY-MM-DD
   count: number;
+  /** Mean at the start of `updated`'s day: the reference for that day's votes, so their order does not matter. */
+  dayMean?: number;
 }
 
 // Each module implements its signature; these types let call sites and tests

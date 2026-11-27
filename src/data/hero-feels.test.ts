@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { advise } from '../engine/advise';
 import { day } from '../engine/__tests__/fixtures';
 import { hourUtci } from '../engine/science/hourly';
-import { utci } from '../engine/science/utci';
+import { utci, weatherUtci } from '../engine/science/utci';
 import { hourToWeather } from '../engine/science/weather';
 import { fmt24 } from '../engine/time';
 import type { Advice } from '../engine/types';
@@ -19,7 +19,8 @@ const hours = day(10, (i) => ({ temp: 2 + i * 0.8, feels: -1 + i, wind: 22 - i, 
 describe('hourUtci', () => {
   it('is the UTCI of the same weather the advice is built from', () => {
     const w = hourToWeather(hours[3], LONDON);
-    expect(hourUtci(hours[3], LONDON)).toEqual(utci(w.ta, w.tmrt, w.wind10, w.rh));
+    expect(hourUtci(hours[3], LONDON)).toEqual(weatherUtci(w));
+    expect(weatherUtci(w)).toEqual(utci(w.ta, w.tmrt, w.wind10, w.rh));
   });
 });
 

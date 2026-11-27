@@ -12,7 +12,7 @@ import { ireq, ISO_11079_LIMITS, lightestIclFor } from './ireq';
 import { metabolicRate } from './metabolic';
 import { airSpeedAtBody } from './radiation';
 import type { BandForCloFn, ClothingTarget, ClothingTargetFn, IreqParams, UtciCategory, UtciResult, Weather } from './types';
-import { utci } from './utci';
+import { weatherUtci } from './utci';
 
 /** Lower edge of each band above `tshirt`, basic clo (thermal-model §9.1). */
 export const CLO_BAND_EDGES: ReadonlyArray<readonly [number, BandId]> = [
@@ -117,7 +117,7 @@ function ireqTarget(w: Weather, activity: Activity, effort: Effort | undefined, 
 export function targetHour(w: Weather, activity: Activity, effort: Effort | undefined, exposureHours: number): HourTarget {
   const { steady, needed: own } = ireqTarget(w, activity, effort, exposureHours);
   const needed = activity === 'cycling' ? Math.max(own, ireqTarget(w, 'walking', undefined, exposureHours).needed) : own;
-  const u = utci(w.ta, w.tmrt, w.wind10, w.rh);
+  const u = weatherUtci(w);
   const base = { iclMin: steady.iclMin, iclNeutral: steady.iclNeutral, utci: u };
 
   // Above 20 °C the ladder wins even when the extension asks for more: past its

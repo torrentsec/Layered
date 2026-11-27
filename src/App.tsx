@@ -11,6 +11,7 @@ import { Wardrobe } from './screens/Wardrobe';
 import { Onboarding, settleOnboarding } from './screens/Onboarding';
 import { onboarded } from './data/store';
 import { ToastHost } from './components/Toast';
+import { InstallHint } from './components/InstallHint';
 import { SettingsIcon, TodayIcon, TripIcon, WardrobeIcon, WeekIcon } from './components/Icons';
 
 interface TabDef {
@@ -59,6 +60,7 @@ export function App() {
         </nav>
       )}
       <ToastHost />
+      <InstallHint />
     </>
   );
 }

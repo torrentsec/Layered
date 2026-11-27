@@ -32,23 +32,11 @@ export default defineConfig({
           { src: '/icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
-      workbox: {
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
+      injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,txt}'],
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api\//],
-        // The app keeps its own forecast cache; this is a second line for the
-        // geocoder and air-quality calls that would otherwise fail offline.
-        runtimeCaching: [
-          {
-            urlPattern: ({ url }) => url.hostname.endsWith('open-meteo.com'),
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'layered-open-meteo',
-              networkTimeoutSeconds: 6,
-              expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 2 },
-            },
-          },
-        ],
       },
     }),
   ],

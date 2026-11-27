@@ -46,6 +46,7 @@ import type {
   SunPositionFn,
   WindAtBodyFn,
 } from './types';
+import { beamFraction, SITES, type Site } from './site';
 
 const SIGMA = 5.67e-8;
 const KELVIN = 273.15;
@@ -169,8 +170,9 @@ export interface MrtParts {
 }
 
 /**
- * Two-direction (sky and ground) integral radiation for a person in the open,
- * before the night cap. Ground longwave assumes the surface is at air
+ * Two-direction (sky and ground) integral radiation for a standing person,
+ * before the night cap; `site` other than open trades sky for wall and blocks
+ * part of the beam (site.ts). Ground longwave assumes the surface is at air
  * temperature, as the forecast carries no surface temperature.
  */
 export function meanRadiantTempParts(
@@ -179,8 +181,10 @@ export function meanRadiantTempParts(
   cloud: number,
   sun: SunPosition,
   rad: Radiation,
+  site: Site = 'open',
 ): MrtParts {
   const tk = ta + KELVIN;
+  const { skyView } = SITES[site];
   const lwDown = longwaveDown(ta, rh, cloud);
   const lwUp = EMISSIVITY_BODY * SIGMA * tk ** 4;
   const direct = nonNeg(rad.direct);
@@ -190,17 +194,18 @@ export function meanRadiantTempParts(
   let fp = 0;
   if (sun.elevation >= MIN_SUN_ELEVATION) {
     beamNormal = rad.dni !== undefined ? nonNeg(rad.dni) : direct / Math.sin(sun.elevation * DEG);
-    fp = projectedAreaFactor(sun.elevation);
+    fp = projectedAreaFactor(sun.elevation) * beamFraction(site, sun.elevation);
   }
-  const absorbedLw = 0.5 * lwDown + 0.5 * lwUp;
-  const absorbedSw = (ABSORPTIVITY_SW / EMISSIVITY_BODY) * (0.5 * diffuse + 0.5 * ALBEDO * ghi + fp * beamNormal);
+  // Walls hide part of the cold sky and, like the ground, radiate at air temperature.
+  const absorbedLw = 0.5 * (skyView * lwDown + (1 - skyView) * lwUp) + 0.5 * lwUp;
+  const absorbedSw = (ABSORPTIVITY_SW / EMISSIVITY_BODY) * (skyView * (0.5 * diffuse + 0.5 * ALBEDO * ghi) + fp * beamNormal);
   const tmrt = ((absorbedLw + absorbedSw) / SIGMA) ** 0.25 - KELVIN;
   return { tmrt, lwDown, lwUp, fp, beamNormal };
 }
 
 /** °C. With the sun below the beam threshold, Tmrt stays within NIGHT_CAP_K of air temperature. */
-export const meanRadiantTemp: MeanRadiantTempFn = (ta, rh, cloud, sun, rad) => {
-  const { tmrt } = meanRadiantTempParts(ta, rh, cloud, sun, rad);
+export const meanRadiantTemp: MeanRadiantTempFn = (ta, rh, cloud, sun, rad, site = 'open') => {
+  const { tmrt } = meanRadiantTempParts(ta, rh, cloud, sun, rad, site);
   return sun.elevation < MIN_SUN_ELEVATION ? Math.max(tmrt, ta - NIGHT_CAP_K) : tmrt;
 };
 

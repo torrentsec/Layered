@@ -26,9 +26,12 @@ Every Sprint Retrospective adds at least one improvement here. Each one is plann
 | 20 | Sprint 5 | Merge `origin/main` into a pushed branch; rebase only before the first push | Sprint 6 | **Kept.** No stuck or force-pushed branches |
 | 21 | Sprint 5 | Depend on commits the owner posts as stable on the board, and re-merge on a newer one | Sprint 6 | **Kept.** Developers merged posted Stable hashes; one integration seam |
 | 22 | Sprint 5 | Merge the Sprint PR with a merge commit so each story's commits stay visible | Sprint 6 | **Kept.** Sprint 5 merged with a merge commit (#76) |
-| 23 | Sprint 6 | Run e2e before Ready for review when a change touches a screen | Sprint 7 | Pending |
-| 24 | Sprint 6 | Post any new exported helper as a Claim before writing it | Sprint 7 | Pending |
-| 25 | Sprint 6 | Each agent writes only its own interaction log lines | Sprint 7 | Pending |
+| 23 | Sprint 6 | Run e2e before Ready for review when a change touches a screen | Sprint 7 | **Kept.** Every spike reported e2e 6/6 before Ready for review; integration e2e passed first time |
+| 24 | Sprint 6 | Post any new exported helper as a Claim before writing it | Sprint 7 | **Adjusted.** One shared flag helper was claimed; two copies were still written and deleted before pushing. Claim first, then write |
+| 25 | Sprint 6 | Each agent writes only its own interaction log lines | Sprint 7 | **Kept.** No lines written on another's behalf |
+| 26 | Sprint 7 | Registries take one line per entry so parallel additions don't conflict | Next Sprint | Pending |
+| 27 | Sprint 7 | A Developer who can't use a required skill says so at the start; the SM treats it as an impediment | Next Sprint | Pending |
+| 28 | Sprint 7 | Size waves to one usage window and post Stable commits often | Next Sprint | Pending |
 
 ## Metrics we watch
 
@@ -41,3 +44,4 @@ Every Sprint Retrospective adds at least one improvement here. Each one is plann
 | 5 | 5 | 5 | 1 Sprint PR + 3 side PRs (#73–#75) | 1 (early merge of moving branches) | 1,480 → 1,585 | Usage limit mid-wave; force-push refused for rebased branches |
 
 | 6 | 5 | 5 | 1 Sprint PR | 1 (import order) | 1,585 → 1,688 + 6 e2e | Usage limit mid-wave; a permission check blocked one guidance lookup |
+| 7 (innovation) | 5 | 5 prototypes | 1 Sprint PR | 2 (`FLAGS` line, hourly strip) | 1,688 → 1,793 + 6 e2e | Usage limit stopped all five; two worktrees lost |

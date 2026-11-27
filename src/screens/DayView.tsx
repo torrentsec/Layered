@@ -10,12 +10,17 @@ import { ROUGH_GUIDE_NOTE, certaintyFor, hedgeRequirements } from '../engine/cer
 import { rainSummary } from '../engine/rain';
 import { localNow } from '../engine/time';
 import type { Activity, Effort } from '../engine/types';
-import { planDay, restOfDay } from '../state/advice';
+import { flagSite, planDay, restOfDay } from '../state/advice';
 import { placeOf } from '../data/day-plan';
 import { feelsRange, heroReading, hourlyFeels } from '../data/why-science';
+import { adviceMargin, marginText } from '../data/margin-text';
+import { flagOn } from '../data/flags';
 import { ExtraChips, FeelsActual, HourlyStrip, LayerList, Limitations, WhyBody } from '../components/AdviceParts';
 import { Hero } from '../components/Hero';
+import { FeelsInClothes } from '../components/FeelsInClothes';
 import { Sheet } from '../components/Sheet';
+import { CalibratedFeels } from '../components/CalibratedFeels';
+import { calibratedReading, familiarFeels, feelsTrial } from '../data/feels-calibration';
 
 interface Props {
   forecast: Forecast;
@@ -56,21 +61,32 @@ export function DayView({ forecast, date, activity, duration, commute, effort, r
     : plan.advice;
   const rain = restOfDay(plan.dayHours, date);
   const maxRain = Math.max(0, ...advice.hours.map((h) => h.precipProb));
-  const hero = heroReading(advice, units.temp);
+  const trial = feelsTrial();
+  const calibrated = trial ? calibratedReading(advice, trial, units.temp) : null;
+  const hero = calibrated ?? heroReading(advice, units.temp);
   // The same place the planner hands the science engine, so window hours match "Why this?".
-  const stripFeels = advice.science ? hourlyFeels(plan.dayHours, advice, placeOf(forecast)) : undefined;
+  const stripFeels = !advice.science ? undefined
+    : trial === 'familiar' ? plan.dayHours.map(familiarFeels)
+    : hourlyFeels(plan.dayHours, advice, { ...placeOf(forecast), site: flagSite() });
+  const feelsContext = c ? 'across both legs' : plan.legs ? 'across today’s plans' : 'while you’re out';
+  const margin = why && advice.science && flagOn('margin') ? adviceMargin(advice, placeOf(forecast), effort) : undefined;
 
   return (
     <>
       <Hero feels={hero.value} rain={maxRain} onCircleTap={onCircleTap} />
       <div class="readout">
-        <div>
-          {/* Positioned so the hidden text stays inside the swiper rather than widening the page. */}
-          <div class="feels num" style={{ position: 'relative' }}><span class="visually-hidden">{hero.label} </span>{hero.text}</div>
-          <FeelsActual advice={advice} units={units} context={c ? 'across both legs' : plan.legs ? 'across today’s plans' : 'while you’re out'} />
-        </div>
+        {calibrated ? (
+          <CalibratedFeels advice={advice} reading={calibrated} familiar={trial === 'familiar'} units={units} context={feelsContext} />
+        ) : (
+          <div>
+            {/* Positioned so the hidden text stays inside the swiper rather than widening the page. */}
+            <div class="feels num" style={{ position: 'relative' }}><span class="visually-hidden">{hero.label} </span>{hero.text}</div>
+            <FeelsActual advice={advice} units={units} context={feelsContext} />
+          </div>
+        )}
         <button type="button" class="text-btn" onClick={() => setWhy(true)}>Why this?</button>
       </div>
+      {flagOn('feels-in-clothes') && <FeelsInClothes advice={advice} place={placeOf(forecast)} />}
       <h2 class="verdict">{advice.verdict}</h2>
       <p class="summary">{advice.summary}</p>
       {certainty === 'low' && <p class="rough-guide">{ROUGH_GUIDE_NOTE}</p>}
@@ -110,7 +126,7 @@ export function DayView({ forecast, date, activity, duration, commute, effort, r
       {footer}
 
       <Sheet open={why} title="Why this?" onClose={() => setWhy(false)}>
-        <WhyBody advice={advice} units={units} />
+        <WhyBody advice={advice} units={units} margin={margin && marginText(margin, units.temp)} />
       </Sheet>
     </>
   );

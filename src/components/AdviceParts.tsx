@@ -14,6 +14,7 @@ import { timeFmt } from '../data/format';
 import { choiceOptions, fromWardrobe, genericName, layerText, needsRows } from '../data/advice-text';
 import { CLO_NOTE, feelsRange, scienceDetail, scienceLead, type WhyRow } from '../data/why-science';
 import type { ScienceWhy } from '../engine/science/why';
+import { MARGIN_CLOSE_NOTE, MARGIN_INTRO, MARGIN_TITLE, type MarginText } from '../data/margin-text';
 import { href } from '../router';
 import { LayerMark } from './Marks';
 import { Segmented } from './Segmented';
@@ -140,7 +141,7 @@ function Rows({ rows }: { rows: WhyRow[] }) {
 }
 
 /** "Why this?" in plain words first, then UTCI and clo as the supporting detail (thermal-model §9.3). */
-function ScienceWhyParts({ s, advice, units }: { s: ScienceWhy; advice: Advice; units: Units }) {
+function ScienceWhyParts({ s, advice, units, margin }: { s: ScienceWhy; advice: Advice; units: Units; margin?: MarginText }) {
   const fmt = timeFmt(units.clock);
   const d = scienceDetail(s, advice.why.activity, units.temp, fmt);
   return (
@@ -156,6 +157,15 @@ function ScienceWhyParts({ s, advice, units }: { s: ScienceWhy; advice: Advice; 
       <p class="why-note">{CLO_NOTE}</p>
       <Rows rows={d.warmth} />
       {d.warmthNotes.map((n) => <p class="why-note" key={n}>{n}</p>)}
+      {margin && (
+        <>
+          <h2 class="why-title">{MARGIN_TITLE}</h2>
+          <p class="why-note">{MARGIN_INTRO}</p>
+          {margin.rows.length > 0 && <Rows rows={margin.rows} />}
+          {margin.steady && <p class="why-note">{margin.steady}</p>}
+          {margin.close && <p class="why-note"><strong>{MARGIN_CLOSE_NOTE}</strong></p>}
+        </>
+      )}
       {d.caveats.length > 0 && (
         <>
           <h2 class="why-title">How sure this is</h2>
@@ -168,7 +178,8 @@ function ScienceWhyParts({ s, advice, units }: { s: ScienceWhy; advice: Advice; 
   );
 }
 
-export function WhyBody({ advice, units }: { advice: Advice; units: Units }) {
+/** `margin` is the spike #88 prototype; production never passes it. */
+export function WhyBody({ advice, units, margin }: { advice: Advice; units: Units; margin?: MarginText }) {
   const w = advice.why;
   const fmt = timeFmt(units.clock);
   const t = (c: number) => fmtTemp(c, units.temp);
@@ -184,7 +195,7 @@ export function WhyBody({ advice, units }: { advice: Advice; units: Units }) {
   return (
     <div class="why">
       {advice.science ? (
-        <ScienceWhyParts s={advice.science} advice={advice} units={units} />
+        <ScienceWhyParts s={advice.science} advice={advice} units={units} margin={margin} />
       ) : (
         <>
           <h2 class="why-title">The weather</h2>

@@ -9,6 +9,7 @@
 
 import type { CategoryId, Level, Thickness, WaterResistance } from '../inventory';
 import type { Activity, BandId, Effort, Hour } from '../types';
+import type { Site } from './site';
 
 /** °C, m/s, %, W/m², clo. Wind is always at 10 m unless the name says otherwise. */
 export interface Weather {
@@ -132,13 +133,15 @@ export type EnsembleCloFn = (
 ) => EnsembleClo;
 export type SunPositionFn = (lat: number, lon: number, utcMs: number) => SunPosition;
 export type EstimateRadiationFn = (sun: SunPosition, cloud: number) => Radiation;
-export type MeanRadiantTempFn = (ta: number, rh: number, cloud: number, sun: SunPosition, rad: Radiation) => number;
+export type MeanRadiantTempFn = (ta: number, rh: number, cloud: number, sun: SunPosition, rad: Radiation, site?: Site) => number;
 export type WindAtBodyFn = (wind10: number) => number;
 /** Where and in which clock the hour's local time is; a `Forecast` satisfies it. */
 export interface WeatherPlace {
   lat: number;
   lon: number;
   utcOffsetSeconds: number;
+  /** Spike #86: missing is the open site, the model's default. */
+  site?: Site;
 }
 export type HourToWeatherFn = (hour: Hour, place: WeatherPlace) => Weather;
 export type ClothingTargetFn = (input: {

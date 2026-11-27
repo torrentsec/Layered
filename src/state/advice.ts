@@ -13,6 +13,8 @@ import type { Rating } from '../engine/types';
 import type { Inventory } from '../engine/inventory';
 import type { ComfortProfile } from '../engine/comfort';
 import type { BiasState } from '../engine/science/types';
+import type { Site } from '../engine/science/site';
+import { flagOn } from '../data/flags';
 
 export type { DayPlan } from '../data/day-plan';
 
@@ -31,6 +33,13 @@ interface Ctx {
   garmentWarmth?: GarmentWarmth;
   /** Personal insulation bias for the science engine; defaults to the persisted one. */
   bias?: Pick<BiasState, 'mean' | 'count'>;
+}
+
+/** Spike #86: every place dressed as a city street or mostly shade, for the demo only. */
+export function flagSite(): Site | undefined {
+  if (flagOn('site-street')) return 'street';
+  if (flagOn('site-shade')) return 'shade';
+  return undefined;
 }
 
 /**
@@ -58,6 +67,7 @@ export function planDay(f: Forecast, date: string, ctx: Ctx): DayPlan | null {
       garmentWarmth: ctx.garmentWarmth ?? garmentWarmth.value,
       bias: ctx.bias ?? biasState(),
       routines: ctx.routines,
+      ...(flagSite() ? { site: flagSite() } : {}),
     },
     localNow(f.utcOffsetSeconds),
   );

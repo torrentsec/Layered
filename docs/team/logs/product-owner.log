@@ -15,3 +15,11 @@
 2026-11-27T17:43:57Z | product-owner -> dev-04 | decision | the Settings Notifications screen must say plainly what a subscription sends
 2026-11-27T17:49:35Z | product-owner -> scrum-master | decision | accept UTCI as headline feels-like for now; checked: 5 °C with a 25 km/h wind is about -11 °C UTCI, far harsher than other apps' feels-like; Sprint 7 innovation item to calibrate the wording
 2026-11-27T17:49:35Z | product-owner -> scrum-master | decision | Sprint 6 Increment accepted: science by default, one engine everywhere, privacy wording on screen
+2026-11-27T18:00:09Z | product-owner -> team | decision | Sprint 7 goal: learn which new ideas make the advice more trusted; one must be calibrating the feels-like wording
+2026-11-27T18:01:25Z | product-owner -> team | decision | Sprint 7 picks: feels-like calibration (dev-07), feels-like in what you wear (dev-06), site exposure (dev-08), what Layered has learned card (dev-09), what would change this (dev-10)
+2026-11-27T18:01:25Z | product-owner -> team | decision | deferred to the Product Backlog: votes against observed weather (D8), fallback sun check, household bias (E12), changed since this morning (US-043)
+2026-11-27T22:32:02Z | stakeholder -> product-owner | note | stop after this iteration
+2026-11-27T22:32:02Z | product-owner -> scrum-master | decision | Sprint 7 is the last Sprint for now: finish it, Review, Retro, merge, then stop; no Sprint 8 Planning
+2026-11-27T22:37:03Z | product-owner -> team | decision | top of the Product Backlog: outfit matching must work in clo; on the London golden day the matched layers reach 1.17 clo against a 1.38 target (found by #85)
+2026-11-27T22:42:22Z | product-owner -> team | decision | Sprint 7 Review: keep #84 real-temperature-first, #85 after clo matching, #86 shade only, #87 after fixes, #88 within 2°; US-080 match in clo is top of the backlog
+2026-11-27T22:42:22Z | scrum-master -> product-owner | note | Sprint 7 Retrospective done; cadence of one innovation Sprint in four kept

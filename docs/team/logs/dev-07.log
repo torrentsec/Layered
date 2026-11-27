@@ -17,3 +17,22 @@
 2026-11-27 (sprint 5, from the board) | dev-07 -> scrum-master | handback | Sprint 5 item done and reported
 2026-11-27 (sprint 5, from the board) | scrum-master -> dev-07 | brief | fix-up: skip non-finite UTCI when picking the coldest hour
 2026-11-27 (sprint 5, from the board) | dev-07 -> scrum-master | handback | NaN coldest hour fixed with a test
+2026-11-27T18:00:39Z | dev-07 -> team | note | Pitch: calibrate feels-like wording, UTCI next to the wind-chill figure other apps show, tested on golden days and five phrasings
+2026-11-27T18:00:39Z | dev-07 -> team | note | Pitch: re-score past votes against the weather that actually happened rather than the forecast, to see if the learned bias and advice change
+2026-11-27T18:00:42Z | dev-07 -> scrum-master | handback | Phase 1 done: two pitches posted, feels-like wording calibration and re-scoring votes against observed weather
+2026-11-27T18:00:46Z | dev-06 -> dev-07 | note | Withdrew my duplicate feels-like pitch; +1 to yours with a refinement: stress category in words, wind-chill formula as the other-apps figure, clothing target must not move; offered to pair
+2026-11-27T18:00:55Z | dev-09 -> dev-07 | note | Withdrew my observed-weather pitch as a duplicate of yours and gave it a +1; offered to pair on feeding observed-weather targets into the bias filter
+2026-11-27T18:02:09Z | scrum-master -> dev-07 | brief | build phase: prototype for #84 behind a flag, write-up in docs/innovation
+2026-11-27T18:03:21Z | dev-07 -> team | claim | Feels calibration: I'll write the wind chill, familiar feels-like and headline-variant helpers in one new data file, behind a local flag
+2026-11-27T18:03:21Z | dev-07 -> dev-06 | question | I own the headline number helpers, you own the what-you-wear sentence; post a Stable hash if you want it as a fourth phrasing, and import my helpers rather than copying
+2026-11-27T18:03:22Z | dev-06 -> dev-07 | question | Proposed you own the feels-like wording file; I only export its minutes formatter, and we keep to separate lines on the day screen. OK?
+2026-11-27T18:03:46Z | dev-08 -> dev-07 | note | Site exposure spike leaves the feels-like display code alone; the number only moves when a site is set
+2026-11-27T22:32:02Z | scrum-master -> dev-07 | impediment | usage limit stopped work; resumed after reset
+2026-11-27T22:33:57Z | dev-07 -> dev-06 | answer | Agreed on ownership; I use your shared flag helper instead of my own and only touch the hero readout block in the day view
+2026-11-27T22:33:57Z | dev-07 -> team | stable | Feels calibration helpers stable on my spike branch
+2026-11-27T22:33:57Z | dev-07 -> dev-06 | review | Feels calibration spike ready for review, flags and write-up in place
+2026-11-27T22:34:57Z | dev-08 -> dev-07 | review | Site exposure spike is ready for your review per the rotation
+2026-11-27T22:35:36Z | dev-07 -> dev-08 | review | Site exposure spike reviewed: no bugs or copies; same day-view line as mine will conflict (suggested merge), ground reflection scaled by sky view in streets, two readability nits
+2026-11-27T22:35:39Z | dev-07 -> scrum-master | handback | Feels calibration spike ready for review with flags, tests, write-up and screenshots; recommend keeping real temperature first and dropping the familiar number; reviewed dev-08's site exposure spike
+2026-11-27T22:36:06Z | dev-06 -> dev-07 | note | Acted on your answer: kept my line below the readout and made the minutes formatter export myself
+2026-11-27T22:36:33Z | dev-06 -> dev-07 | review | Reviewed your calibration branch: no advice bugs; copied range markup, hero and range can disagree in the familiar wording, the strip jumps at the wind chill edge; agreed with keeping real temperature first

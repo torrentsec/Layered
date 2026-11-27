@@ -58,7 +58,8 @@ function signedClo(clo: number): string {
   return `${v > 0 ? '+' : v < 0 ? '−' : '±'}${Math.abs(v).toFixed(1)} clo`;
 }
 
-function minutes(m: number): string {
+/** Time outside for people: minutes under 90, then half hours. */
+export function fmtMinutes(m: number): string {
   if (m < 90) return `${Math.round(m)} min`;
   const h = Math.round(m / 30) / 2;
   return `${h} h`;
@@ -162,7 +163,7 @@ export function scienceDetail(s: ScienceWhy, activity: Activity, u: TempUnit, fm
   else if (radiant) weather.push({ label: 'Sun and sky', value: radiant });
 
   const you: WhyRow[] = [
-    { label: `${ACTIVITY_LABEL[activity]}, ${minutes(s.exposureMinutes)} outside`, value: `${Math.round(s.metabolic.m)} W/m²`, sub: 'body heat you make' },
+    { label: `${ACTIVITY_LABEL[activity]}, ${fmtMinutes(s.exposureMinutes)} outside`, value: `${Math.round(s.metabolic.m)} W/m²`, sub: 'body heat you make' },
     {
       label: 'Your adjustment',
       value: signedClo(s.target.bias),

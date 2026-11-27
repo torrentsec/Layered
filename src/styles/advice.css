@@ -1,0 +1,68 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later
+   Copyright (c) 2026 torrentsec */
+
+/* ---------- advice ---------- */
+
+.optional.general {
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.advice-choice {
+  margin: 12px 0;
+}
+
+.advice-choice .group {
+  margin-top: 8px;
+}
+
+.advice-gaps h2 {
+  font: 600 15px/1.3 var(--font-body);
+  margin: 0 0 8px;
+}
+
+.advice-gaps ul {
+  margin: 0 0 4px;
+  padding-left: 20px;
+}
+
+.advice-gaps li + li {
+  margin-top: 4px;
+}
+
+.advice-gaps a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--blue-ink);
+  font-weight: 600;
+}
+
+.why .group {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 8px;
+}
+
+.why .why-title {
+  font: 500 13px/1 var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+  margin: 20px 0 8px;
+}
+
+.why .why-title:first-child {
+  margin-top: 4px;
+}
+
+.why-note {
+  color: var(--ink-2);
+  font-size: 13px;
+  margin: -2px 0 8px;
+}
+
+.why-rules {
+  padding-left: 20px;
+  margin: 0;
+}

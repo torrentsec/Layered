@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Daniel Woo
 
 import { effect, signal, type Signal } from '@preact/signals';
-import type { Activity, Rating, WardrobeItem } from '../engine/types';
+import type { Activity, Effort, Rating, WardrobeItem } from '../engine/types';
 import type { Inventory } from '../engine/inventory';
 import { DEFAULT_COMFORT, type ComfortProfile } from '../engine/comfort';
 import type { Place } from './openmeteo';
@@ -24,9 +24,28 @@ export interface Commute {
 
 export interface NotifyPrefs {
   enabled: boolean;
+  /** Morning notification time, local "HH:MM". */
   time: string;
   days: number[];
+  /** Evening heads-up with tomorrow's outfit (US-061). */
+  evening?: boolean;
+  eveningTime?: string;
+  /** One extra alert if the day's advice changes materially (US-043). */
+  changeAlerts?: boolean;
   subscriptionId?: string;
+}
+
+/** A recurring stretch outdoors beyond the commute: school run, dog walk (US-065). */
+export interface Routine {
+  id: string;
+  name: string;
+  /** Local "HH:MM". */
+  time: string;
+  hours: number;
+  /** 0 = Sunday, as Date#getDay. */
+  days: number[];
+  activity: Activity;
+  effort?: Effort;
 }
 
 export interface Settings {
@@ -105,6 +124,7 @@ export const wardrobe = persisted<WardrobeItem[]>('wardrobe', []);
 /** Category inventory (E02). A missing category means "not set". */
 export const inventory = persisted<Inventory>('inventory', {});
 export const comfort = persisted<ComfortProfile>('comfort', DEFAULT_COMFORT);
+export const routines = persisted<Routine[]>('routines', []);
 /** First-run flow finished or skipped (US-006). */
 export const onboarded = persisted<boolean>('onboarded', false);
 export const trips = persisted<Trip[]>('trips', []);
@@ -125,6 +145,7 @@ export interface Bundle {
   wardrobe: WardrobeItem[];
   inventory?: Inventory;
   comfort?: ComfortProfile;
+  routines?: Routine[];
   trips: Trip[];
   ratings: Rating[];
 }
@@ -138,6 +159,7 @@ export function exportBundle(): Bundle {
     wardrobe: wardrobe.value,
     inventory: inventory.value,
     comfort: comfort.value,
+    routines: routines.value,
     trips: trips.value,
     ratings: ratings.value,
   };
@@ -153,6 +175,7 @@ export function importBundle(b: unknown): void {
   wardrobe.value = Array.isArray(x.wardrobe) ? x.wardrobe : [];
   inventory.value = x.inventory && typeof x.inventory === 'object' ? x.inventory : {};
   comfort.value = { ...DEFAULT_COMFORT, ...x.comfort };
+  routines.value = Array.isArray(x.routines) ? x.routines : [];
   trips.value = Array.isArray(x.trips) ? x.trips : [];
   ratings.value = Array.isArray(x.ratings) ? x.ratings : [];
 }

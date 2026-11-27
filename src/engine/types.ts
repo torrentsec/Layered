@@ -26,6 +26,9 @@ export interface Hour {
 
 export type Activity = 'walking' | 'standing' | 'cycling' | 'transport' | 'running' | 'hiking' | 'night' | 'office' | 'indoors';
 
+/** How hard you're working; scales the activity offset for sport (US-067). */
+export type Effort = 'easy' | 'steady' | 'hard';
+
 export type LayerKind = 'base' | 'mid' | 'outer';
 export type ItemKind = LayerKind | 'accessory';
 

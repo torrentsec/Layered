@@ -16,3 +16,6 @@ export * from './air';
 export * from './packing';
 export * from './notify';
 export * from './time';
+export * from './inventory';
+export * from './comfort';
+export * from './requirements';

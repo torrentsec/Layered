@@ -6,6 +6,7 @@ import { DEFAULT_SETTINGS, places, settings, exportBundle } from './store';
 import {
   clearStorage,
   createSyncCode,
+  deleteServerCopy,
   decide,
   formatCode,
   generateCode,
@@ -197,5 +198,30 @@ describe('wipe', () => {
     const st2 = memoryStorage({ 'layered:v1:x': '1' });
     await wipeDevice({ storage: st2, serviceWorker: { getRegistrations: async () => Promise.reject(new Error('blocked')) } });
     expect(st2.map.size).toBe(0);
+  });
+
+  it('deletes the push subscription and the sync copy on the server', async () => {
+    const s = fakeServer();
+    const code = 'ABCDE23456';
+    s.blobs.set(code, { updatedAt: 1, data: {} });
+    settings.value = { ...DEFAULT_SETTINGS, syncCode: code, notify: { ...DEFAULT_SETTINGS.notify, subscriptionId: 'abc_DEF-123456789012345' } };
+    await deleteServerCopy(s.f);
+    const calls = s.calls.mock.calls.map(([u, i]) => `${i?.method} ${String(u)}`);
+    expect(calls).toContain('DELETE /api/push/abc_DEF-123456789012345');
+    expect(s.blobs.has(code)).toBe(false);
+  });
+
+  it('carries on when the push delete fails, and skips it without an id', async () => {
+    const s = fakeServer();
+    const f = vi.fn(async (u: string | URL | Request, i?: RequestInit) => {
+      if (String(u).startsWith('/api/push/')) throw new TypeError('offline');
+      return s.f(u, i);
+    });
+    settings.value = { ...DEFAULT_SETTINGS, notify: { ...DEFAULT_SETTINGS.notify, subscriptionId: 'abc_DEF-123456789012345' } };
+    await expect(deleteServerCopy(f as unknown as typeof fetch)).resolves.toBeUndefined();
+    settings.value = { ...DEFAULT_SETTINGS };
+    f.mockClear();
+    await deleteServerCopy(f as unknown as typeof fetch);
+    expect(f).not.toHaveBeenCalled();
   });
 });

@@ -96,14 +96,18 @@ export interface Leg {
   exposureHours?: number;
 }
 
+const minutesOf = (hhmm: string) => {
+  const [hh, mm] = hhmm.split(':').map(Number);
+  return (hh || 0) * 60 + (mm || 0);
+};
+
 /**
  * Forecast hours a routine covers: every hour that its start-to-end span
  * touches, so 07:45 for half an hour includes both 07:00 and 08:00. With
  * `now`, hours already gone are dropped.
  */
 export function routineHours(hours: Hour[], date: string, r: Pick<RoutineSpec, 'time' | 'hours'>, now?: string): Hour[] {
-  const [hh, mm] = r.time.split(':').map(Number);
-  const start = (hh || 0) * 60 + (mm || 0);
+  const start = minutesOf(r.time);
   const end = start + clampRoutineHours(r.hours) * 60;
   const count = Math.ceil(end / 60) - Math.floor(start / 60);
   const from = `${date}T${String(Math.floor(start / 60)).padStart(2, '0')}:00`;
@@ -111,11 +115,20 @@ export function routineHours(hours: Hour[], date: string, r: Pick<RoutineSpec, '
   return now ? w.filter((h) => h.time.slice(0, 13) >= now.slice(0, 13)) : w;
 }
 
+/** Hours still to spend outside: a routine already under way only has what is left of it. */
+export function routineExposure(date: string, r: Pick<RoutineSpec, 'time' | 'hours'>, now?: string): number {
+  const length = clampRoutineHours(r.hours);
+  if (!now?.startsWith(date)) return length;
+  const start = minutesOf(r.time);
+  const left = start + length * 60 - Math.max(start, minutesOf(now.slice(11, 16)));
+  return Math.max(0, left) / 60;
+}
+
 export function routineLegs<R extends RoutineSpec & { id: string }>(hours: Hour[], date: string, routines: R[], now?: string): Leg[] {
   const legs: Leg[] = [];
   for (const r of routinesOn(routines, date)) {
     const h = routineHours(hours, date, r, now);
-    if (h.length) legs.push({ id: r.id, label: r.name, phrase: routinePhrase(r.name), activity: r.activity, effort: r.effort, hours: h, start: `${date}T${r.time}`, exposureHours: clampRoutineHours(r.hours) });
+    if (h.length) legs.push({ id: r.id, label: r.name, phrase: routinePhrase(r.name), activity: r.activity, effort: r.effort, hours: h, start: `${date}T${r.time}`, exposureHours: routineExposure(date, r, now) });
   }
   return legs;
 }

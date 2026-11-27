@@ -5,6 +5,7 @@ import { effortOffset } from './activity';
 import { bandFor } from './bands';
 import { extrasFor, windowStats } from './extras';
 import { comfortOffset as comfortOffsetFor, type ComfortProfile } from './comfort';
+import type { GarmentWarmth } from './garment-learning';
 import { ownership, type Inventory } from './inventory';
 import { learnedFor } from './learning';
 import { matchInventory, withoutCovered } from './match';
@@ -24,6 +25,8 @@ export interface AdviseInput {
   /** Category inventory; `{}` or missing gives generic advice. */
   inventory?: Inventory;
   comfort?: ComfortProfile;
+  /** Learned garment warmth (US-039); missing means none learned. */
+  garmentWarmth?: GarmentWarmth;
 }
 
 const round1 = (n: number) => Math.round(n * 10) / 10;
@@ -49,7 +52,7 @@ export function advise(input: AdviseInput): Advice | null {
 
   const inventory = input.inventory ?? {};
   const requirements = requirementsFor({ effective, band: band.id, stats, extras, activity, comfort: input.comfort });
-  const { layers, limitations, alternatives } = matchInventory(requirements, inventory);
+  const { layers, limitations, alternatives } = matchInventory(requirements, inventory, input.garmentWarmth);
   // An umbrella the user has said they don't own is no use as advice.
   const finalExtras = withoutCovered(ownership(inventory, 'umbrella') === 'none' ? extras.filter((e) => e.id !== 'umbrella') : extras, layers, inventory);
 

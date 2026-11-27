@@ -8,6 +8,7 @@ import { DEFAULT_COMFORT, type ComfortProfile } from '../engine/comfort';
 import type { BiasState } from '../engine/science/types';
 import { biasPrior, replayBias } from '../engine/science/personal';
 import type { Place } from './openmeteo';
+import type { EngineChoice } from './engine-choice';
 import { DEFAULT_UNITS, type Units } from './units';
 
 export type Theme = 'system' | 'light' | 'dark';
@@ -62,8 +63,8 @@ export interface Settings {
   syncCode?: string;
   syncedAt?: number;
   installHintSeen?: boolean;
-  /** Developer flag: which engine dresses Today. Missing means 'bands'. */
-  engine?: 'bands' | 'science';
+  /** Which engine dresses you; read it with `engineOf`, since missing means the thermal model. */
+  engine?: EngineChoice;
 }
 
 export interface TripStop {

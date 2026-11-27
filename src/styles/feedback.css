@@ -1,0 +1,83 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Copyright (c) 2026 Daniel Woo */
+
+.fb-card {
+  margin-top: 16px;
+}
+
+.fb-card h2 {
+  font-size: 19px;
+}
+
+/* Pressed state needs more than a colour change, so the border thickens too. */
+.fb-card .feedback button[aria-pressed='true'] {
+  border-color: var(--ink);
+  border-width: 2px;
+  font-weight: 600;
+}
+
+.fb-more {
+  border: 0;
+  margin: 16px 0 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.fb-more legend {
+  padding: 0;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.fb-optional {
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+.fb-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fb-toggles button {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.fb-toggles button[aria-pressed='true'] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.fb-pieces {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+/* Name above its buttons, so rows line up whatever the name's length. */
+.fb-pieces li {
+  display: grid;
+  gap: 6px;
+}
+
+.fb-piece-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.fb-more .small-print {
+  margin: 10px 0 0;
+}
+
+.learned-row .num {
+  white-space: nowrap;
+}

@@ -8,7 +8,7 @@
  */
 
 import type { Activity, BandId, Effort } from '../types';
-import { ireq, lightestIclFor } from './ireq';
+import { ireq, ISO_11079_LIMITS, lightestIclFor } from './ireq';
 import { metabolicRate } from './metabolic';
 import { windAtBody } from './radiation';
 import type { BandForCloFn, ClothingTarget, ClothingTargetFn, IreqParams, UtciCategory, UtciResult, Weather } from './types';
@@ -68,14 +68,34 @@ export interface HourTarget {
 }
 
 /**
- * One hour outside. A cyclist meets the wind plus their own speed; a walker's
- * own breeze is IREQ's `walk` term, not air speed.
+ * Up to this much insulation the target is full neutrality, whatever the time
+ * outside: an everyday coat outfit gets there, so nobody should accept feeling
+ * cool to save a jumper. Past it the exposure-limited DLE target
+ * (thermal-model §2.5) takes over, which keeps a winter commute out of 2 clo.
  */
-export function targetHour(w: Weather, activity: Activity, effort: Effort | undefined, exposureHours: number): HourTarget {
+export const NEUTRAL_REACH_CLO = BAND_PLAN_CLO.coat;
+
+/**
+ * Air temperature by which the sun's warmth has faded out of the target. The
+ * IREQ extension above 10 °C was only cross-checked against PMV, which has no
+ * direct sun, so radiant gain counts in full up to 10 °C and linearly less up
+ * to here. A clear-sky deficit always counts.
+ */
+export const SUN_FADE_TA = 15;
+
+function radiantTemp(w: Weather): number {
+  const gain = w.tmrt - w.ta;
+  if (gain <= 0) return w.tmrt;
+  const share = Math.min(1, Math.max(0, (SUN_FADE_TA - w.ta) / (SUN_FADE_TA - ISO_11079_LIMITS.taMax)));
+  return w.ta + share * gain;
+}
+
+function ireqTarget(w: Weather, activity: Activity, effort: Effort | undefined, exposureHours: number) {
   const met = metabolicRate(activity, effort);
+  // A cyclist meets the wind plus their own speed; a walker's own breeze is IREQ's `walk` term.
   const params: Omit<IreqParams, 'icl'> = {
     ta: w.ta,
-    tr: w.tmrt,
+    tr: radiantTemp(w),
     va: windAtBody(w.wind10) + met.ride,
     rh: w.rh,
     m: met.m,
@@ -83,8 +103,19 @@ export function targetHour(w: Weather, activity: Activity, effort: Effort | unde
     walk: met.walk,
   };
   const steady = ireq(params);
+  const needed = Math.max(lightestIclFor(params, exposureHours), Math.min(steady.iclNeutral, NEUTRAL_REACH_CLO));
+  return { steady, needed };
+}
+
+/**
+ * One hour outside. Cycling never comes out lighter than walking in the same
+ * weather (PO, Sprint 5 golden days): freewheeling and waiting at lights cut
+ * the heat a rider makes while the air keeps moving past.
+ */
+export function targetHour(w: Weather, activity: Activity, effort: Effort | undefined, exposureHours: number): HourTarget {
+  const { steady, needed: own } = ireqTarget(w, activity, effort, exposureHours);
+  const needed = activity === 'cycling' ? Math.max(own, ireqTarget(w, 'walking', undefined, exposureHours).needed) : own;
   const u = utci(w.ta, w.tmrt, w.wind10, w.rh);
-  const needed = lightestIclFor(params, exposureHours);
   const base = { iclMin: steady.iclMin, iclNeutral: steady.iclNeutral, utci: u };
 
   if (needed <= HEAT_LADDER_CLO || w.ta > HEAT_LADDER_TA) {

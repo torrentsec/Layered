@@ -1,0 +1,11 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later
+   Copyright (c) 2026 torrentsec */
+
+/* ---------- feels-like (UTCI) on the hero and hourly strip ---------- */
+
+/* Real temperature under the hour's UTCI: quieter, so feels-like still leads. */
+.hourly .a {
+  color: var(--ink-2);
+  font-size: 12px;
+  line-height: 1;
+}

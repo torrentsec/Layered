@@ -1,1 +1,40 @@
 2026-11-27T12:38:50Z | scrum-master -> dev-04 | brief | Sprint 6 item assigned; outcome and acceptance in the issue; the how is yours on the board
+2026-11-27T12:39:59Z | dev-05 -> dev-04 | need | Asked to be told if the notification worker will read any extra hourly field, so storage keeps it
+2026-11-27T12:40:29Z | dev-02 -> dev-04 | offer | Offered the engine choice helper for Week, Trip, poster, history and the push profile; proposed an engine field on the push profile with a science fallback for old subscriptions
+2026-11-27T12:40:39Z | dev-01 -> dev-04 | question | If one engine everywhere moves the day planner or the legs merger, tell me so our changes don't collide
+2026-11-27T12:42:07Z | dev-04 -> team | claim | I take one shared day planner used by the app and the push Worker, and the science input for Trip
+2026-11-27T12:42:07Z | dev-04 -> team | claim | Push profile gains engine, time outside, the device's bias, the vote pull and routines without names; old subscriptions fall back to the bias prior
+2026-11-27T12:42:07Z | dev-04 -> dev-02 | need | Asked for the engine choice helper as Stable and that I add the engine line in the planner wrapper myself
+2026-11-27T12:42:07Z | dev-04 -> dev-01 | need | Asked dev-01 to put the day leg duration change in the new shared planner once I post it Stable
+2026-11-27T12:42:07Z | dev-04 -> dev-05 | answer | The Worker reads no extra hour field and does not use the saved forecast
+2026-11-27T12:42:07Z | dev-04 -> dev-02 | answer | Took the proposal: engine in the push profile, Worker falls back to the default engine
+2026-11-27T12:43:39Z | dev-02 -> dev-04 | answer | The stable commit already has the one engine line in the day planner; merge it before moving the body and there is no conflict; I will not touch that file again; agreed on the engine field in the push profile
+2026-11-27T12:44:16Z | dev-05 -> dev-04 | review | Branch ready for your review
+2026-11-27T12:44:20Z | dev-05 -> dev-04 | note | Acted on answer: worker reads no extra hourly field and never uses the cache, so storage keeps the current set
+2026-11-27T12:44:23Z | dev-04 -> team | stable | Shared day planner posted as Stable; the app planner keeps its signature and wraps it
+2026-11-27T12:44:23Z | dev-04 -> dev-01 | note | Pointed dev-01 to the day leg block in the shared planner for the duration change
+2026-11-27T12:45:09Z | dev-01 -> dev-04 | answer | Agreed; I will move my two day-leg lines into the shared day planner once you post it as stable
+2026-11-27T12:46:02Z | dev-02 -> dev-04 | note | Their planner move conflicts with my engine line; resolve by keeping their wrapper with the engine choice helper; asked them to make sure no other path checks the science flag directly
+2026-11-27T17:33:45Z | scrum-master -> dev-04 | impediment | usage limit stopped work mid-wave; resume after 17:00 UTC
+2026-11-27T17:35:15Z | dev-01 -> dev-04 | note | Merged your stable day planner and moved my day-leg time outside into it
+2026-11-27T17:36:51Z | dev-03 -> dev-04 | review | Reviewed dev-04's posted stable commit: no findings; noted the advice-state conflict with dev-02 and how I resolved it
+2026-11-27T17:36:51Z | dev-03 -> dev-04 | note | Now using dev-04's place helper in the day view instead of building the place myself
+2026-11-27T17:40:15Z | dev-04 -> dev-02 | answer | Merged the engine choice Stable; the planner wrapper and the push profile use it, the Worker falls back through it
+2026-11-27T17:40:15Z | dev-04 -> dev-01 | answer | Merged the routine exposure Stable and carried the day leg change into the shared planner
+2026-11-27T17:40:15Z | dev-04 -> team | stable | Posted Stable with the Worker on the shared planner and trip days on the science input
+2026-11-27T17:40:15Z | dev-04 -> team | note | Decided the device sends its bias number with the subscription; old subscriptions use the comfort prior; wording unchanged; gap noted for wardrobe-dependent extras
+2026-11-27T17:41:11Z | dev-04 -> dev-05 | review | Reviewed forecast storage: no duplicates, faithful round trip; one minor finding to reject saved entries whose columns are shorter than the hour count
+2026-11-27T17:41:35Z | dev-04 -> team | stable | Posted Stable with the latest routine exposure and engine choice merged
+2026-11-27T17:41:35Z | dev-04 -> dev-03 | note | Branch ready for review
+2026-11-27T17:41:35Z | dev-04 -> scrum-master | handback | One planner for app and notifications; trip days on the science input; agreement test passes; review of forecast storage posted
+2026-11-27T17:41:58Z | product-owner -> dev-04 | decision | accepted: push profile carries one clo bias number and summed vote pull; must be stated in the README privacy section
+2026-11-27T17:42:03Z | scrum-master -> dev-04 | brief | document what the push subscription now sends, in README and architecture privacy boundaries
+2026-11-27T17:42:39Z | dev-04 -> team | stable | Posted Stable with the privacy docs saying what a notification subscription sends and keeps
+2026-11-27T17:42:39Z | dev-04 -> scrum-master | handback | Privacy docs updated for the new notification profile fields; pushed and posted Stable
+2026-11-27T17:42:49Z | dev-03 -> dev-04 | review | Reviewed dev-04's branch: no duplicate code; push profile now sends routines' times, a learned summary and bias without the docs or settings copy saying so; minor bias count and trip refresh notes
+2026-11-27T17:42:56Z | dev-05 -> dev-04 | answer | Agreed and fixed: a cut-short saved forecast now reads as missing and is refetched, with a test
+2026-11-27T17:43:57Z | scrum-master -> dev-04 | brief | fix-up: Settings copy for what a subscription sends; trip refresh on learned warmth and bias count
+2026-11-27T17:43:57Z | product-owner -> dev-04 | decision | the Settings Notifications screen must say plainly what a subscription sends
+2026-11-27T17:45:16Z | dev-04 -> dev-03 | answer | Fixed all three review points: on-screen privacy wording, trip refresh on bias count and garment warmth, vote count sent with the subscription
+2026-11-27T17:45:16Z | dev-04 -> team | stable | Posted Stable with the review fixes
+2026-11-27T17:45:16Z | dev-04 -> scrum-master | handback | Review fixes pushed and posted Stable

@@ -14,8 +14,9 @@ const forecast: Forecast = { lat: 51.5, lon: -0.1, timezone: 'Europe/London', ut
 const DATE = '2026-11-26';
 
 const routine = (over: Partial<Routine>): Routine => ({ id: 'dog', name: 'Dog walk', time: '18:00', hours: 0.5, days: [4], activity: 'walking', ...over });
+// The band cases pin their engine so they keep checking band numbers whatever the default is.
 const ctx = (over: { settings?: Partial<Settings>; routines?: Routine[]; activity?: Settings['activity']; effort?: 'easy' | 'steady' | 'hard' } = {}) => ({
-  settings: { ...DEFAULT_SETTINGS, ...over.settings },
+  settings: { ...DEFAULT_SETTINGS, engine: 'bands' as const, ...over.settings },
   ratings: [],
   inventory: {},
   comfort: DEFAULT_COMFORT,
@@ -73,6 +74,28 @@ describe('planDay with routines (US-066)', () => {
   it('formats note temperatures in the chosen unit', () => {
     const p = planDay(forecast, DATE, ctx({ settings: { units: { ...DEFAULT_SETTINGS.units, temp: 'f' } }, routines: [routine({})] }))!;
     expect(p.legs!.notes).toContain('Hat for the dog walk — feels 30° at 18:00');
+  });
+});
+
+describe('planDay legs under the science engine (#77)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-26T06:30:00Z'));
+  });
+  afterEach(() => vi.useRealTimers());
+
+  const science = (over: Partial<Settings> = {}) => ({ ...ctx({ settings: { engine: 'science', ...over }, routines: [routine({ time: '17:45' })] }), bias: { mean: 0, count: 0 } });
+  const minutes = (p: ReturnType<typeof planDay>) => Object.fromEntries(p!.legs!.legs.map((l) => [l.leg.label, l.advice.science!.exposureMinutes]));
+
+  it('dresses a routine for its own length and the day for the chosen duration', () => {
+    const p = planDay(forecast, DATE, science({ duration: 3 }));
+    expect(minutes(p)).toEqual({ 'Rest of the day': 180, 'Dog walk': 30 });
+  });
+
+  it('merges the feels-like range across the commute and the routine', () => {
+    const p = planDay(forecast, DATE, science(commuteOn))!;
+    const each = p.legs!.legs.map((l) => l.advice.science!.feels);
+    expect(p.advice.science!.feels).toEqual({ min: Math.min(...each.map((f) => f.min)), max: Math.max(...each.map((f) => f.max)) });
   });
 });
 

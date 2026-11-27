@@ -1,20 +1,24 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 torrentsec
 
-import { advise, adviseCommute, hourIndex, legWindow, notificationText, selectWindow } from '../../src/engine';
+import { notificationText } from '../../src/engine/notify';
 import type { Advice, BandId, ExtraId, Hour } from '../../src/engine';
+import { biasPrior } from '../../src/engine/science/personal';
 import type { Forecast } from '../../src/data/forecast-types';
-import { timeFmt, weekday } from '../../src/data/format';
+import { planDayFor, type PlanInput } from '../../src/data/day-plan';
+import { engineOf } from '../../src/data/engine-choice';
+import { timeFmt } from '../../src/data/format';
 import type { PushProfile } from '../../src/data/push-api';
 
 /**
- * The app's planDay, minus the parts that need the browser: it reads `now`
- * from the caller instead of the clock, and settings from the push profile.
- * Ratings and the inventory stay on the device, so the outfit is the generic
- * one for the same band and extras.
+ * The app's own planner, `planDayFor`, fed from the push profile instead of
+ * the device: the same engine, place, time outside, bias, vote pull and
+ * routines. Only the inventory and learned garment warmth stay on the device;
+ * they change which garments are named, never the band or the extras a
+ * notification reads.
  */
 
-/** Settings' default time outside; the push profile doesn't carry it. */
+/** Settings' default time outside, for subscriptions saved before the profile carried it. */
 export const DEFAULT_DURATION = 5;
 
 export interface Plan {
@@ -23,30 +27,26 @@ export interface Plan {
   dayHours: Hour[];
 }
 
+export function planInput(p: PushProfile, today: boolean): PlanInput {
+  return {
+    engine: engineOf(p),
+    units: p.units,
+    activity: p.activity,
+    duration: p.duration ?? DEFAULT_DURATION,
+    commute: p.commute,
+    manualOffset: p.manualOffset,
+    ...(p.learned ? { learned: p.learned } : {}),
+    comfort: p.comfort,
+    // Without the device's number, the same starting point the device had before any vote.
+    bias: p.bias !== undefined ? { mean: p.bias, count: p.biasCount ?? 0 } : biasPrior(p.comfort, p.manualOffset),
+    // Today plans with routines, other days without, as Today and the Week do.
+    ...(today && p.routines?.length ? { routines: p.routines.map((r, i) => ({ ...r, id: `r${i}`, name: '' })) } : {}),
+  };
+}
+
 export function planFor(f: Forecast, date: string, p: PushProfile, nowLocal: string): Plan | null {
-  const isToday = nowLocal.startsWith(date);
-  const hour = nowLocal.slice(0, 13);
-  const base = { activity: p.activity, manualOffset: p.manualOffset, today: nowLocal.slice(0, 10), comfort: p.comfort };
-  const c = p.commute;
-  let advice: Advice | null = null;
-
-  if (c.enabled && c.days.includes(weekday(date))) {
-    const leg = { ...base, activity: c.mode ?? p.activity };
-    const out = legWindow(f.hours, date, c.out, c.legHours);
-    const back = legWindow(f.hours, date, c.back, c.legHours);
-    const outLive = !isToday || out.some((h) => h.time.slice(0, 13) >= hour);
-    const backLive = !isToday || back.some((h) => h.time.slice(0, 13) >= hour);
-    if (outLive && backLive) advice = adviseCommute(leg, out, back, timeFmt(p.units.clock))?.advice ?? null;
-    else if (backLive) advice = advise({ ...leg, hours: back.filter((h) => h.time.slice(0, 13) >= hour) });
-  }
-  if (!advice) {
-    const start = isToday ? nowLocal : `${date}T${c.enabled ? c.out : '08:00'}`;
-    advice = advise({ ...base, hours: selectWindow(f.hours, start, DEFAULT_DURATION) });
-  }
-  if (!advice) return null;
-
-  const startIdx = Math.max(0, hourIndex(f.hours, isToday ? nowLocal : `${date}T06:00`));
-  return { advice, dayHours: f.hours.slice(startIdx, startIdx + (isToday ? 24 : 18)) };
+  const plan = planDayFor(f, date, planInput(p, nowLocal.startsWith(date)), nowLocal);
+  return plan && { advice: plan.advice, dayHours: plan.dayHours };
 }
 
 export function bodyFor(plan: Plan, p: PushProfile, day: 'today' | 'tomorrow'): string {

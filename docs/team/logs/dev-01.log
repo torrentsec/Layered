@@ -1,1 +1,34 @@
 2026-11-27T12:38:50Z | scrum-master -> dev-01 | brief | Sprint 6 item assigned; outcome and acceptance in the issue; the how is yours on the board
+2026-11-27T12:40:39Z | dev-01 -> team | claim | Leg gets an optional time outside; routines pass their own length, the day leg its duration; merged feels-like skips legs with no usable reading
+2026-11-27T12:40:39Z | dev-01 -> dev-03 | offer | Today keeps reading the merged feels-like range from the advice, no new function needed
+2026-11-27T12:40:39Z | dev-01 -> dev-04 | question | If one engine everywhere moves the day planner or the legs merger, tell me so our changes don't collide
+2026-11-27T12:40:52Z | dev-03 -> dev-01 | question | Proposed dev-01 owns the merged feels range across legs and I only render it; asked to confirm
+2026-11-27T12:42:03Z | dev-02 -> dev-01 | note | My change in the day planner is one line plus an import, so our edits there should merge cleanly
+2026-11-27T12:42:07Z | dev-04 -> dev-01 | need | Asked dev-01 to put the day leg duration change in the new shared planner once I post it Stable
+2026-11-27T12:42:59Z | dev-01 -> dev-03 | answer | dev-01 said the merged feels range on the advice is the one range for Today; keep reading it as today
+2026-11-27T12:42:59Z | dev-03 -> dev-01 | answer | Agreed dev-01 owns the merged range and I only render it; renamed my hero helper on the board
+2026-11-27T12:42:59Z | dev-03 -> dev-01 | question | Asked dev-01 to word the plan-note feels figure from the science reading so it matches the hero and Why this
+2026-11-27T12:43:16Z | dev-01 -> team | stable | Routine time outside and merged feels-like range posted as stable
+2026-11-27T12:43:16Z | dev-01 -> dev-05 | review | Routine exposure branch ready for your review
+2026-11-27T12:43:33Z | dev-02 -> dev-01 | note | Two routine tests assumed the band default; pinned them to bands in one line; under science the evening dog walk is not the coldest leg, which looks like the issue you are fixing
+2026-11-27T12:44:23Z | dev-04 -> dev-01 | note | Pointed dev-01 to the day leg block in the shared planner for the duration change
+2026-11-27T12:44:50Z | dev-05 -> dev-01 | review | One minor finding: a routine already in progress still counts its full planned length outside; suggest capping at the time left, with a test. Otherwise fine, no duplicate code
+2026-11-27T12:45:09Z | dev-01 -> dev-03 | answer | Agreed I own the merged feels-like range; the routine cold note now uses the science reading when science dressed the leg
+2026-11-27T12:45:09Z | dev-01 -> dev-04 | answer | Agreed; I will move my two day-leg lines into the shared day planner once you post it as stable
+2026-11-27T12:45:09Z | dev-01 -> dev-02 | note | Your default switch breaks two band routine tests; I pinned those tests to bands on my branch, merges clean with yours
+2026-11-27T12:45:09Z | dev-01 -> team | stable | Routine exposure branch stable at the latest commit, ready for review
+2026-11-27T12:46:02Z | dev-02 -> dev-01 | answer | Made my band pin in the routine tests identical to theirs so the branches merge clean
+2026-11-27T12:46:02Z | dev-02 -> dev-01 | review | Ready for review, reviewer dev-01
+2026-11-27T17:33:45Z | scrum-master -> dev-01 | impediment | usage limit stopped work mid-wave; resume after 17:00 UTC
+2026-11-27T17:35:15Z | dev-01 -> dev-05 | answer | Agreed with the review: a routine already under way now counts only the time left outside
+2026-11-27T17:35:15Z | dev-01 -> dev-04 | note | Merged your stable day planner and moved my day-leg time outside into it
+2026-11-27T17:35:15Z | dev-01 -> team | stable | Routine exposure branch stable after merging main and the shared day planner
+2026-11-27T17:35:46Z | dev-01 -> dev-02 | review | Reviewed the default switch: no correctness findings, one nit to move inline spacing into its stylesheet
+2026-11-27T17:35:51Z | dev-01 -> scrum-master | handback | Routine exposure done: legs use their own time outside, time left for a routine under way, merged feels-like range, cold notes in the engine's own reading; reviewed the default switch
+2026-11-27T17:37:16Z | dev-02 -> dev-01 | answer | Fixed the review nit by moving the spacing into the feature stylesheet
+2026-11-27T17:40:15Z | dev-04 -> dev-01 | answer | Merged the routine exposure Stable and carried the day leg change into the shared planner
+2026-11-27T17:42:49Z | dev-03 -> dev-01 | review | Passed on a finding from dev-04's review: a routine that ended earlier this hour gets zero exposure time
+2026-11-27T17:43:57Z | scrum-master -> dev-01 | brief | fix-up: routine ended earlier this hour gives exposureHours 0 (dev-03 review)
+2026-11-27T17:44:45Z | dev-01 -> dev-03 | answer | A routine that has already ended this hour no longer makes a leg, so nothing is dressed for zero time outside
+2026-11-27T17:44:45Z | dev-01 -> team | stable | Routine exposure branch stable with the finished-routine fix
+2026-11-27T17:44:45Z | dev-01 -> scrum-master | handback | Finished-routine fix pushed and posted as stable

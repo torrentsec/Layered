@@ -13,8 +13,8 @@ import type { Activity, BandId, Effort, LayerAdvice } from '../types';
 import { ensembleClo } from './clothing';
 import { metabolicRate } from './metabolic';
 import { bandForClo, clothingTarget, CLO_EDGE_HEDGE, CLO_EDGE_HEDGE_WIDE, nearCloEdge } from './target';
-import type { ClothingTarget, GarmentClo, Metabolic, UtciResult, Weather, WetState } from './types';
-import { utci } from './utci';
+import type { ClothingTarget, GarmentClo, Metabolic, Weather, WetState } from './types';
+import { weatherUtci } from './utci';
 import type { ScienceWhy } from './why';
 
 /** What the science engine needs beyond the band pipeline's own input. */
@@ -34,13 +34,10 @@ export interface ScienceVerdict {
   edge: boolean;
 }
 
-// UTCI per hour is needed both for the hedge and for "Why this?".
-const utciOf = (w: Weather): UtciResult => utci(w.ta, w.tmrt, w.wind10, w.rh);
-
 export function scienceVerdict(x: ScienceInput, activity: Activity, effort?: Effort): ScienceVerdict {
   const target = clothingTarget({ hours: x.weather, activity, effort, exposureHours: x.exposureHours, bias: x.bias });
   // Less certain inputs widen the band where the advice could go either way (§9.1).
-  const unsure = x.weather.some((w) => w.radiation === 'estimated' || utciOf(w).clamped);
+  const unsure = x.weather.some((w) => w.radiation === 'estimated' || weatherUtci(w).clamped);
   return { target, band: bandForClo(target.icl), edge: nearCloEdge(target.icl, unsure ? CLO_EDGE_HEDGE_WIDE : CLO_EDGE_HEDGE) };
 }
 
@@ -75,7 +72,7 @@ export interface ScienceWhyInput {
 
 /** The numbers behind the advice, for "Why this?". The coldest hour is the one with the lowest UTCI. */
 export function scienceWhy(x: ScienceWhyInput): ScienceWhy {
-  const results = x.science.weather.map(utciOf);
+  const results = x.science.weather.map(weatherUtci);
   // A NaN never compares lower, so it would stick as the coldest if it came first.
   let i = -1;
   results.forEach((r, j) => {

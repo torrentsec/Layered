@@ -74,3 +74,18 @@ Six hourly series were added to the Open-Meteo request for the thermal model: hu
 | Worker request, 2 days (raw JSON) | 3.4 kB | 4.4 kB |
 
 The parsed copy grows more than the request because each hour repeats its field names; hours with a gap drop the key entirely. At about 90 kB per place, the 5 MB `localStorage` quota holds far more places than anyone saves. The 15-minute freshness window (`FRESH_MS`) is unchanged, and copies saved before this change still load: the new fields are optional and read as missing. The Worker keeps only a summary in D1, so its storage is unaffected.
+
+## Saved forecasts as columns (#81)
+
+Paying off D7. Every `Hour` field is read by something: the band engine and screens read the basic weather, heads-ups read `visibility`, extras read `uv` and `isDay`, and the science engine reads `rh`, `cloud` and the four radiation series. So no field could be dropped. Instead the cache (`src/data/cache.ts`) saves the forecast through `packForecast` (`src/data/forecast-pack.ts`): one array per field rather than one object per hour, so the eighteen key names are written once instead of 384 times. A run of hourly times is stored as its first hour and a count; numbers lose only float noise below 0.01, finer than either provider reports.
+
+Measured on the same kind of synthetic 16-day London document (384 hours, Open-Meteo's number formatting), Node 22, same machine:
+
+| Per place | Before | After |
+|---|---|---|
+| Saved copy in `localStorage` | 89.6 kB | 25.5 kB (−72%) |
+| Twenty places | 1.79 MB | 0.51 MB |
+| Read (`JSON.parse`, then unpack) | 0.20 ms | 0.65 ms |
+| Write (pack, then `JSON.stringify`) | 0.34 ms | 0.53 ms |
+
+Twenty places with full forecasts now use about a tenth of the usual 5 million character quota; `forecast-pack.test.ts` holds that under a fifth. Reading costs under half a millisecond more, and only the place on screen is read at start-up, so it doesn't show in Lighthouse. Copies saved before this change still load: `unpackForecast` reads both formats, and the old one is replaced on the next refresh, within 15 minutes. A compile-time check in `forecast-pack.ts` fails the build if `Hour` gains a field the columns don't store.

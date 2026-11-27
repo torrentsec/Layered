@@ -7,6 +7,9 @@ import { selectWindow } from '../engine/window';
 import type { Activity, Advice, Hour, Rating } from '../engine/types';
 import type { Inventory } from '../engine/inventory';
 import type { ComfortProfile } from '../engine/comfort';
+import type { GarmentWarmth } from '../engine/garment-learning';
+import type { BiasState, WeatherPlace } from '../engine/science/types';
+import type { EngineChoice } from './engine-choice';
 import { getForecast } from './cache';
 import { addDays } from './format';
 import { fetchTypical } from './openmeteo';
@@ -51,19 +54,33 @@ export function datesBetween(start: string, end: string): string[] {
   return out;
 }
 
-interface Ctx {
+export interface Ctx {
   manualOffset: number;
   ratings: Rating[];
   inventory: Inventory;
   comfort: ComfortProfile;
   today: string;
+  /** The same engine, bias and learned warmth as Today, so a trip day dresses you as Today would. */
+  engine: EngineChoice;
+  bias: Pick<BiasState, 'mean' | 'count'>;
+  garmentWarmth?: GarmentWarmth;
 }
 
-export function dayAdvice(hours: Hour[], date: string, activities: Activity[], ctx: Ctx): Advice | null {
+/**
+ * Typical days come without a time zone; solar time from the longitude puts
+ * the sun within an hour or so of right, which is all an average day can claim.
+ */
+export const solarOffset = (lon: number): number => Math.round(lon / 15) * 3600 + 0; // + 0 turns -0 into 0
+
+export function dayAdvice(hours: Hour[], date: string, activities: Activity[], ctx: Ctx, place?: WeatherPlace): Advice | null {
+  const { engine, bias, ...rest } = ctx;
   const list = (activities.length ? activities : (['walking'] as Activity[]))
     .map((a) => {
       const [hhmm, h] = WINDOW[a];
-      return advise({ hours: selectWindow(hours, `${date}T${hhmm}`, h).filter((x) => x.time.startsWith(date)), activity: a, ...ctx });
+      const window = selectWindow(hours, `${date}T${hhmm}`, h).filter((x) => x.time.startsWith(date));
+      // Each activity's window is the time spent outside for it.
+      const science = engine === 'science' && place ? { science: { place, bias: bias.mean, biasCount: bias.count, exposureHours: h } } : {};
+      return advise({ hours: window, activity: a, ...rest, ...science });
     })
     .filter((a): a is Advice => !!a);
   return combineAdvice(list);
@@ -94,9 +111,11 @@ async function planStop(stop: TripStop, activities: Activity[], ctx: Ctx): Promi
   const dates = datesBetween(stop.start < ctx.today ? ctx.today : stop.start, stop.end);
   const byDate = new Map<string, { source: DaySource; hours: Hour[] }>();
   let error: string | undefined;
+  let place: WeatherPlace = { lat: stop.place.lat, lon: stop.place.lon, utcOffsetSeconds: solarOffset(stop.place.lon) };
 
   try {
     const { forecast } = await getForecast(stop.place.lat, stop.place.lon);
+    place = { ...place, utcOffsetSeconds: forecast.utcOffsetSeconds };
     const last = forecast.days.at(-1)?.date ?? '';
     for (const d of dates) if (d <= last) byDate.set(d, { source: 'forecast', hours: forecast.hours });
   } catch {
@@ -121,7 +140,7 @@ async function planStop(stop: TripStop, activities: Activity[], ctx: Ctx): Promi
     error,
     days: dates.map((date) => {
       const got = byDate.get(date);
-      return got ? { date, source: got.source, advice: dayAdvice(got.hours, date, activities, ctx) } : { date, source: 'unavailable', advice: null };
+      return got ? { date, source: got.source, advice: dayAdvice(got.hours, date, activities, ctx, place) } : { date, source: 'unavailable', advice: null };
     }),
   };
 }

@@ -8,5 +8,5 @@
     "jsxImportSource": "preact",
     "types": ["vite/client", "vite-plugin-pwa/client"]
   },
-  "include": ["src"]
+  "include": ["src", "worker/src/plan.ts", "functions/_lib/push-validate.ts", "functions/_lib/b64.ts"]
 }

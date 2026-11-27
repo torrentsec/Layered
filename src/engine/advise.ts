@@ -7,7 +7,7 @@ import { extrasFor, windowStats } from './extras';
 import { comfortOffset as comfortOffsetFor, type ComfortProfile } from './comfort';
 import type { GarmentWarmth } from './garment-learning';
 import { ownership, type Inventory } from './inventory';
-import { learnedFor } from './learning';
+import { learnedFor, learnedFromSnapshot, type LearnSnapshot } from './learning';
 import { matchInventory, withoutCovered } from './match';
 import { requirementsFor } from './requirements';
 import { scienceWhy } from './science/advice';
@@ -23,6 +23,8 @@ export interface AdviseInput {
   /** Manual offset from Settings, °C. Positive means "I run warm". */
   manualOffset?: number;
   ratings?: Rating[];
+  /** The votes' pull as a snapshot; when set it stands in for `ratings`, so the Worker learns without the votes. */
+  learned?: LearnSnapshot;
   /** Local date used to age ratings. */
   today?: string;
   /** Category inventory; `{}` or missing gives generic advice. */
@@ -55,10 +57,15 @@ export function colderThan(a: Advice, b: Advice): boolean {
   return ca !== undefined && cb !== undefined ? ca > cb : a.effective < b.effective;
 }
 
-/** UTCI range across several pieces of science advice, so a merged day reads its whole span. */
+/**
+ * UTCI range across several pieces of science advice, so a merged day reads
+ * its whole span. A leg without a finite UTCI is left out: one NaN would
+ * otherwise send the whole day back to apparent temperature.
+ */
 export function mergedScience(cold: Advice, all: Advice[]): Advice['science'] {
   if (!cold.science) return undefined;
-  const ranges = all.flatMap((a) => (a.science ? [a.science.feels] : []));
+  const ranges = all.flatMap((a) => (a.science && Number.isFinite(a.science.feels.min) && Number.isFinite(a.science.feels.max) ? [a.science.feels] : []));
+  if (!ranges.length) return cold.science;
   return { ...cold.science, feels: { min: Math.min(...ranges.map((r) => r.min)), max: Math.max(...ranges.map((r) => r.max)) } };
 }
 
@@ -75,7 +82,8 @@ export function advise(input: AdviseInput): Advice | null {
 
   const manualOffset = input.manualOffset ?? 0;
   const activityOffset = effortOffset(activity, input.effort);
-  const learned = learnedFor(input.ratings ?? [], activity, input.today ?? hours[0].time.slice(0, 10));
+  const today = input.today ?? hours[0].time.slice(0, 10);
+  const learned = input.learned ? learnedFromSnapshot(input.learned, activity, today) : learnedFor(input.ratings ?? [], activity, today);
   const comfortOffset = input.comfort ? comfortOffsetFor(input.comfort, activity) : 0;
   const effective = round1(coldest.feels + activityOffset + comfortOffset + manualOffset + learned.offset);
 

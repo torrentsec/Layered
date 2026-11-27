@@ -1,1 +1,44 @@
 2026-11-27T12:38:50Z | scrum-master -> dev-03 | brief | Sprint 6 item assigned; outcome and acceptance in the issue; the how is yours on the board
+2026-11-27T12:40:29Z | dev-02 -> dev-03 | note | No changes from me in Today or DayView; DayView follows the default through planDay
+2026-11-27T12:40:39Z | dev-01 -> dev-03 | offer | Today keeps reading the merged feels-like range from the advice, no new function needed
+2026-11-27T12:40:52Z | dev-03 -> team | claim | Claimed hero and hourly feels helpers and a per-hour UTCI helper; Today and DayView edits go through me
+2026-11-27T12:40:52Z | dev-03 -> team | offer | Offered the per-hour UTCI helper to anyone who needs it, and Today or DayView changes on request
+2026-11-27T12:40:52Z | dev-03 -> dev-01 | question | Proposed dev-01 owns the merged feels range across legs and I only render it; asked to confirm
+2026-11-27T12:40:52Z | dev-03 -> dev-02 | need | Asked dev-02 to confirm the engine flag and that science details are set only when science produced the advice
+2026-11-27T12:42:03Z | dev-02 -> dev-03 | answer | Do not read the engine flag directly any more since missing now means science; keying off the science part of the advice is right; use the engine choice helper if the choice itself is needed
+2026-11-27T12:42:59Z | dev-01 -> dev-03 | answer | dev-01 said the merged feels range on the advice is the one range for Today; keep reading it as today
+2026-11-27T12:42:59Z | dev-02 -> dev-03 | answer | dev-02 said do not read the engine flag; keying off the science details on the advice is right
+2026-11-27T12:42:59Z | dev-03 -> dev-01 | answer | Agreed dev-01 owns the merged range and I only render it; renamed my hero helper on the board
+2026-11-27T12:42:59Z | dev-03 -> dev-01 | question | Asked dev-01 to word the plan-note feels figure from the science reading so it matches the hero and Why this
+2026-11-27T12:42:59Z | dev-03 -> team | note | Flagged that the heat heads-up still uses apparent temperature; outside this item, left for the product owner
+2026-11-27T12:43:41Z | dev-03 -> dev-02 | stable | Merged dev-02's posted stable commit for the science default so Today shows science advice in my checks
+2026-11-27T12:45:09Z | dev-01 -> dev-03 | answer | Agreed I own the merged feels-like range; the routine cold note now uses the science reading when science dressed the leg
+2026-11-27T12:45:13Z | dev-03 -> dev-02 | question | Told dev-02 their stable commit fails two routine planning tests and asked for a fixed stable commit to re-merge
+2026-11-27T12:46:02Z | dev-02 -> dev-03 | answer | Fixed the two routine tests by pinning them to bands; asked to re-merge the new stable commit
+2026-11-27T17:33:45Z | scrum-master -> dev-03 | impediment | usage limit stopped work mid-wave; resume after 17:00 UTC
+2026-11-27T17:34:01Z | dev-02 -> dev-03 | answer | dev-02 fixed the two routine tests and posted a new stable commit
+2026-11-27T17:34:01Z | dev-03 -> dev-02 | stable | Re-merged dev-02's newer stable commit
+2026-11-27T17:34:22Z | dev-02 -> dev-03 | question | Asked them to push their branch and post ready for review so I can review it
+2026-11-27T17:35:26Z | dev-03 -> team | stable | Posted a stable commit for the hero and hourly feels-like work
+2026-11-27T17:35:26Z | dev-03 -> dev-02 | review | Asked dev-02 to review my branch as next in the rotation
+2026-11-27T17:36:12Z | dev-02 -> dev-03 | review | Reviewed their branch: no bugs; two minor findings, a third copy of the per-hour comfort index call that should reuse the engine one, and the place rebuilt in the day view that could drift from the planner
+2026-11-27T17:36:51Z | dev-03 -> dev-04 | review | Reviewed dev-04's posted stable commit: no findings; noted the advice-state conflict with dev-02 and how I resolved it
+2026-11-27T17:36:51Z | dev-03 -> dev-04 | note | Now using dev-04's place helper in the day view instead of building the place myself
+2026-11-27T17:36:51Z | dev-03 -> team | stable | Posted a newer stable commit including dev-02's and dev-04's stable work
+2026-11-27T17:36:51Z | dev-03 -> scrum-master | handback | Hero and hourly strip show feels-like from the science engine with the real temperature beside; branch pushed and ready for review
+2026-11-27T17:37:08Z | product-owner -> dev-03 | decision | Heat heads-up under science: move to UTCI heat stress (strong heat stress, 32 °C UTCI) — added to the Product Backlog for after the innovation Sprint, not this Sprint
+2026-11-27T17:37:39Z | scrum-master -> dev-03 | brief | fix-up: one shared UTCI-from-weather function, per dev-02's review
+2026-11-27T17:38:38Z | dev-02 -> dev-03 | review | dev-02 found the per-hour UTCI helper duplicated the one in the science advice
+2026-11-27T17:38:38Z | dev-03 -> dev-02 | answer | Agreed and fixed: one shared function now computes an hour's UTCI, also replacing a third copy in the clothing target
+2026-11-27T17:38:38Z | dev-03 -> team | stable | Posted a newer stable commit with the single UTCI function
+2026-11-27T17:38:38Z | dev-03 -> scrum-master | handback | Review finding fixed and pushed; stable commit posted
+2026-11-27T17:41:35Z | dev-04 -> dev-03 | note | Branch ready for review
+2026-11-27T17:41:58Z | scrum-master -> dev-03 | brief | review dev-04's feat/80-one-engine at 84c5720
+2026-11-27T17:42:49Z | dev-03 -> dev-04 | review | Reviewed dev-04's branch: no duplicate code; push profile now sends routines' times, a learned summary and bias without the docs or settings copy saying so; minor bias count and trip refresh notes
+2026-11-27T17:42:49Z | dev-03 -> dev-01 | review | Passed on a finding from dev-04's review: a routine that ended earlier this hour gets zero exposure time
+2026-11-27T17:42:49Z | dev-03 -> scrum-master | handback | Review of dev-04's branch posted on the board
+2026-11-27T17:44:45Z | dev-01 -> dev-03 | answer | A routine that has already ended this hour no longer makes a leg, so nothing is dressed for zero time outside
+2026-11-27T17:45:16Z | dev-04 -> dev-03 | answer | Fixed all three review points: on-screen privacy wording, trip refresh on bias count and garment warmth, vote count sent with the subscription
+2026-11-27T17:46:04Z | scrum-master -> dev-03 | brief | fix-up: e2e smoke expects 'Dress for', hero now says 'Feels like' under the default engine
+2026-11-27T17:46:54Z | dev-03 -> team | stable | Posted a stable commit fixing the hero end-to-end check for both engines, with dev-02's and dev-04's branches merged
+2026-11-27T17:46:54Z | dev-03 -> scrum-master | handback | Hero end-to-end check updated for science and bands; all checks pass and the branch is pushed

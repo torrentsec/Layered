@@ -23,9 +23,12 @@ Every Sprint Retrospective adds at least one improvement here. Each one is plann
 | 17 | Sprint 4 | A spike runs each formula against its acceptance tests before writing it into the backlog | Sprint 5 | **Kept.** Golden days were written as runnable expectations before implementation and drove the tuning |
 | 18 | Sprint 4 | Confirm external API field names with one live request at Planning | Sprint 5 | **Kept.** Confirmed at Planning from the provider's documentation source |
 | 19 | Sprint 4 (stakeholder) | Developers self-manage the how: a shared team board for needs, offers and claimed helpers; ask instead of copy; peer review by another Developer. The SM facilitates and never dictates code | Sprint 5 | **Kept.** 53 board entries, 15 questions and answers, 6 peer reviews, no duplicate code merged, SM wrote no feature code |
-| 20 | Sprint 5 | Merge `origin/main` into a pushed branch; rebase only before the first push | Sprint 6 | Pending |
-| 21 | Sprint 5 | Depend on commits the owner posts as stable on the board, and re-merge on a newer one | Sprint 6 | Pending |
-| 22 | Sprint 5 | Merge the Sprint PR with a merge commit so each story's commits stay visible | Sprint 6 | Pending |
+| 20 | Sprint 5 | Merge `origin/main` into a pushed branch; rebase only before the first push | Sprint 6 | **Kept.** No stuck or force-pushed branches |
+| 21 | Sprint 5 | Depend on commits the owner posts as stable on the board, and re-merge on a newer one | Sprint 6 | **Kept.** Developers merged posted Stable hashes; one integration seam |
+| 22 | Sprint 5 | Merge the Sprint PR with a merge commit so each story's commits stay visible | Sprint 6 | **Kept.** Sprint 5 merged with a merge commit (#76) |
+| 23 | Sprint 6 | Run e2e before Ready for review when a change touches a screen | Sprint 7 | Pending |
+| 24 | Sprint 6 | Post any new exported helper as a Claim before writing it | Sprint 7 | Pending |
+| 25 | Sprint 6 | Each agent writes only its own interaction log lines | Sprint 7 | Pending |
 
 ## Metrics we watch
 
@@ -36,3 +39,5 @@ Every Sprint Retrospective adds at least one improvement here. Each one is plann
 | 3 | 5 | 5 | 4 | 1 (Settings) | 630 → 698 + 5 e2e + axe + Lighthouse | Session restart; stale dependencies; a port held by a leftover server |
 | 4 | 5 | 5 | 1 (one Sprint PR) | 1 (`windAtBody` duplicate) | 698 → 1,480 | Open-Meteo quota spent; GitHub connection dropped after restart |
 | 5 | 5 | 5 | 1 Sprint PR + 3 side PRs (#73–#75) | 1 (early merge of moving branches) | 1,480 → 1,585 | Usage limit mid-wave; force-push refused for rebased branches |
+
+| 6 | 5 | 5 | 1 Sprint PR | 1 (import order) | 1,585 → 1,688 + 6 e2e | Usage limit mid-wave; a permission check blocked one guidance lookup |

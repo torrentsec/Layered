@@ -19,3 +19,29 @@
 2026-11-27T12:38:50Z | scrum-master -> dev-03 | brief | Sprint 6 item assigned; outcome and acceptance in the issue; the how is yours on the board
 2026-11-27T12:38:50Z | scrum-master -> dev-04 | brief | Sprint 6 item assigned; outcome and acceptance in the issue; the how is yours on the board
 2026-11-27T12:38:50Z | scrum-master -> dev-05 | brief | Sprint 6 item assigned; outcome and acceptance in the issue; the how is yours on the board
+2026-11-27T12:43:43Z | scrum-master -> team | note | Sprint 6 plan merged to main (#82); merge origin/main into your branch, don't rebase once pushed
+2026-11-27T12:45:11Z | dev-05 -> scrum-master | handback | Storage item done: saved forecasts about 72 percent smaller, old copies load, science test moved, debt items marked paid off; reviewed dev-01 with one minor finding
+2026-11-27T17:33:45Z | scrum-master -> dev-01 | impediment | usage limit stopped work mid-wave; resume after 17:00 UTC
+2026-11-27T17:33:45Z | scrum-master -> dev-02 | impediment | usage limit stopped work mid-wave; resume after 17:00 UTC
+2026-11-27T17:33:45Z | scrum-master -> dev-03 | impediment | usage limit stopped work mid-wave; resume after 17:00 UTC
+2026-11-27T17:33:45Z | scrum-master -> dev-04 | impediment | usage limit stopped work mid-wave; resume after 17:00 UTC
+2026-11-27T17:35:51Z | dev-01 -> scrum-master | handback | Routine exposure done: legs use their own time outside, time left for a routine under way, merged feels-like range, cold notes in the engine's own reading; reviewed the default switch
+2026-11-27T17:36:51Z | dev-03 -> scrum-master | handback | Hero and hourly strip show feels-like from the science engine with the real temperature beside; branch pushed and ready for review
+2026-11-27T17:37:16Z | dev-02 -> scrum-master | handback | Science is the default, Settings offers thermal model or simple bands, golden days pass through the default path and bands keep the Sprint 5 outfits; reviewed dev-03 with two minor findings
+2026-11-27T17:37:39Z | scrum-master -> dev-03 | brief | fix-up: one shared UTCI-from-weather function, per dev-02's review
+2026-11-27T17:38:38Z | dev-03 -> scrum-master | handback | Review finding fixed and pushed; stable commit posted
+2026-11-27T17:41:35Z | dev-04 -> scrum-master | handback | One planner for app and notifications; trip days on the science input; agreement test passes; review of forecast storage posted
+2026-11-27T17:41:58Z | scrum-master -> dev-03 | brief | review dev-04's feat/80-one-engine at 84c5720
+2026-11-27T17:41:58Z | scrum-master -> dev-05 | brief | address dev-04's review finding on short columns
+2026-11-27T17:42:03Z | scrum-master -> dev-04 | brief | document what the push subscription now sends, in README and architecture privacy boundaries
+2026-11-27T17:42:39Z | dev-04 -> scrum-master | handback | Privacy docs updated for the new notification profile fields; pushed and posted Stable
+2026-11-27T17:42:49Z | dev-03 -> scrum-master | handback | Review of dev-04's branch posted on the board
+2026-11-27T17:42:56Z | dev-05 -> scrum-master | handback | Review fix done: cut-short saved forecasts read as missing; branch pushed and posted stable
+2026-11-27T17:43:57Z | scrum-master -> dev-01 | brief | fix-up: routine ended earlier this hour gives exposureHours 0 (dev-03 review)
+2026-11-27T17:43:57Z | scrum-master -> dev-04 | brief | fix-up: Settings copy for what a subscription sends; trip refresh on learned warmth and bias count
+2026-11-27T17:44:45Z | dev-01 -> scrum-master | handback | Finished-routine fix pushed and posted as stable
+2026-11-27T17:45:16Z | dev-04 -> scrum-master | handback | Review fixes pushed and posted Stable
+2026-11-27T17:46:04Z | scrum-master -> dev-03 | brief | fix-up: e2e smoke expects 'Dress for', hero now says 'Feels like' under the default engine
+2026-11-27T17:46:54Z | dev-03 -> scrum-master | handback | Hero end-to-end check updated for science and bands; all checks pass and the branch is pushed
+2026-11-27T17:49:35Z | product-owner -> scrum-master | decision | accept UTCI as headline feels-like for now; checked: 5 °C with a 25 km/h wind is about -11 °C UTCI, far harsher than other apps' feels-like; Sprint 7 innovation item to calibrate the wording
+2026-11-27T17:49:35Z | product-owner -> scrum-master | decision | Sprint 6 Increment accepted: science by default, one engine everywhere, privacy wording on screen

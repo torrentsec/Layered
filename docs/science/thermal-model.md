@@ -332,7 +332,9 @@ Notes:
   hat below X", not a precise clo.
 * For cycling the relative air speed is the wind at 1.1 m plus ride speed. Headwind
   and tailwind average out over a round trip; use `va = v1.1 + ride` for the
-  outbound leg and accept a little overdressing on the way back.
+  outbound leg and accept a little overdressing on the way back. `airSpeedAtBody(wind10, ride)` in
+  `radiation.ts` gives this `va`; `ensembleClo` takes the same ride speed, so riding
+  also strips insulation from the outfit (up to the 3.5 m/s clamp of §7.3).
 * Compendium values are population averages; individual variation is ±20%, which
   is one of the things the personal bias absorbs.
 * ISO 8996:2021 gives the same order of values (and methods to measure them); we
@@ -480,7 +482,7 @@ Two corrections exist, and we need both:
 * **ISO 11079 Annex** (cold-weather clothing, includes permeability `p`, valid to
   18 m/s): the `corr` expression in 2.3. This is what IREQ uses internally.
 
-`ensembleClo(garments, wind, walkSpeed, wet)` should return both the basic `Icl`
+`ensembleClo(garments, wind, { walk, ride }, wet)` should return both the basic `Icl`
 (compared with `Icl_*` from IREQ) and the resultant value (for display and DLE).
 Permeability: a waterproof or windproof outer layer (`wind: 'high'` or
 `water: 'waterproof'`) sets `p = 8`; otherwise 50; knitwear-only outer 1000. This is

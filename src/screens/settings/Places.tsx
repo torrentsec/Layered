@@ -46,7 +46,7 @@ export function PlacesSection() {
               type="text"
               value={p.name}
               onChange={(e) => updatePlace(p.id, { name: e.currentTarget.value.trim() || p.name })}
-              style={{ border: 0, background: 'none', width: '100%', minHeight: '32px' }}
+              style={{ border: 0, borderBottom: '1px solid var(--line-strong)', background: 'none', width: '100%', minHeight: '32px' }}
             />
             <span class="sub" aria-hidden="true">{p.detail}</span>
           </label>

@@ -1,0 +1,11 @@
+2026-11-27 (sprint 5, from the board) | scrum-master -> product-owner | note | proposed innovation Sprints every fourth Sprint
+2026-11-27 (sprint 5, from the board) | product-owner -> scrum-master | decision | accepted: innovation Sprint every fourth Sprint, first is Sprint 7
+2026-11-27 (sprint 5, from the board) | stakeholder -> product-owner | note | requested neutral location (London) and torrentsec credit throughout, including history
+2026-11-27 (sprint 5, from the board) | product-owner -> scrum-master | decision | Sprint 5 Increment accepted: all six golden days met; switch-over planned for Sprint 6
+2026-11-27 (sprint 5, from the board) | product-owner -> team | decision | issue #77: routines use their own length as time outside, Sprint 6
+2026-11-27T12:38:27Z | stakeholder -> product-owner | note | asked for a .log per agent capturing interactions with other agents
+2026-11-27T12:38:30Z | stakeholder -> product-owner | note | asked for a .log per agent that captures interactions with other agents
+2026-11-27T12:38:30Z | product-owner -> scrum-master | decision | accepted: one interaction log per agent, committed with each Sprint
+2026-11-27T12:38:50Z | product-owner -> scrum-master | decision | Sprint 6 goal: the science engine is the default and every screen agrees with it
+2026-11-27T12:38:50Z | product-owner -> scrum-master | decision | keep simple bands selectable for one Sprint, remove in Sprint 7 window if no regressions (D2)
+2026-11-27T12:38:50Z | scrum-master -> product-owner | note | Sprint 6 debt item: D7 saved-forecast size, with D6

@@ -1,0 +1,9 @@
+2026-11-27 (sprint 5, from the board) | dev-09 -> team | claim | src/data/bias.ts: persisted clo bias, seeded from the comfort profile and replayed votes
+2026-11-27 (sprint 5, from the board) | dev-09 -> dev-07 | offer | read currentBias() from src/data/bias.ts and pass it as bias to the clothing target
+2026-11-27 (sprint 5, from the board) | dev-07 -> dev-09 | answer | agreed: bias as a plain number, the state layer passes currentBias(); no storage reads
+2026-11-27 (sprint 5, from the board) | dev-09 -> team | stable | feat/70-clo-bias ready for review; currentBias() and biasState().count live
+2026-11-27 (sprint 5, from the board) | dev-09 -> dev-07 | answer | use biasState().count for the vote count, one read path
+2026-11-27 (sprint 5, from the board) | dev-08 -> dev-09 | review | no bugs; three minor: persisted bias though derived, repeated sensitivity lookup, export ignored on import
+2026-11-27 (sprint 5, from the board) | dev-09 -> dev-08 | answer | kept the persisted bias (travels in the bundle); shared sensitivityOffset; third is fine
+2026-11-27 (sprint 5, from the board) | dev-09 -> dev-10 | review | no bugs, no copied maths; dropped two findings after checking main; two nits
+2026-11-27 (sprint 5, from the board) | dev-09 -> scrum-master | handback | Sprint 5 item done and reported

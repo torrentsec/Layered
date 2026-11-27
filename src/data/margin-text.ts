@@ -2,7 +2,7 @@
 // Copyright (c) 2026 torrentsec
 
 import { BANDS } from '../engine/bands';
-import { bandMargin, isClose, MARGIN_MAX, type BandMargin, type Tip } from '../engine/science/margin';
+import { bandMargin, MARGIN_MAX, type BandMargin, type Tip } from '../engine/science/margin';
 import type { WeatherPlace } from '../engine/science/types';
 import { hourToWeather } from '../engine/science/weather';
 import type { Advice, Effort } from '../engine/types';
@@ -24,14 +24,27 @@ function degrees(k: number, u: TempUnit): number {
 const verdict = (t: Tip) => BANDS.find((b) => b.id === t.band)!.verdict;
 
 export interface MarginText {
+  /** Only the directions that change the advice within the search reach. */
   rows: WhyRow[];
+  /** Set when a direction holds past the reach, e.g. "Same advice even 9° colder." */
+  steady?: string;
+  /** A shift of one degree in the reader's unit changes the advice. */
   close: boolean;
 }
 
+/** Judged on the degrees the reader sees, so the close note holds in °F too. */
+export const MARGIN_CLOSE_DEGREES = 1;
+
 export function marginText(m: BandMargin, u: TempUnit): MarginText {
-  const row = (dir: 'warmer' | 'colder', t: Tip | undefined): WhyRow =>
-    t ? { label: `${degrees(t.by, u)}° ${dir}`, value: verdict(t) } : { label: `${degrees(MARGIN_MAX, u)}° ${dir}`, value: 'No change' };
-  return { rows: [row('warmer', m.warmer), row('colder', m.colder)], close: isClose(m) };
+  const tips = (['warmer', 'colder'] as const).flatMap((dir) => {
+    const t = m[dir];
+    return t ? [{ dir, n: degrees(t.by, u), t }] : [];
+  });
+  const rows = tips.map(({ dir, n, t }) => ({ label: `${n}° ${dir}`, value: verdict(t) }));
+  const max = degrees(MARGIN_MAX, u);
+  const held = (['warmer', 'colder'] as const).filter((dir) => !m[dir]);
+  const steady = held.length === 2 ? `Same advice within ${max}° either way.` : held.length === 1 ? `Same advice even ${max}° ${held[0]}.` : undefined;
+  return { rows, ...(steady ? { steady } : {}), close: tips.some((x) => x.n <= MARGIN_CLOSE_DEGREES) };
 }
 
 /**

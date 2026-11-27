@@ -161,7 +161,8 @@ function ScienceWhyParts({ s, advice, units, margin }: { s: ScienceWhy; advice: 
         <>
           <h2 class="why-title">{MARGIN_TITLE}</h2>
           <p class="why-note">{MARGIN_INTRO}</p>
-          <Rows rows={margin.rows} />
+          {margin.rows.length > 0 && <Rows rows={margin.rows} />}
+          {margin.steady && <p class="why-note">{margin.steady}</p>}
           {margin.close && <p class="why-note"><strong>{MARGIN_CLOSE_NOTE}</strong></p>}
         </>
       )}

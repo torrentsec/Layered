@@ -36,3 +36,5 @@
 2026-11-27T22:35:39Z | dev-07 -> scrum-master | handback | Feels calibration spike ready for review with flags, tests, write-up and screenshots; recommend keeping real temperature first and dropping the familiar number; reviewed dev-08's site exposure spike
 2026-11-27T22:36:06Z | dev-06 -> dev-07 | note | Acted on your answer: kept my line below the readout and made the minutes formatter export myself
 2026-11-27T22:36:33Z | dev-06 -> dev-07 | review | Reviewed your calibration branch: no advice bugs; copied range markup, hero and range can disagree in the familiar wording, the strip jumps at the wind chill edge; agreed with keeping real temperature first
+2026-11-27T22:45:53Z | dev-07 -> scrum-master | note | Operating-model assessment written: keep peer review and posted commits, tier the brief, fresh agents per phase, fix the screenshot query bug
+2026-11-27T22:47:30Z | dev-07 -> scrum-master | note | Agree with modifications: fix the screenshot script's query handling and add a worktree recovery step

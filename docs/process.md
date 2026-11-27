@@ -1,5 +1,7 @@
 # How we work: Scrum
 
+Team size, context, model choice, review and testing rules are in the ratified [operating model](operating-model.md), which takes precedence where the two differ.
+
 Layered is built with Scrum as defined in the [Scrum Guide (2020)](https://scrumguides.org/scrum-guide.html). This page records how we apply it. Where it and the Guide differ, the Guide wins.
 
 ## Scrum Teams

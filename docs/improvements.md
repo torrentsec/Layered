@@ -32,6 +32,7 @@ Every Sprint Retrospective adds at least one improvement here. Each one is plann
 | 26 | Sprint 7 | Registries take one line per entry so parallel additions don't conflict | Next Sprint | Pending |
 | 27 | Sprint 7 | A Developer who can't use a required skill says so at the start; the SM treats it as an impediment | Next Sprint | Pending |
 | 28 | Sprint 7 | Size waves to one usage window and post Stable commits often | Next Sprint | Pending |
+| 29 | Operating-model review | Adopt the ratified [operating model](operating-model.md): one lead, 2–3 Developers by default, independent review on every change, one-page task specs with an obligations checklist, model routing, measured tokens per story | Next Sprint | Pending |
 
 ## Metrics we watch
 

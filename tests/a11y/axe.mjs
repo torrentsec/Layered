@@ -148,7 +148,14 @@ async function runCase(browser, c, scheme, width) {
   return { violations, overflow };
 }
 
-const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { stdio: 'ignore' });
+// Vite's own entry rather than npx, so kill() stops the server and not just a wrapper.
+const server = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--port', String(PORT), '--strictPort'], { stdio: ['ignore', 'ignore', 'inherit'] });
+server.on('exit', (code) => {
+  if (code) {
+    console.error(`vite preview exited with ${code}; is port ${PORT} free? Set A11Y_PORT to use another.`);
+    process.exit(1);
+  }
+});
 let failures = 0;
 try {
   await waitForServer();
@@ -175,6 +182,7 @@ try {
   }
   await browser.close();
 } finally {
+  server.removeAllListeners('exit');
   server.kill();
 }
 console.log(failures ? `\n${failures} failing checks` : '\nNo serious or critical violations.');

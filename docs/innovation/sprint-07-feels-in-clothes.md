@@ -20,7 +20,7 @@ A feels-like temperature asks people to turn a number into clothes themselves, a
 
 The tone is in the words; the coloured edge only repeats it. The copy went through a UX-writing review: it leads with the trip ("for your 30 min out") instead of "all day", and the cold line dropped a second number to stay under 20 words.
 
-![Today with the line, light](images/sprint-07-feels-in-clothes-light.png) ![Today with the line, dark](images/sprint-07-feels-in-clothes-dark.png)
+![Today with the line, light](img/sprint-07-feels-in-clothes-light.png) ![Today with the line, dark](img/sprint-07-feels-in-clothes-dark.png)
 
 Test forecast (cold, showery London, 5 h walk, nothing in the wardrobe): "Warm in this outfit for about 2.5 h, then a little cool." No horizontal overflow at 390 px.
 

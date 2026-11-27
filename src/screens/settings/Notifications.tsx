@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Daniel Woo
 
+import '../../styles/notifications.css';
 import { effect } from '@preact/signals';
 import { useEffect, useState } from 'preact/hooks';
 import { notificationText } from '../../engine/notify';

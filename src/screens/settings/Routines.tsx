@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Daniel Woo
 
+import '../../styles/routines.css';
 import { useState } from 'preact/hooks';
 import { ACTIVITIES, ACTIVITY_LABEL, EFFORTS, EFFORT_LABEL, scalesWithEffort } from '../../engine/activity';
 import { ROUTINE_HOURS, ROUTINE_PRESETS, WEEK_ORDER, clampRoutineHours, daysLabel, lengthLabel, type RoutineSpec } from '../../engine/routines';

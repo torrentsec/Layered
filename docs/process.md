@@ -66,6 +66,22 @@ An Increment is Done when:
 - **Conventional Commits** and squash merges keep `main` readable.
 - **Security.** Cloudflare credentials live only in GitHub Actions secrets, and runtime keys in Worker secrets.
 
+## Innovation Sprints
+
+Feature Sprints keep the Developers busy with known work, so new ideas rarely get tried. Every fourth Sprint is an **innovation Sprint**. It is still a Sprint, with every Scrum event, but its goal is learning rather than shipping.
+
+| | Feature Sprint | Innovation Sprint |
+|---|---|---|
+| **Sprint Goal** | Deliver backlog items | Learn which new ideas are worth building, e.g. "find out whether X makes advice better" |
+| **Where items come from** | The Product Backlog, ordered by the PO | Developers pitch ideas at Planning, drawing on voice-of-customer research, the science backlog, the tech-debt register and their own curiosity. The PO picks up to five against the product vision |
+| **Done means** | The Definition of Done | A working prototype behind a flag or on a `spike/*` branch, a short write-up in `docs/innovation/` (question, what was tried, evidence, recommendation) and a demo at Review. Production behaviour doesn't change |
+| **Review** | Inspect the Increment | Keep or drop each idea. Kept ideas become Product Backlog items, sized and ordered like any other |
+| **Retrospective** | As usual | Also asks whether the cadence is right |
+
+Constraints still apply: no paid services, no tracking, everything within the free tier, and nothing that weakens privacy. A prototype that would need any of those is written up and dropped.
+
+**Cadence:** Sprints 7, 11, 15 and so on. The PO may move one by a Sprint to protect a release, but not skip it.
+
 ## History before Scrum
 
 Releases `v0.1.0` and `v0.2.0` were built by the maintainer before the team adopted Scrum. They are recorded in [CHANGELOG.md](../CHANGELOG.md) but not as Sprints.

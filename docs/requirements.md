@@ -27,6 +27,7 @@ Layered tells you what to wear from the weather, the clothes you own, how you fe
 | Monetisation (E09) | Free and premium tiers | **Out.** Everything is free. A paid tier would need a payments provider and conflicts with the free, open-source aims. |
 | Wardrobe model (E02) | A category inventory with thin/medium/thick quantities | **Category inventory**, plus an optional **nickname** on outerwear so Today can still say "your navy puffer". |
 | Weather provider | Not specified | **Open-Meteo** as primary (keyless, feels-like, 16 days, air quality, archive). **MET Norway** as an automatic fallback through `/api/forecast`. |
+| Innovation (from Sprint 5) | Not specified | **One innovation Sprint in every four.** Proposed by the SM, accepted by the PO. Sprint 7 is the first, after the science switch-over in Sprint 6. Ideas come from the Developers, voice-of-customer research and the science backlog; each ends as a demoed prototype behind a flag and a keep-or-drop call at Review. |
 
 ## 3. Engine design (the backlog's section 6, adopted)
 

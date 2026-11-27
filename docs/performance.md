@@ -62,3 +62,15 @@ The app already met every budget; the changes keep it there as features grow.
 - Lighthouse reports about 150 ms of render-blocking CSS on simulated slow 4G (one 4 kB stylesheet). Inlining it would need a build step for critical CSS; not worth it while Performance sits at 100.
 - `poster.ts` (share poster drawing, about 3 kB gzip) is still in the start-up bundle because `SharePoster` imports it statically.
 - SEO is 91 because `robots.txt` is served by the SPA fallback as HTML. It is not budgeted.
+
+## Forecast payload with the science inputs (#64)
+
+Six hourly series were added to the Open-Meteo request for the thermal model: humidity, cloud cover and four radiation series. They ride on the existing request, so the app, the push Worker and the MET Norway fallback make no extra calls. Measured on a synthetic London document with Open-Meteo's number formatting:
+
+| Copy | Before | After |
+|---|---|---|
+| App request, 16 days (raw JSON) | 23.8 kB | 30.7 kB |
+| Parsed copy in `localStorage`, per place | 64.5 kB | 87.8 kB |
+| Worker request, 2 days (raw JSON) | 3.4 kB | 4.4 kB |
+
+The parsed copy grows more than the request because each hour repeats its field names; hours with a gap drop the key entirely. At about 90 kB per place, the 5 MB `localStorage` quota holds far more places than anyone saves. The 15-minute freshness window (`FRESH_MS`) is unchanged, and copies saved before this change still load: the new fields are optional and read as missing. The Worker keeps only a summary in D1, so its storage is unaffected.

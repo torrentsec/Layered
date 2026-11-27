@@ -6,5 +6,5 @@
     "lib": ["ES2022", "WebWorker"],
     "types": ["@cloudflare/workers-types"]
   },
-  "include": ["functions", "worker/src", "src/engine", "src/data/units.ts", "src/data/format.ts", "src/data/push-api.ts", "src/data/forecast-types.ts", "src/data/metno.ts", "src/data/metno.fixture.ts"]
+  "include": ["functions", "worker/src", "src/engine", "src/data/units.ts", "src/data/format.ts", "src/data/push-api.ts", "src/data/forecast-types.ts", "src/data/metno.ts", "src/data/metno.fixture.ts", "src/data/openmeteo.fixture.ts"]
 }

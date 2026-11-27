@@ -10,7 +10,7 @@ import type { Hour } from '../../types';
 import { estimateRadiation, meanRadiantTemp, splitGhi, sunForHourMean, sunPosition } from '../radiation';
 import { cloudFromCode, DEFAULT_RH, hourToWeather } from '../weather';
 
-const LONDON_PLACE = { lat: 51.5, lon: -0.12, utcOffsetSeconds: 0 };
+const LONDON_PLACE = { lat: 51.51, lon: -0.13, utcOffsetSeconds: 0 };
 
 const hour = (over: Partial<Hour> = {}): Hour => ({
   time: '2026-11-26T12:00',
@@ -53,7 +53,7 @@ describe('hourToWeather: forecast radiation (Open-Meteo)', () => {
 
   it('uses the forecast values with the sun at the middle of the preceding hour', () => {
     const w = hourToWeather(hour({ ...rad, cloud: 20, rh: 60 }), LONDON_PLACE);
-    const sun = sunForHourMean(51.5, -0.12, NOON_UTC);
+    const sun = sunForHourMean(51.51, -0.13, NOON_UTC);
     expect(w.radiation).toBe('forecast');
     expect(w.tmrt).toBeCloseTo(meanRadiantTemp(8, 60, 0.2, sun, rad), 9);
     expect(w.tmrt).toBeGreaterThan(w.ta + 5);
@@ -61,7 +61,7 @@ describe('hourToWeather: forecast radiation (Open-Meteo)', () => {
 
   it('splits a global value that comes without direct and diffuse', () => {
     const w = hourToWeather(hour({ ghi: 300, cloud: 20 }), LONDON_PLACE);
-    const sun = sunForHourMean(51.5, -0.12, NOON_UTC);
+    const sun = sunForHourMean(51.51, -0.13, NOON_UTC);
     expect(w.radiation).toBe('forecast');
     expect(w.tmrt).toBeCloseTo(meanRadiantTemp(8, DEFAULT_RH, 0.2, sun, { ghi: 300, ...splitGhi(sun, 300) }), 9);
   });
@@ -77,13 +77,13 @@ describe('hourToWeather: forecast radiation (Open-Meteo)', () => {
 describe('hourToWeather: estimated radiation', () => {
   it('estimates from cloud cover when the provider has no radiation (MET Norway)', () => {
     const w = hourToWeather(hour({ cloud: 40, rh: 80 }), LONDON_PLACE);
-    const sun = sunPosition(51.5, -0.12, NOON_UTC);
+    const sun = sunPosition(51.51, -0.13, NOON_UTC);
     expect(w.radiation).toBe('estimated');
     expect(w.tmrt).toBeCloseTo(meanRadiantTemp(8, 80, 0.4, sun, estimateRadiation(sun, 0.4)), 9);
   });
 
   it('reads cloud from the weather code on hours saved without cloud cover', () => {
-    const sun = sunPosition(51.5, -0.12, NOON_UTC);
+    const sun = sunPosition(51.51, -0.13, NOON_UTC);
     for (const code of [0, 2, 3, 61]) {
       const w = hourToWeather(hour({ code }), LONDON_PLACE);
       const c = cloudFromCode(code);
@@ -108,7 +108,7 @@ describe('hourToWeather: estimated radiation', () => {
 
 describe('hourToWeather: no place', () => {
   it('leaves Tmrt at air temperature without coordinates', () => {
-    for (const place of [{ lat: Number.NaN, lon: 0, utcOffsetSeconds: 0 }, { lat: 51.5, lon: Number.NaN, utcOffsetSeconds: 0 }]) {
+    for (const place of [{ lat: Number.NaN, lon: 0, utcOffsetSeconds: 0 }, { lat: 51.51, lon: Number.NaN, utcOffsetSeconds: 0 }]) {
       expect(hourToWeather(hour({ ghi: 300, cloud: 0 }), place)).toEqual({ ta: 8, rh: DEFAULT_RH, wind10: 0, tmrt: 8, radiation: 'none' });
     }
   });

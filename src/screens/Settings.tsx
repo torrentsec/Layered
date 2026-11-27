@@ -9,6 +9,7 @@ import { DataSection } from './settings/Data';
 import { DefaultsSection } from './settings/Defaults';
 import { NotificationsSection } from './settings/Notifications';
 import { PlacesSection } from './settings/Places';
+import { RoutinesSection } from './settings/Routines';
 import { SyncSection } from './settings/Sync';
 import { UnitsSection } from './settings/Units';
 
@@ -23,6 +24,7 @@ export function Settings() {
         <UnitsSection />
         <DefaultsSection />
         <NotificationsSection />
+        <RoutinesSection />
         <ComfortSection />
         <AppearanceSection />
         <SyncSection />

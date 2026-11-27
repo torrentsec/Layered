@@ -4,10 +4,10 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { Forecast } from '../data/forecast-types';
 import { longDate } from '../data/format';
-import { ratings, settings, inventory, comfort } from '../data/store';
+import { ratings, routines, settings, inventory, comfort } from '../data/store';
 import { fmtTemp } from '../data/units';
 import { layerText } from '../data/advice-text';
-import type { Activity } from '../engine/types';
+import type { Activity, Effort } from '../engine/types';
 import { planDay } from '../state/advice';
 import { haptic } from './haptics';
 import { loadPosterFonts, posterFilename, renderPoster, type PosterData } from './poster';
@@ -19,6 +19,7 @@ interface Props {
   place: string;
   activity: Activity;
   duration: number;
+  effort?: Effort;
 }
 
 function download(blob: Blob, name: string): void {
@@ -33,7 +34,7 @@ function download(blob: Blob, name: string): void {
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
-export function SharePoster({ forecast, date, place, activity, duration }: Props) {
+export function SharePoster({ forecast, date, place, activity, duration, effort }: Props) {
   const [busy, setBusy] = useState(false);
 
   // Fonts load ahead of the tap so the share sheet opens inside the user's
@@ -45,7 +46,7 @@ export function SharePoster({ forecast, date, place, activity, duration }: Props
   const onShare = async () => {
     haptic();
     const s = settings.value;
-    const plan = planDay(forecast, date, { settings: s, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value, activity, duration });
+    const plan = planDay(forecast, date, { settings: s, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value, activity, duration, effort, routines: routines.value });
     if (!plan) {
       toast('Nothing to share yet');
       return;

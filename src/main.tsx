@@ -8,6 +8,7 @@ import './styles/advice.css';
 import './styles/wardrobe.css';
 import './styles/forecast.css';
 import './styles/notifications.css';
+import './styles/routines.css';
 import { App } from './App';
 import { initTheme } from './theme';
 import { printBanner } from './banner';

@@ -5,11 +5,11 @@ import { useState } from 'preact/hooks';
 import type { Forecast } from '../data/forecast-types';
 import { fmtDressFor, fmtTemp } from '../data/units';
 import { daysBetween, timeFmt } from '../data/format';
-import { ratings, settings, inventory, comfort } from '../data/store';
+import { ratings, settings, inventory, comfort, type Routine } from '../data/store';
 import { ROUGH_GUIDE_NOTE, certaintyFor, hedgeRequirements } from '../engine/certainty';
 import { rainSummary } from '../engine/rain';
 import { localNow } from '../engine/time';
-import type { Activity } from '../engine/types';
+import type { Activity, Effort } from '../engine/types';
 import { planDay, restOfDay } from '../state/advice';
 import { ExtraChips, FeelsActual, HourlyStrip, LayerList, Limitations, WhyBody } from '../components/AdviceParts';
 import { Hero } from '../components/Hero';
@@ -21,6 +21,9 @@ interface Props {
   activity?: Activity;
   duration?: number;
   commute?: boolean;
+  effort?: Effort;
+  /** Only Today passes these; other days plan without routines. */
+  routines?: Routine[];
   onCircleTap?: () => void;
   /** Rendered between the verdict and the hourly strip (pickers on Today). */
   controls?: preact.ComponentChildren;
@@ -28,11 +31,11 @@ interface Props {
   footer?: preact.ComponentChildren;
 }
 
-export function DayView({ forecast, date, activity, duration, commute, onCircleTap, controls, footer }: Props) {
+export function DayView({ forecast, date, activity, duration, commute, effort, routines, onCircleTap, controls, footer }: Props) {
   const s = settings.value;
   const units = s.units;
   const [why, setWhy] = useState(false);
-  const plan = planDay(forecast, date, { settings: s, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value, activity, duration, commute });
+  const plan = planDay(forecast, date, { settings: s, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value, activity, duration, commute, effort, routines });
   const info = forecast.days.find((d) => d.date === date);
   const fmt = timeFmt(units.clock);
 
@@ -58,7 +61,7 @@ export function DayView({ forecast, date, activity, duration, commute, onCircleT
       <div class="readout">
         <div>
           <div class="feels num" aria-label={`Dress for ${fmtDressFor(advice.effective, units.temp)}`}>{fmtDressFor(advice.effective, units.temp)}</div>
-          <FeelsActual advice={advice} units={units} context={c ? 'across both legs' : 'while you’re out'} />
+          <FeelsActual advice={advice} units={units} context={c ? 'across both legs' : plan.legs ? 'across today’s plans' : 'while you’re out'} />
         </div>
         <button type="button" class="text-btn" onClick={() => setWhy(true)}>Why this?</button>
       </div>

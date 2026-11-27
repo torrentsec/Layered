@@ -7,6 +7,7 @@ import type { Forecast } from '../data/forecast-types';
 import { garmentWarmth, type Routine, type Settings } from '../data/store';
 import { biasState } from '../data/bias';
 import { planDayFor, type DayPlan } from '../data/day-plan';
+import { engineOf } from '../data/engine-choice';
 import type { GarmentWarmth } from '../engine/garment-learning';
 import type { Rating } from '../engine/types';
 import type { Inventory } from '../engine/inventory';
@@ -43,7 +44,7 @@ export function planDay(f: Forecast, date: string, ctx: Ctx): DayPlan | null {
     f,
     date,
     {
-      engine: s.engine === 'science' ? 'science' : 'bands',
+      engine: engineOf(s),
       units: s.units,
       activity: ctx.activity ?? s.activity,
       effort: ctx.effort,

@@ -7,6 +7,7 @@ import type { Place } from './openmeteo';
 import { MAX_PUSH_ROUTINES, PUSH_API, type PushKeyResponse, type PushProfile, type PushSchedule, type SubscribeRequest, type SubscribeResponse } from './push-api';
 import type { NotifyPrefs, Routine, Settings } from './store';
 import { learnSnapshot } from '../engine/learning';
+import { engineOf } from './engine-choice';
 import type { Rating } from '../engine/types';
 
 export const DEFAULT_MORNING = '07:00';
@@ -54,7 +55,7 @@ export function buildProfile(s: Settings, comfort: ComfortProfile, l: Learning =
     manualOffset: s.manualOffset,
     comfort,
     commute: { enabled: c.enabled, out: c.out, back: c.back, legHours: c.legHours, days: c.days, ...(c.mode ? { mode: c.mode } : {}) },
-    engine: s.engine === 'science' ? 'science' : 'bands',
+    engine: engineOf(s),
     duration: s.duration,
     ...(l.bias !== undefined && Number.isFinite(l.bias) ? { bias: l.bias } : {}),
     ...(votes.length ? { learned: learnSnapshot(votes, at) } : {}),

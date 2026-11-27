@@ -78,6 +78,13 @@ export interface Extra {
   reason: string;
 }
 
+/** A garment that felt wrong on a rated day (US-037). One correction never becomes a rule on its own. */
+export interface GarmentCorrection {
+  category: CategoryId;
+  thickness?: Thickness;
+  verdict: 'too-warm' | 'too-cool';
+}
+
 export interface Rating {
   /** Local date, YYYY-MM-DD. */
   date: string;
@@ -85,6 +92,9 @@ export interface Rating {
   rating: -1 | 0 | 1;
   effective: number;
   activity: Activity;
+  /** Finer feedback beyond warm or cold (US-036). */
+  detail?: 'too-many-layers' | 'not-enough-protection';
+  corrections?: GarmentCorrection[];
 }
 
 export interface Explanation {

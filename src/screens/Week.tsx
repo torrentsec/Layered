@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'preact/hooks';
 import { localNow } from '../engine/time';
 import { fmtTemp } from '../data/units';
 import { dayLabel, longDate } from '../data/format';
-import { ratings, settings, wardrobe } from '../data/store';
+import { ratings, settings, inventory, comfort } from '../data/store';
 import { currentPlace, forecastState, loadForecast } from '../state/forecast';
 import { planDay } from '../state/advice';
 import { go, href, route } from '../router';
@@ -51,7 +51,7 @@ export function Week() {
         <h2 class="group-title">Next {days.length} days</h2>
         <ul class="group days" style={{ listStyle: 'none', padding: 0 }}>
           {days.map((d) => {
-            const plan = planDay(f, d.date, { settings: s, ratings: ratings.value, wardrobe: wardrobe.value });
+            const plan = planDay(f, d.date, { settings: s, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value });
             return (
               <li key={d.date}>
                 <a class="row-item day-row" href={href('week', d.date)} style={{ color: 'inherit', textDecoration: 'none' }}>
@@ -76,7 +76,7 @@ export function Week() {
 
 function TomorrowCard({ date }: { date: string }) {
   const f = forecastState.value.forecast!;
-  const plan = planDay(f, date, { settings: settings.value, ratings: ratings.value, wardrobe: wardrobe.value });
+  const plan = planDay(f, date, { settings: settings.value, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value });
   if (!plan) return null;
   const layers = plan.advice.layers.filter((l) => !l.optional).map((l) => (l.item ? l.item.name : l.label));
   const extras = plan.advice.extras.filter((e) => e.tone === 'rain' || e.tone === 'cold').map((e) => e.label.toLowerCase());

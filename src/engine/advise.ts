@@ -4,9 +4,12 @@
 import { ACTIVITY_OFFSET } from './activity';
 import { bandFor } from './bands';
 import { extrasFor, windowStats } from './extras';
+import { comfortOffset as comfortOffsetFor, type ComfortProfile } from './comfort';
+import { ownership, type Inventory } from './inventory';
 import { learnedFor } from './learning';
-import type { Activity, Advice, Hour, Rating, WardrobeItem } from './types';
-import { applyWardrobe } from './wardrobe';
+import { matchInventory } from './match';
+import { requirementsFor } from './requirements';
+import type { Activity, Advice, Hour, Rating } from './types';
 
 export interface AdviseInput {
   hours: Hour[];
@@ -16,7 +19,9 @@ export interface AdviseInput {
   ratings?: Rating[];
   /** Local date used to age ratings. */
   today?: string;
-  wardrobe?: WardrobeItem[];
+  /** Category inventory; `{}` or missing gives generic advice. */
+  inventory?: Inventory;
+  comfort?: ComfortProfile;
 }
 
 const round1 = (n: number) => Math.round(n * 10) / 10;
@@ -33,20 +38,25 @@ export function advise(input: AdviseInput): Advice | null {
   const manualOffset = input.manualOffset ?? 0;
   const activityOffset = ACTIVITY_OFFSET[activity];
   const learned = learnedFor(input.ratings ?? [], activity, input.today ?? hours[0].time.slice(0, 10));
-  const effective = round1(coldest.feels + activityOffset + manualOffset + learned.offset);
+  const comfortOffset = input.comfort ? comfortOffsetFor(input.comfort, activity) : 0;
+  const effective = round1(coldest.feels + activityOffset + comfortOffset + manualOffset + learned.offset);
 
   const band = bandFor(effective);
   const stats = windowStats(hours);
   const extras = extrasFor(stats, effective, activity);
 
-  const { layers, extras: finalExtras } = applyWardrobe(band.id, band.layers, extras, input.wardrobe ?? [], {
-    wet: extras.some((e) => e.id === 'waterproof' || e.id === 'hood' || e.id === 'umbrella'),
-    windy: stats.maxWind > 25 || stats.maxGust > 40,
-  });
+  const inventory = input.inventory ?? {};
+  const requirements = requirementsFor({ effective, band: band.id, stats, extras, activity, comfort: input.comfort });
+  const { layers, limitations, alternatives } = matchInventory(requirements, inventory);
+  // An umbrella the user has said they don't own is no use as advice.
+  const finalExtras = ownership(inventory, 'umbrella') === 'none' ? extras.filter((e) => e.id !== 'umbrella') : extras;
 
   const rules = [`Effective ${effective}° is in the “${band.verdict}” band`, ...finalExtras.map((e) => `${e.label}: ${e.reason}`)];
 
   return {
+    requirements,
+    limitations,
+    alternatives,
     band: band.id,
     verdict: band.verdict,
     summary: band.summary,
@@ -61,6 +71,7 @@ export function advise(input: AdviseInput): Advice | null {
       coldestFeels: round1(coldest.feels),
       activity,
       activityOffset,
+      comfortOffset,
       manualOffset,
       learnedOffset: learned.offset,
       learnedFrom: learned.from,

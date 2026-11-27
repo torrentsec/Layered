@@ -14,3 +14,4 @@ coverage/
 CLAUDE.md
 .claude/
 .mcp.json
+worker/wrangler.deploy.toml

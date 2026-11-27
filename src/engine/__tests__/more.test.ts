@@ -136,4 +136,8 @@ describe('notification text', () => {
     const hours = day(4, () => ({ feels: 24 }));
     expect(notificationText(a(hours), hours)).toBe('T-shirt today · dry');
   });
+  it('says tomorrow for the evening heads-up', () => {
+    const hours = day(4, () => ({ feels: 24 }));
+    expect(notificationText(a(hours), hours, undefined, 'tomorrow')).toBe('T-shirt tomorrow · dry');
+  });
 });

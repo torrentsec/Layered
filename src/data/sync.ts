@@ -4,6 +4,7 @@
 import { exportBundle, importBundle, patchSettings, settings, type Bundle } from './store';
 import { longDate, timeFmt } from './format';
 import type { Clock } from './units';
+import { PUSH_API } from './push-api';
 
 /** Must match functions/_lib/validate.ts. No 0/O, 1/I/L: codes get read aloud and retyped. */
 export const SYNC_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -157,10 +158,23 @@ const browserEnv = (): WipeEnv => ({
   serviceWorker: typeof navigator === 'undefined' ? undefined : navigator.serviceWorker,
 });
 
-/** Throws if the server copy could not be deleted, so the caller can say so before wiping the code that names it. */
+/**
+ * Best effort: wipeDevice unsubscribes the browser too, and the push service
+ * then answers 410, which makes the Worker delete the row on its next send.
+ */
+export async function removePushSubscription(id: string, f: Fetch = fetch): Promise<void> {
+  try {
+    await f(`${PUSH_API.subscription}/${encodeURIComponent(id)}`, { method: 'DELETE', cache: 'no-store' });
+  } catch {
+    // Offline: the 410 route above still clears it.
+  }
+}
+
+/** Throws if the sync copy could not be deleted, so the caller can say so before wiping the code that names it. */
 export async function deleteServerCopy(f: Fetch = fetch): Promise<void> {
-  const code = settings.value.syncCode;
-  if (code) await removeRemote(code, f);
+  const { syncCode, notify } = settings.value;
+  if (notify.subscriptionId) await removePushSubscription(notify.subscriptionId, f);
+  if (syncCode) await removeRemote(syncCode, f);
 }
 
 /** The theme key sits outside the `layered:` prefix because index.html reads it before the app loads. */

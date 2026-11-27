@@ -10,7 +10,7 @@
 import type { Activity, BandId, Effort } from '../types';
 import { ireq, ISO_11079_LIMITS, lightestIclFor } from './ireq';
 import { metabolicRate } from './metabolic';
-import { windAtBody } from './radiation';
+import { airSpeedAtBody } from './radiation';
 import type { BandForCloFn, ClothingTarget, ClothingTargetFn, IreqParams, UtciCategory, UtciResult, Weather } from './types';
 import { utci } from './utci';
 
@@ -98,7 +98,7 @@ function ireqTarget(w: Weather, activity: Activity, effort: Effort | undefined, 
   const params: Omit<IreqParams, 'icl'> = {
     ta: w.ta,
     tr: radiantTemp(w),
-    va: windAtBody(w.wind10) + met.ride,
+    va: airSpeedAtBody(w.wind10, met.ride),
     rh: w.rh,
     m: met.m,
     w: met.w,

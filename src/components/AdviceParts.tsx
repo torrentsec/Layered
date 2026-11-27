@@ -11,6 +11,8 @@ import type { Units } from '../data/units';
 import { fmtDressFor, fmtTemp, localiseTemp, localiseWind } from '../data/units';
 import { timeFmt } from '../data/format';
 import { choiceOptions, fromWardrobe, genericName, layerText, needsRows } from '../data/advice-text';
+import { CLO_NOTE, feelsRange, scienceDetail, scienceLead, type WhyRow } from '../data/why-science';
+import type { ScienceWhy } from '../engine/science/why';
 import { href } from '../router';
 import { LayerMark } from './Marks';
 import { Segmented } from './Segmented';
@@ -81,9 +83,10 @@ export function ExtraChips({ advice, units }: { advice: Advice; units: Units }) 
 export function FeelsActual({ advice, units, context }: { advice: Advice; units: Units; context: string }) {
   const t = (c: number) => fmtTemp(c, units.temp);
   const actual = actualRange(advice.hours);
+  const feels = feelsRange(advice);
   return (
     <div class="feels-label">
-      <span class="nowrap">Feels {t(advice.minFeels)} to {t(advice.maxFeels)}</span>
+      <span class="nowrap">Feels {t(feels.min)} to {t(feels.max)}</span>
       {actual && (
         <>
           {' · '}
@@ -113,6 +116,48 @@ export function HourlyStrip({ hours, inWindow, units }: { hours: Hour[]; inWindo
   );
 }
 
+function Rows({ rows }: { rows: WhyRow[] }) {
+  return (
+    <ul class="group">
+      {rows.map((r) => (
+        <li class="row-item plain" key={r.label}>
+          <span class="grow">{r.label}{r.sub && <span class="sub">{r.sub}</span>}</span>
+          <span class="meta num">{r.value}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** "Why this?" in plain words first, then UTCI and clo as the supporting detail (thermal-model §9.3). */
+function ScienceWhyParts({ s, advice, units }: { s: ScienceWhy; advice: Advice; units: Units }) {
+  const fmt = timeFmt(units.clock);
+  const d = scienceDetail(s, advice.why.activity, units.temp, fmt);
+  return (
+    <>
+      <p class="why-lead">
+        <strong>{advice.verdict}.</strong> {scienceLead(s, units.temp, fmt)}
+      </p>
+      <h2 class="why-title">The weather</h2>
+      <Rows rows={d.weather} />
+      <h2 class="why-title">You</h2>
+      <Rows rows={d.you} />
+      <h2 class="why-title">Clothing warmth</h2>
+      <p class="why-note">{CLO_NOTE}</p>
+      <Rows rows={d.warmth} />
+      {d.warmthNotes.map((n) => <p class="why-note" key={n}>{n}</p>)}
+      {d.caveats.length > 0 && (
+        <>
+          <h2 class="why-title">How sure this is</h2>
+          <ul class="why-rules">
+            {d.caveats.map((c) => <li key={c}>{c}</li>)}
+          </ul>
+        </>
+      )}
+    </>
+  );
+}
+
 export function WhyBody({ advice, units }: { advice: Advice; units: Units }) {
   const w = advice.why;
   const fmt = timeFmt(units.clock);
@@ -128,25 +173,31 @@ export function WhyBody({ advice, units }: { advice: Advice; units: Units }) {
   const actual = actualRange(advice.hours);
   return (
     <div class="why">
-      <h2 class="why-title">The weather</h2>
-      <ul class="group">
-        <li class="row-item plain"><span class="grow">Coldest hour</span><span class="meta num">{fmt(w.coldestHour)} · feels {t(w.coldestFeels)}</span></li>
-        <li class="row-item plain"><span class="grow">Feels like</span><span class="meta num">{t(advice.minFeels)} to {t(advice.maxFeels)}</span></li>
-        {actual && (
-          <li class="row-item plain"><span class="grow">Actual temperature</span><span class="meta num">{t(actual.min)} to {t(actual.max)}</span></li>
-        )}
-      </ul>
+      {advice.science ? (
+        <ScienceWhyParts s={advice.science} advice={advice} units={units} />
+      ) : (
+        <>
+          <h2 class="why-title">The weather</h2>
+          <ul class="group">
+            <li class="row-item plain"><span class="grow">Coldest hour</span><span class="meta num">{fmt(w.coldestHour)} · feels {t(w.coldestFeels)}</span></li>
+            <li class="row-item plain"><span class="grow">Feels like</span><span class="meta num">{t(advice.minFeels)} to {t(advice.maxFeels)}</span></li>
+            {actual && (
+              <li class="row-item plain"><span class="grow">Actual temperature</span><span class="meta num">{t(actual.min)} to {t(actual.max)}</span></li>
+            )}
+          </ul>
 
-      <h2 class="why-title">You</h2>
-      <ul class="group">
-        <li class="row-item plain"><span class="grow">{ACTIVITY_LABEL[w.activity]}<span class="sub">activity</span></span><span class="meta num">{signed(w.activityOffset)}</span></li>
-        {w.comfortOffset !== undefined && (
-          <li class="row-item plain"><span class="grow">How you feel the cold<span class="sub">from your comfort settings</span></span><span class="meta num">{signed(w.comfortOffset)}</span></li>
-        )}
-        <li class="row-item plain"><span class="grow">Your manual offset</span><span class="meta num">{signed(w.manualOffset)}</span></li>
-        <li class="row-item plain"><span class="grow">Learned<span class="sub">{learnedNote}</span></span><span class="meta num">{signed(w.learnedOffset)}</span></li>
-        <li class="row-item plain"><span class="grow"><strong>Dress for</strong></span><span class="num"><strong>{fmtDressFor(w.effective, units.temp)}</strong></span></li>
-      </ul>
+          <h2 class="why-title">You</h2>
+          <ul class="group">
+            <li class="row-item plain"><span class="grow">{ACTIVITY_LABEL[w.activity]}<span class="sub">activity</span></span><span class="meta num">{signed(w.activityOffset)}</span></li>
+            {w.comfortOffset !== undefined && (
+              <li class="row-item plain"><span class="grow">How you feel the cold<span class="sub">from your comfort settings</span></span><span class="meta num">{signed(w.comfortOffset)}</span></li>
+            )}
+            <li class="row-item plain"><span class="grow">Your manual offset</span><span class="meta num">{signed(w.manualOffset)}</span></li>
+            <li class="row-item plain"><span class="grow">Learned<span class="sub">{learnedNote}</span></span><span class="meta num">{signed(w.learnedOffset)}</span></li>
+            <li class="row-item plain"><span class="grow"><strong>Dress for</strong></span><span class="num"><strong>{fmtDressFor(w.effective, units.temp)}</strong></span></li>
+          </ul>
+        </>
+      )}
 
       {r && (
         <>

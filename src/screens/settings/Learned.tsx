@@ -7,6 +7,9 @@ import { activityOffsets, learnOffset } from '../../engine/learning';
 import { garmentLabel } from '../../engine/match';
 import { garmentWarmth, ratings, settings } from '../../data/store';
 import { tempDelta } from '../../data/units';
+import { engineOf } from '../../data/engine-choice';
+import { learnedCardOn } from '../../data/learned-card';
+import { LearnedCard } from './LearnedCard';
 import { toast } from '../../components/Toast';
 import { localToday } from '../../state/garment-warmth';
 import '../../styles/feedback.css';
@@ -53,6 +56,7 @@ export function LearnedSection() {
     <>
       <h2 class="group-title" id="learned-title">What Layered has learned</h2>
       <section class="group" aria-labelledby="learned-title">
+        {learnedCardOn() && engineOf(settings.value) === 'science' ? <LearnedCard /> : <>
         <div class="row-item plain learned-row">
           <span class="grow">Overall<span class="sub">{all.length ? `From ${plural(all.length)}` : 'No ratings yet'}</span></span>
           <span class="meta num">{degrees(overall)}</span>
@@ -63,6 +67,7 @@ export function LearnedSection() {
             <span class="meta num">{degrees(a.offset)}</span>
           </div>
         ))}
+        </>}
       </section>
       <h3 class="group-title" id="learned-garments">Garments</h3>
       {rows.length ? (

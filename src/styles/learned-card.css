@@ -1,0 +1,12 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Copyright (c) 2026 torrentsec */
+
+.learned-card .grow {
+  min-width: 0;
+}
+
+.learned-card-head {
+  display: block;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}

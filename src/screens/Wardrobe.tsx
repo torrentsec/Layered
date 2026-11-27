@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Daniel Woo
 
+import '../styles/wardrobe.css';
 import { useEffect, useId, useState } from 'preact/hooks';
 import {
   CATALOGUE,

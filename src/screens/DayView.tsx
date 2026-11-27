@@ -11,6 +11,7 @@ import { rainSummary } from '../engine/rain';
 import { localNow } from '../engine/time';
 import type { Activity, Effort } from '../engine/types';
 import { planDay, restOfDay } from '../state/advice';
+import { feelsRange } from '../data/why-science';
 import { ExtraChips, FeelsActual, HourlyStrip, LayerList, Limitations, WhyBody } from '../components/AdviceParts';
 import { Hero } from '../components/Hero';
 import { Sheet } from '../components/Sheet';
@@ -81,7 +82,7 @@ export function DayView({ forecast, date, activity, duration, commute, effort, r
                 {name} · {fmt(leg.hours[0].time)}
                 <span class="sub">{leg.verdict}{c.colder === (name === 'Out' ? 'out' : 'back') ? ' · colder leg' : ''}</span>
               </span>
-              <span class="num">feels {fmtTemp(leg.minFeels, units.temp)}</span>
+              <span class="num">feels {fmtTemp(feelsRange(leg).min, units.temp)}</span>
             </li>
           ))}
         </ul>

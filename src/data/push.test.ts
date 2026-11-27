@@ -156,11 +156,13 @@ describe('request building', () => {
     ];
     const p = buildProfile(settingsWith({ engine: 'bands' }), DEFAULT_COMFORT, {
       bias: 0.12,
+      biasCount: 3,
       ratings,
       routines: [{ id: 'r1', name: 'Dog walk', time: '07:00', hours: 0.5, days: [1], activity: 'walking' }],
     });
     expect(p.engine).toBe('bands');
     expect(p.bias).toBe(0.12);
+    expect(p.biasCount).toBe(3);
     expect(p.learned).toEqual(learnSnapshot(ratings, '2026-11-25'));
     expect(p.routines).toEqual([{ time: '07:00', hours: 0.5, days: [1], activity: 'walking' }]);
     expect(JSON.stringify(p)).not.toContain('Dog walk');

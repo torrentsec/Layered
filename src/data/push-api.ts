@@ -49,6 +49,8 @@ export interface PushProfile {
   duration?: number;
   /** The device's learned clo bias. A single number: the votes behind it stay on the device. */
   bias?: number;
+  /** How many votes `bias` rests on, so "Why this?" can say so. */
+  biasCount?: number;
   /** The votes' pull as sums, which age exactly without the votes or their dates. */
   learned?: LearnSnapshot;
   /** Saved routines without their names, which no notification uses. */

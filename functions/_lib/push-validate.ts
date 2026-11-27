@@ -102,6 +102,7 @@ function profile(v: unknown): PushProfile | string {
   if (v.engine !== undefined && !oneOf(v.engine, ['bands', 'science'])) return 'profile.engine is not valid';
   if (v.duration !== undefined && (!isNum(v.duration) || v.duration <= 0 || v.duration > 24)) return 'profile.duration is out of range';
   if (v.bias !== undefined && (!isNum(v.bias) || Math.abs(v.bias) > MAX_BIAS)) return 'profile.bias is out of range';
+  if (v.biasCount !== undefined && (!Number.isInteger(v.biasCount) || (v.biasCount as number) < 0 || (v.biasCount as number) > MAX_BIAS_COUNT)) return 'profile.biasCount is out of range';
   const learned = v.learned === undefined ? undefined : learnSnapshot(v.learned);
   if (learned === null) return 'profile.learned is not valid';
   const routines = v.routines === undefined ? undefined : pushRoutines(v.routines);
@@ -123,6 +124,7 @@ function profile(v: unknown): PushProfile | string {
     ...(v.engine !== undefined && { engine: v.engine }),
     ...(v.duration !== undefined && { duration: v.duration }),
     ...(v.bias !== undefined && { bias: v.bias }),
+    ...(v.biasCount !== undefined && { biasCount: v.biasCount as number }),
     ...(learned && { learned }),
     ...(routines && { routines }),
   };
@@ -132,6 +134,8 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const EFFORTS: readonly Effort[] = ['easy', 'steady', 'hard'];
 /** The bias engine clamps to ±0.6 clo; a little headroom, nothing that isn't a preference. */
 export const MAX_BIAS = 1;
+/** Years of daily votes; past this it isn't a count. */
+const MAX_BIAS_COUNT = 100_000;
 /** Far past any real pull (the offset caps at 5°), small enough to mean nothing else. */
 const MAX_LEARN_SUM = 1000;
 const isSum = (n: unknown): n is number => isNum(n) && Math.abs(n) <= MAX_LEARN_SUM;

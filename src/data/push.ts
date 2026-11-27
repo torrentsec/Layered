@@ -40,6 +40,7 @@ export function buildSchedule(n: NotifyPrefs): PushSchedule {
 export interface Learning {
   /** The science engine's clo bias mean. */
   bias?: number;
+  biasCount?: number;
   ratings?: Rating[];
   routines?: Routine[];
 }
@@ -57,7 +58,7 @@ export function buildProfile(s: Settings, comfort: ComfortProfile, l: Learning =
     commute: { enabled: c.enabled, out: c.out, back: c.back, legHours: c.legHours, days: c.days, ...(c.mode ? { mode: c.mode } : {}) },
     engine: engineOf(s),
     duration: s.duration,
-    ...(l.bias !== undefined && Number.isFinite(l.bias) ? { bias: l.bias } : {}),
+    ...(l.bias !== undefined && Number.isFinite(l.bias) ? { bias: l.bias, biasCount: l.biasCount ?? 0 } : {}),
     ...(votes.length ? { learned: learnSnapshot(votes, at) } : {}),
     ...(l.routines?.length
       ? { routines: l.routines.slice(0, MAX_PUSH_ROUTINES).map((r) => ({ time: r.time, hours: r.hours, days: r.days, activity: r.activity, ...(r.effort ? { effort: r.effort } : {}) })) }

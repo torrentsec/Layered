@@ -69,13 +69,14 @@ describe('subscribe validation', () => {
       engine: 'science',
       duration: 4,
       bias: -0.12,
+      biasCount: 7,
       learned: { at: '2026-11-26', all: -0.75, any: true, by: { cycling: -1.2 } },
       routines: [{ time: '07:00', hours: 0.5, days: [3, 1], activity: 'walking', name: 'Dog walk' }],
     });
     const out = parse(r);
     expect(out.ok).toBe(true);
     if (!out.ok) return;
-    expect(out.body.profile).toMatchObject({ engine: 'science', duration: 4, bias: -0.12, learned: { at: '2026-11-26', all: -0.75, any: true, by: { cycling: -1.2 } } });
+    expect(out.body.profile).toMatchObject({ engine: 'science', duration: 4, bias: -0.12, biasCount: 7, learned: { at: '2026-11-26', all: -0.75, any: true, by: { cycling: -1.2 } } });
     expect(out.body.profile.routines).toEqual([{ time: '07:00', hours: 0.5, days: [1, 3], activity: 'walking' }]);
   });
 
@@ -141,6 +142,7 @@ describe('subscribe validation', () => {
     ['an unknown engine', (p) => (p.engine = 'magic')],
     ['no time outside', (p) => (p.duration = 0)],
     ['a bias past any preference', (p) => (p.bias = 3)],
+    ['a fractional bias count', (p) => (p.biasCount = 1.5)],
     ['a vote pull without a date', (p) => (p.learned = { all: 1, any: true, by: {} })],
     ['a vote pull for an unknown activity', (p) => (p.learned = { at: '2026-11-26', all: 1, any: true, by: { sleeping: 1 } })],
     ['a huge vote pull', (p) => (p.learned = { at: '2026-11-26', all: 1e9, any: true, by: {} })],

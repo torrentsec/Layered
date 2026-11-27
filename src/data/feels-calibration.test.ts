@@ -7,7 +7,7 @@ import { day, hour } from '../engine/__tests__/fixtures';
 import { hourUtci } from '../engine/science/hourly';
 import type { Advice } from '../engine/types';
 import { londonWhy } from './__fixtures__/science-why';
-import { calibratedReading, familiarFeels, familiarRange, windChill, WIND_CHILL_MAX_TA, WIND_CHILL_MIN_WIND } from './feels-calibration';
+import { calibratedReading, familiarFeels, feelsTrial, familiarRange, windChill, WIND_CHILL_MAX_TA, WIND_CHILL_MIN_WIND } from './feels-calibration';
 import { heroReading } from './why-science';
 
 describe('windChill', () => {
@@ -106,6 +106,15 @@ describe('evidence: UTCI against the numbers other apps show', () => {
         },
       }
     `);
+  });
+});
+
+describe('feelsTrial', () => {
+  it('is off unless a wording is flagged', () => {
+    expect(feelsTrial(() => false)).toBeNull();
+    expect(feelsTrial((f) => f === 'feels-familiar')).toBe('familiar');
+    expect(feelsTrial((f) => f === 'feels-actual')).toBe('actual');
+    expect(feelsTrial((f) => f === 'feels-in-clothes')).toBeNull();
   });
 });
 

@@ -17,8 +17,7 @@ import { ExtraChips, FeelsActual, HourlyStrip, LayerList, Limitations, WhyBody }
 import { Hero } from '../components/Hero';
 import { Sheet } from '../components/Sheet';
 import { CalibratedFeels } from '../components/CalibratedFeels';
-import { calibratedReading, familiarFeels } from '../data/feels-calibration';
-import { feelsFlag } from '../state/feels-flag';
+import { calibratedReading, familiarFeels, feelsTrial } from '../data/feels-calibration';
 
 interface Props {
   forecast: Forecast;
@@ -59,7 +58,7 @@ export function DayView({ forecast, date, activity, duration, commute, effort, r
     : plan.advice;
   const rain = restOfDay(plan.dayHours, date);
   const maxRain = Math.max(0, ...advice.hours.map((h) => h.precipProb));
-  const trial = feelsFlag();
+  const trial = feelsTrial();
   const calibrated = trial ? calibratedReading(advice, trial, units.temp) : null;
   const hero = calibrated ?? heroReading(advice, units.temp);
   // The same place the planner hands the science engine, so window hours match "Why this?".

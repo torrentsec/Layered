@@ -7,7 +7,7 @@
  * on with `?flags=a,b` in the URL and remembered on this device only, so a demo
  * survives reloads and hash navigation; `?flags=` turns them all off.
  */
-export const FLAGS = ['feels-in-clothes'] as const;
+export const FLAGS = ['feels-in-clothes', 'feels-familiar', 'feels-actual'] as const;
 export type Flag = (typeof FLAGS)[number];
 
 export const FLAGS_KEY = 'layered:flags';

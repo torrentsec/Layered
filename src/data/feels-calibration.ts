@@ -6,6 +6,7 @@
 // clothing target still comes from IREQ.
 
 import type { Advice, Hour } from '../engine/types';
+import { flagOn, type Flag } from './flags';
 import { fmtTemp, type TempUnit } from './units';
 import { RADIANT_MENTION, STRESS_LABEL, heroReading } from './why-science';
 
@@ -35,6 +36,12 @@ export function familiarFeels(h: Hour): number {
 
 export type FeelsVariant = 'utci' | 'familiar' | 'actual';
 export const FEELS_VARIANTS: readonly FeelsVariant[] = ['utci', 'familiar', 'actual'];
+
+/** The wording on trial from `?flags=feels-familiar` or `?flags=feels-actual`; null keeps today's hero. */
+export function feelsTrial(on: (f: Flag) => boolean = flagOn): Exclude<FeelsVariant, 'utci'> | null {
+  if (on('feels-familiar')) return 'familiar';
+  return on('feels-actual') ? 'actual' : null;
+}
 
 export interface CalibratedReading {
   /** Drives the circle's colour, °C. */

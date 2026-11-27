@@ -2,6 +2,22 @@
 
 All notable changes are listed here, grouped by release (one release per Sprint from 0.3.0). The format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.0] — Sprint 3
+
+The first public release.
+
+### Added
+- Richer feedback: "too many layers", "not enough protection", and marking a garment as too warm or too cool. Layered learns each garment's warmth from consistent corrections and shows what it has learned in Settings.
+- "Your record" in Settings: your just-right rate and trend, a breakdown by weather and activity, recent days and problems. Kept on the device.
+- Release documentation: README, architecture, self-hosting on Cloudflare's free tier, and accessibility and performance reports.
+
+### Changed
+- WCAG 2.2 AA: better contrast, the current tab no longer shown by colour alone, keyboard-scrollable strips, focus management between screens, announced toasts and search results.
+- Faster start-up: only Today loads up front, the headline font is preloaded, and each feature brings its own styles.
+
+### Quality
+- CI now runs unit tests, an end-to-end smoke test, axe accessibility checks and Lighthouse budgets on every pull request.
+
 ## [0.4.0] — Sprint 2
 
 ### Added

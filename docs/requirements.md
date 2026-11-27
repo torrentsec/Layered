@@ -100,10 +100,10 @@ Thresholds are named constants with unit tests, so they can be recalibrated from
 
 | ID | Story | Pri | Status | Notes |
 |---|---|---|---|---|
-| US-036 | Feedback | P0 | Partial | Too cold / just right / too warm from 18:00. To do: "too many layers" and "not enough protection". |
-| US-037 | Correct a garment | P1 | Planned | Mark a recommended layer as too warm or too cool. One correction never becomes a permanent rule. |
+| US-036 | Feedback | P0 | Done | Too cold / just right / too warm from 18:00. To do: "too many layers" and "not enough protection". |
+| US-037 | Correct a garment | P1 | Done | Mark a recommended layer as too warm or too cool. One correction never becomes a permanent rule. |
 | US-038 | Learn from temperature feedback | P1 | Done | ±0.5° per rating, capped at ±5°, decaying with a 30-day half-life. Per-activity offsets after 3 ratings. Resettable. |
-| US-039 | Garment-specific warmth | P1 | Planned | Learned warmth per category and thickness, kept separate from personal sensitivity. Reversible. |
+| US-039 | Garment-specific warmth | P1 | Done | Learned warmth per category and thickness, kept separate from personal sensitivity. Reversible. |
 | US-040 | Avoid repetition | P2 | Planned | Only between equally suitable alternatives. Can be switched off. |
 
 ### E06: Daily experience and notifications
@@ -128,10 +128,10 @@ Thresholds are named constants with unit tests, so they can be recalibrated from
 
 | ID | Story | Pri | Status | Notes |
 |---|---|---|---|---|
-| US-049 | History | P2 | Planned | The last 60 days of recommendations with their weather and rating, kept on the device. |
-| US-050 | Suitability tracking | P0 | Adapted | The on-device suitability rate ("You rated 82% of days just right") in Settings. No analytics. |
-| US-051 | Failure tracking | P1 | Adapted | An on-device log of engine failures and incomplete-inventory cases, viewable in Settings and exportable. |
-| US-052 | Quality by condition | P1 | Adapted | On-device breakdown by weather band and activity. |
+| US-049 | History | P2 | Done | The last 60 days of recommendations with their weather and rating, kept on the device. |
+| US-050 | Suitability tracking | P0 | Done | The on-device suitability rate ("You rated 82% of days just right") in Settings. No analytics. |
+| US-051 | Failure tracking | P1 | Done | An on-device log of engine failures and incomplete-inventory cases, viewable in Settings and exportable. |
+| US-052 | Quality by condition | P1 | Done | On-device breakdown by weather band and activity. |
 
 ### E09: Subscription and monetisation
 
@@ -149,7 +149,7 @@ Thresholds are named constants with unit tests, so they can be recalibrated from
 | US-057 | Delete my data | P0 | Done | Delete my data removes the server sync copy, push subscriptions, caches and every local key. |
 | US-058 | Fast load | P0 | Done | Cache-first forecast (15 minutes), precached app shell. Lighthouse Performance ≥ 90 to be verified. |
 | US-059 | Provider outages | P0 | Done | The last good forecast is shown, labelled with its time. To do: MET Norway fallback. |
-| US-060 | Accessibility | P1 | Partial | Labels, focus, 44px targets and reduced motion are done. A WCAG 2.2 AA audit is planned. |
+| US-060 | Accessibility | P1 | Done | Labels, focus, 44px targets and reduced motion are done. A WCAG 2.2 AA audit is planned. |
 
 ### E11: Layered additions (from the original brief)
 
@@ -181,6 +181,12 @@ Added by the Product Owner at the Sprint 1 Review, from [voice-of-customer resea
 | US-071 | Undo deleting a routine | P3 | E07 | Planned |
 | US-072 | Opt-in wardrobe-aware notifications (owned categories sent to the Worker) | P2 | E06 | Planned |
 | US-073 | Retry a push that failed with a server error; batch large Worker runs | P2 | E06 | Planned |
+| US-074 | With an empty wardrobe, show one "general advice" hint instead of tagging every row | P2 | E04 | Planned |
+| US-075 | Record the day for the activity chosen on Today, not only the default | P3 | E08 | Planned |
+| US-076 | "Not enough protection" feedback changes future advice | P2 | E05 | Planned |
+| US-077 | Lazy-load the poster code | P3 | E10 | Planned |
+| US-078 | Text scales with the system text size (rem units, Dynamic Type) | P2 | E10 | Planned |
+| US-079 | Screen-reader passes with VoiceOver and TalkBack | P2 | E10 | Planned |
 
 ## 5. Non-functional requirements
 

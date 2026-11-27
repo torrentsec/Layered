@@ -14,11 +14,12 @@ Layered turns your local forecast into what to wear, from the clothes you actual
 
 - **Today.** A verdict, the layers to wear and extras to bring, for the hours you'll be out. Tap **Why this?** to see the working. Rain timing, gust warnings, air quality and pollen come with it, and so does an "Updated HH:MM" time.
 - **Your own clothes.** Record how many of each kind of garment you own, by thickness, with optional insulation, water and wind resistance, material and a nickname. Advice uses only what you have, offers an alternative combination, and says what's missing.
-- **How you feel the cold.** Choose "feel the cold", "average" or "run warm" and add a few preferences. Rate the day in the evening ("too cold", "just right", "too warm") and Layered adjusts gradually.
+- **How you feel the cold.** Choose "feel the cold", "average" or "run warm" and add a few preferences. Rate the day in the evening ("too cold", "just right", "too warm"), say if there were too many layers, or mark a garment that felt too warm or too cool. Layered adjusts gradually, learns how warm each of your garments really is, and shows what it has learned in Settings.
 - **Activities, commute and routines.** Nine activities, including office day and staying in, with an effort level for running, cycling and hiking. Your commute legs are compared. Saved routines, such as the school run, make Today dress you for the coldest of them.
 - **Week.** 16 days, each with its verdict. Days far ahead are marked as less certain. Open any day for the full outfit.
 - **Trips.** Add one or more destinations with dates. You get one packing list across every stop. Days within 16 days use the forecast, and later days use typical weather.
 - **Notifications.** A morning outfit, an optional evening preview of tomorrow, and at most one alert a day if the advice changes. They arrive at your local time.
+- **Your record.** See how often the advice was just right, how that's trending, and where it goes wrong by weather and activity. It stays on your phone.
 - **Sync.** Link devices with a 10-character code. You don't need an account.
 - **Share.** Share the day as a poster image.
 - **Your data.** Export and import as JSON. **Delete my data** wipes this device and any server copies.

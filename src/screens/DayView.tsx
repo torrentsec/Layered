@@ -13,10 +13,11 @@ import type { Activity, Effort } from '../engine/types';
 import { flagSite, planDay, restOfDay } from '../state/advice';
 import { placeOf } from '../data/day-plan';
 import { feelsRange, heroReading, hourlyFeels } from '../data/why-science';
+import { adviceMargin, marginText } from '../data/margin-text';
+import { flagOn } from '../data/flags';
 import { ExtraChips, FeelsActual, HourlyStrip, LayerList, Limitations, WhyBody } from '../components/AdviceParts';
 import { Hero } from '../components/Hero';
 import { FeelsInClothes } from '../components/FeelsInClothes';
-import { flagOn } from '../data/flags';
 import { Sheet } from '../components/Sheet';
 import { CalibratedFeels } from '../components/CalibratedFeels';
 import { calibratedReading, familiarFeels, feelsTrial } from '../data/feels-calibration';
@@ -68,6 +69,7 @@ export function DayView({ forecast, date, activity, duration, commute, effort, r
     : trial === 'familiar' ? plan.dayHours.map(familiarFeels)
     : hourlyFeels(plan.dayHours, advice, { ...placeOf(forecast), site: flagSite() });
   const feelsContext = c ? 'across both legs' : plan.legs ? 'across today’s plans' : 'while you’re out';
+  const margin = why && advice.science && flagOn('margin') ? adviceMargin(advice, placeOf(forecast), effort) : undefined;
 
   return (
     <>
@@ -124,7 +126,7 @@ export function DayView({ forecast, date, activity, duration, commute, effort, r
       {footer}
 
       <Sheet open={why} title="Why this?" onClose={() => setWhy(false)}>
-        <WhyBody advice={advice} units={units} />
+        <WhyBody advice={advice} units={units} margin={margin && marginText(margin, units.temp)} />
       </Sheet>
     </>
   );

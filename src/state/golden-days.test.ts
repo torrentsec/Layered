@@ -18,6 +18,7 @@ import { feelsInClothes } from '../data/feels-in-clothes';
 import { comfortTime } from '../engine/science/comfort-time';
 import { hourToWeather } from '../engine/science/weather';
 import { COMPLETE, DAYS, openMeteo, type Conditions, type DayId } from './__fixtures__/golden-days';
+import { adviceMargin } from '../data/margin-text';
 
 function run(id: DayId, engine: Settings['engine'], activity: Activity = 'walking', duration = 0.5): Advice {
   const c: Conditions = DAYS[id];
@@ -242,5 +243,61 @@ describe('golden days, feels like in what you wear', () => {
 
   it('Oslo for an hour: the heaviest plan is not enough, and the line asks for a layer', () => {
     expect(line('oslo', 'walking', 1)).toMatchObject({ tone: 'cold', sub: expect.stringContaining('Add a layer') });
+  });
+});
+
+// Spike #88: how far each golden day is from changing band, through the same
+// path "Why this?" takes. Recorded as evidence, not as a verdict.
+describe('golden days, margin to the next band (spike #88)', () => {
+  it('reruns to the advice band and records the margins', () => {
+    const margins = Object.fromEntries((Object.keys(DAYS) as DayId[]).map((id) => {
+      const a = run(id, DEFAULT_PATH);
+      const c = DAYS[id];
+      const m = adviceMargin(a, { lat: c.lat, lon: c.lon, utcOffsetSeconds: c.utcOffset });
+      expect(m?.band).toBe(a.band);
+      return [id, m];
+    }));
+    expect(margins).toMatchInlineSnapshot(`
+      {
+        "cloudy8": {
+          "band": "coat",
+        },
+        "london": {
+          "band": "coat",
+          "colder": {
+            "band": "bundle",
+            "by": 5,
+          },
+        },
+        "madrid": {
+          "band": "tshirt",
+        },
+        "mild": {
+          "band": "two",
+          "warmer": {
+            "band": "light",
+            "by": 1,
+          },
+        },
+        "oslo": {
+          "band": "bundle",
+          "warmer": {
+            "band": "coat",
+            "by": 3,
+          },
+        },
+        "sunny8": {
+          "band": "two",
+          "colder": {
+            "band": "jacket",
+            "by": 5,
+          },
+          "warmer": {
+            "band": "light",
+            "by": 4,
+          },
+        },
+      }
+    `);
   });
 });

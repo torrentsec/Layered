@@ -3,12 +3,11 @@
 
 import { ACTIVITY_LABEL } from '../../engine/activity';
 import { forgetAllGarments, forgetGarment, LAYERS_KEY, parseGarmentKey } from '../../engine/garment-learning';
-import { activityOffsets, learnOffset } from '../../engine/learning';
+import { activityOffsets, learnOffset, temperatureVotes } from '../../engine/learning';
 import { garmentLabel } from '../../engine/match';
 import { garmentWarmth, ratings, settings } from '../../data/store';
 import { tempDelta } from '../../data/units';
 import { engineOf } from '../../data/engine-choice';
-import { flagOn } from '../../data/flags';
 import { LearnedCard } from './LearnedCard';
 import { toast } from '../../components/Toast';
 import { localToday } from '../../state/garment-warmth';
@@ -44,6 +43,8 @@ export function LearnedSection() {
   const temp = settings.value.units.temp;
   const today = localToday();
   const all = ratings.value;
+  const votes = temperatureVotes(all).length;
+  const science = engineOf(settings.value) === 'science';
   const overall = learnOffset(all, today);
   const perActivity = activityOffsets(all, today);
   const rows = garmentRows(garmentWarmth.value);
@@ -56,9 +57,9 @@ export function LearnedSection() {
     <>
       <h2 class="group-title" id="learned-title">What Layered has learned</h2>
       <section class="group" aria-labelledby="learned-title">
-        {flagOn('learned-card') && engineOf(settings.value) === 'science' ? <LearnedCard /> : <>
+        {science ? <LearnedCard /> : <>
         <div class="row-item plain learned-row">
-          <span class="grow">Overall<span class="sub">{all.length ? `From ${plural(all.length)}` : 'No ratings yet'}</span></span>
+          <span class="grow">Overall<span class="sub">{votes ? `From ${plural(votes)}` : 'No ratings yet'}</span></span>
           <span class="meta num">{degrees(overall)}</span>
         </div>
         {perActivity.map((a) => (
@@ -94,7 +95,8 @@ export function LearnedSection() {
         <p class="small-print" style={{ margin: '0 4px' }}>Nothing yet. After rating a day, mark any piece that felt too warm or too cool.</p>
       )}
       <p class="small-print" style={{ margin: '8px 4px 0' }}>
-        A garment changes only after two marks that agree, and never by more than one thickness step. Temperature learning resets under How you run.
+        A garment changes only after two marks that agree, and never by more than one thickness step.{' '}
+        {science ? 'Resetting temperature learning keeps your garment marks.' : 'Temperature learning resets under How you run.'}
       </p>
       {rows.length ? (
         <button

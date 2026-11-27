@@ -6,7 +6,7 @@ import type { Rating } from '../../types';
 import { DEFAULT_COMFORT } from '../../comfort';
 import { BIAS_PRIOR_VARIANCE } from '../bias';
 import { biasPrior, replayBias } from '../personal';
-import { certaintyOf, describeBias, describeHistory, labelFlips, leanOf } from '../learned';
+import { certaintyOf, describeBias, labelFlips, leanOf } from '../learned';
 import type { BiasState } from '../types';
 import { simulate } from './learned-sim';
 
@@ -67,11 +67,10 @@ describe('certaintyOf', () => {
 });
 
 describe('describeBias', () => {
-  it('words the person and the advice', () => {
+  it('words the person, not the advice', () => {
     expect(describeBias(state(0.25)).headline).toBe('You feel the cold');
-    expect(describeBias(state(0.25), { wording: 'advice' }).headline).toBe('Dressing you warmer');
     expect(describeBias(state(-0.1)).headline).toBe('You run a little warm');
-    expect(describeBias(state(-0.5), { wording: 'advice' }).headline).toBe('Dressing you much lighter');
+    expect(describeBias(state(-0.5)).headline).toBe('You run very warm');
     expect(describeBias(state(0)).headline).toBe('You’re about average');
   });
 
@@ -107,12 +106,6 @@ describe('replayed vote histories', () => {
     const indoor = replayBias(prior, days(5, 0).map((v) => ({ ...v, activity: 'office' as const })));
     expect(certaintyOf(outdoor)).toBe('fair');
     expect(certaintyOf(indoor)).toBe('early');
-  });
-
-  it('describeHistory matches describeBias on the last state when nothing sits on a boundary', () => {
-    const states = [prior, replayBias(prior, days(10, -1))];
-    expect(describeHistory(states)).toEqual(describeBias(states[1]));
-    expect(describeHistory([])).toBeUndefined();
   });
 });
 

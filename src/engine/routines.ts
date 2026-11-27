@@ -128,7 +128,9 @@ export function routineLegs<R extends RoutineSpec & { id: string }>(hours: Hour[
   const legs: Leg[] = [];
   for (const r of routinesOn(routines, date)) {
     const h = routineHours(hours, date, r, now);
-    if (h.length) legs.push({ id: r.id, label: r.name, phrase: routinePhrase(r.name), activity: r.activity, effort: r.effort, hours: h, start: `${date}T${r.time}`, exposureHours: routineExposure(date, r, now) });
+    const left = routineExposure(date, r, now);
+    // A routine that ended earlier this hour still touches the current forecast hour, but it's over.
+    if (h.length && left > 0) legs.push({ id: r.id, label: r.name, phrase: routinePhrase(r.name), activity: r.activity, effort: r.effort, hours: h, start: `${date}T${r.time}`, exposureHours: left });
   }
   return legs;
 }

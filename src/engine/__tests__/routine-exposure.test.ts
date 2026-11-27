@@ -37,6 +37,12 @@ describe('routine legs dress for their own length (#77)', () => {
     expect(leg.exposureHours).toBe(1);
   });
 
+  it('drops a routine that ended earlier in the current hour', () => {
+    const early = { ...dogWalk, time: '07:00', hours: 0.5 };
+    expect(routineLegs(hours, '2026-11-26', [early], '2026-11-26T07:40')).toEqual([]);
+    expect(routineLegs(hours, '2026-11-26', [early], '2026-11-26T07:20')[0].exposureHours).toBeCloseTo(1 / 6, 6);
+  });
+
   it('passes that length to the science engine, not the hours it touches', () => {
     const legs = routineLegs(hours, '2026-11-26', [dogWalk]);
     const a = adviseLegs({ science }, legs)!;

@@ -8,6 +8,7 @@ import { localNow, type TimeFormatter } from '../engine/time';
 import type { Activity, Effort } from '../engine/types';
 import { longDate, timeFmt, weekday } from '../data/format';
 import { fmtTemp, type TempUnit } from '../data/units';
+import { feelsRange } from '../data/why-science';
 import { patchSettings, routines, settings } from '../data/store';
 import { currentPlace, forecastState, loadForecast } from '../state/forecast';
 import { DayView } from './DayView';
@@ -42,7 +43,7 @@ function PlanLegs({ legs, fmt, unit }: { legs: LegsAdvice; fmt: TimeFormatter; u
                 {coldest && legs.legs.length > 1 ? ' · coldest' : ''}
               </span>
             </span>
-            <span class="num">feels {fmtTemp(advice.minFeels, unit)}</span>
+            <span class="num">feels {fmtTemp(feelsRange(advice).min, unit)}</span>
           </li>
         ))}
       </ul>

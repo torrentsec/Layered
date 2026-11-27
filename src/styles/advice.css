@@ -66,3 +66,10 @@
   padding-left: 20px;
   margin: 0;
 }
+
+.why-lead {
+  font-size: 17px;
+  line-height: 1.45;
+  margin: 4px 0 4px;
+  text-wrap: pretty;
+}

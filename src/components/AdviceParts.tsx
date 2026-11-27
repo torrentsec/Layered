@@ -98,7 +98,8 @@ export function FeelsActual({ advice, units, context }: { advice: Advice; units:
 export function HourlyStrip({ hours, inWindow, units }: { hours: Hour[]; inWindow: Set<string>; units: Units }) {
   const fmt = timeFmt(units.clock);
   return (
-    <ol class="hourly" aria-label="Hourly feels-like">
+    // Focusable so the strip can be scrolled from the keyboard (WCAG 2.1.1).
+    <ol class="hourly" aria-label="Hourly feels-like" tabIndex={0}>
       {hours.map((h) => (
         <li key={h.time} class={inWindow.has(h.time) ? 'in' : undefined}>
           <span class="meta">{fmt(h.time)}</span>

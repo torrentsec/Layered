@@ -12,7 +12,7 @@ test('first run: pick a place, skip the rest, and Today gives a verdict', async 
   await page.getByRole('button', { name: 'Skip setup' }).click();
 
   await expect(page.getByRole('navigation', { name: 'Sections' })).toBeVisible();
-  await expect(page.getByRole('img', { name: /^Feels like -?\d+ degrees$/ })).toBeVisible();
+  await expect(page.locator('.readout .feels')).toHaveText(/^Dress for -?\d+/);
   await expect(page.locator('main')).toContainText(/coat|jacket|jumper/i);
 });
 

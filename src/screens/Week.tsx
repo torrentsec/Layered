@@ -30,9 +30,9 @@ export function Week() {
     return (
       <>
         <TitleBar short="Week" title="Week" />
-        <div class="empty">
+        <main class="empty">
           {st.status === 'error' ? <p role="alert">{st.error}</p> : !place ? <p>Choose a place on Today first.</p> : <p aria-live="polite">Reading the sky…</p>}
-        </div>
+        </main>
       </>
     );
   }
@@ -65,8 +65,10 @@ export function Week() {
                       {marker && <> · <span class="certainty">{marker}</span></>}
                     </span>
                   </span>
-                  <span class="range num" aria-label={`Feels ${fmtTemp(d.feelsMin, u.temp)} to ${fmtTemp(d.feelsMax, u.temp)}`}>
-                    {fmtTemp(d.feelsMin, u.temp)} <span style={{ color: 'var(--ink-2)' }}>/</span> {fmtTemp(d.feelsMax, u.temp)}
+                  <span class="range num">
+                    <span class="visually-hidden">Feels </span>
+                    {fmtTemp(d.feelsMin, u.temp)} <span style={{ color: 'var(--ink-2)' }} aria-hidden="true">/</span>
+                    <span class="visually-hidden"> to </span> {fmtTemp(d.feelsMax, u.temp)}
                   </span>
                 </a>
               </li>
@@ -98,7 +100,7 @@ function TomorrowCard({ date }: { date: string }) {
 
 /** Full Today-style views side by side; swipe or use the arrows to move between days. */
 function DaySwiper({ dates, selected, today }: { dates: string[]; selected: string; today: string }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
   const f = forecastState.value.forecast!;
   const idx = Math.max(0, dates.indexOf(selected));
 
@@ -145,14 +147,15 @@ function DaySwiper({ dates, selected, today }: { dates: string[]; selected: stri
           </span>
         }
       />
-      <div class="swiper" ref={ref} aria-label="Days">
-        {dates.map((d) => (
-          <section key={d} aria-label={longDate(d)}>
+      <main class="swiper" ref={ref} aria-label="Days">
+        {dates.map((d, i) => (
+          // Off-screen neighbours are inert, so Tab and screen readers stay on the day shown.
+          <section key={d} aria-label={longDate(d)} inert={i !== idx}>
             {/* Only render the neighbours; sixteen full day views would be wasted work. */}
             {Math.abs(dates.indexOf(d) - idx) <= 1 ? <DayView forecast={f} date={d} /> : <div style={{ minHeight: '100dvh' }} />}
           </section>
         ))}
-      </div>
+      </main>
     </>
   );
 }

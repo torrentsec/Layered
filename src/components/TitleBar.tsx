@@ -26,7 +26,7 @@ export function TitleBar({ title, short, action, subtitle }: Props) {
         </div>
       </header>
       <div class="large-head">
-        <h1 class="large-title">{title}</h1>
+        <h1 class="large-title" tabIndex={-1}>{title}</h1>
         {subtitle && <p class="subtitle">{subtitle}</p>}
       </div>
     </>

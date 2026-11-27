@@ -22,6 +22,8 @@
   /* Muted ink tuned to stay above 4.5:1 on both paper and surface. */
   --ink-2: light-dark(#55524b, #b3ada2);
   --line: light-dark(#d9d3c6, #3a3631);
+  /* Edges that identify a control or its state need 3:1 on paper, surface and surface-2 (WCAG 1.4.11). */
+  --line-strong: light-dark(#7c766b, #857f74);
   --red: #e2332a;
   --yellow: #f3bf1a;
   --blue: light-dark(#1e4fa0, #4f7fd1);
@@ -49,7 +51,8 @@
 html {
   background: var(--paper);
   -webkit-text-size-adjust: 100%;
-  scroll-padding-top: calc(52px + var(--safe-top));
+  /* Clears the sticky bar plus the focus ring, so focus is never hidden under it (WCAG 2.4.11). */
+  scroll-padding-top: calc(64px + var(--safe-top));
   scroll-padding-bottom: calc(var(--tabbar-h) + var(--safe-bottom) + 16px);
 }
 
@@ -261,6 +264,9 @@ p {
 
 .tabbar a[aria-current='page'] {
   color: var(--ink);
+  /* Weight and a rule, not colour alone, mark the current section (WCAG 1.4.1). */
+  font-weight: 700;
+  box-shadow: inset 0 2px 0 var(--ink);
 }
 
 .tabbar svg {
@@ -344,7 +350,7 @@ p {
 .row-item input[type='time'],
 .row-item input[type='number'],
 .row-item select {
-  border: 0;
+  border: 1px solid var(--line-strong);
   background: var(--surface-2);
   border-radius: 8px;
   padding: 6px 10px;
@@ -512,7 +518,10 @@ p {
   left: 2px;
   border-radius: 8px;
   background: var(--surface);
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.14);
+  /* The ring, not the fill, carries the selected state: surface on surface-2 is only 1.2:1. */
+  box-shadow:
+    0 0 0 1px var(--line-strong),
+    0 1px 3px rgb(0 0 0 / 0.14);
   transition: transform 280ms var(--ease);
 }
 
@@ -577,6 +586,11 @@ p {
 
 .hourly::-webkit-scrollbar {
   display: none;
+}
+
+/* The strip is focusable so keyboards can scroll it; inset the ring, as the strip runs to the screen edge. */
+.hourly:focus-visible {
+  outline-offset: -3px;
 }
 
 .hourly li {
@@ -744,7 +758,8 @@ dialog.sheet[open]::backdrop {
 }
 
 .btn.danger {
-  background: var(--red);
+  /* Darker than --red so white bold text clears 4.5:1. */
+  background: #c4261e;
   color: #fff;
 }
 
@@ -775,7 +790,7 @@ dialog.sheet[open]::backdrop {
   width: 100%;
   min-height: 44px;
   border-radius: 10px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   background: var(--paper);
   padding: 8px 12px;
 }

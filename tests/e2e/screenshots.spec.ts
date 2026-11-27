@@ -16,7 +16,7 @@ test.describe('README screenshots @screenshots', () => {
 
   test('Today', async ({ page }) => {
     await page.goto('/#/today');
-    await expect(page.getByRole('img', { name: /^Feels like/ })).toBeVisible();
+    await expect(page.locator('.readout .feels')).toHaveText(/^Dress for/);
     await page.screenshot({ path: out('today'), animations: 'disabled' });
   });
 

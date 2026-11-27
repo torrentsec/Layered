@@ -13,11 +13,13 @@ interface Props {
  * The poster: a temperature-coloured circle, red square, black quarter-circle
  * and blue triangle on a thin rule. The square and triangle drift with rain
  * chance so the composition shifts with the day without becoming a chart.
+ * Hidden from assistive tech: the readout below says the same in the user's
+ * units, where a label here would always be in Celsius.
  */
 export function Hero({ feels, rain, onCircleTap }: Props) {
   const tilt = Math.round((rain / 100) * 12);
   return (
-    <svg class="hero" viewBox="0 0 360 260" role="img" aria-label={`Feels like ${Math.round(feels)} degrees`}>
+    <svg class="hero" viewBox="0 0 360 260" aria-hidden="true">
       <rect x="0" y="0" width="360" height="260" fill="var(--surface)" />
       <path d="M0 260 V140 A120 120 0 0 1 120 260 Z" fill="var(--ink)" />
       <rect x="226" y="28" width="92" height="92" fill="var(--red)" transform={`rotate(${tilt} 272 74)`} />

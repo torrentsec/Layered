@@ -9,6 +9,7 @@ import { Onboarding, settleOnboarding } from './screens/Onboarding';
 import { onboarded } from './data/store';
 import { ToastHost } from './components/Toast';
 import { InstallHint } from './components/InstallHint';
+import { RouteFocus } from './components/RouteFocus';
 import { SettingsIcon, TodayIcon, TripIcon, WardrobeIcon, WeekIcon } from './components/Icons';
 
 interface TabDef {
@@ -91,6 +92,7 @@ export function App() {
       )}
       <ToastHost />
       <InstallHint />
+      <RouteFocus />
     </>
   );
 }

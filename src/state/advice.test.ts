@@ -77,6 +77,28 @@ describe('planDay with routines (US-066)', () => {
   });
 });
 
+describe('planDay legs under the science engine (#77)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-26T06:30:00Z'));
+  });
+  afterEach(() => vi.useRealTimers());
+
+  const science = (over: Partial<Settings> = {}) => ({ ...ctx({ settings: { engine: 'science', ...over }, routines: [routine({ time: '17:45' })] }), bias: { mean: 0, count: 0 } });
+  const minutes = (p: ReturnType<typeof planDay>) => Object.fromEntries(p!.legs!.legs.map((l) => [l.leg.label, l.advice.science!.exposureMinutes]));
+
+  it('dresses a routine for its own length and the day for the chosen duration', () => {
+    const p = planDay(forecast, DATE, science({ duration: 3 }));
+    expect(minutes(p)).toEqual({ 'Rest of the day': 180, 'Dog walk': 30 });
+  });
+
+  it('merges the feels-like range across the commute and the routine', () => {
+    const p = planDay(forecast, DATE, science(commuteOn))!;
+    const each = p.legs!.legs.map((l) => l.advice.science!.feels);
+    expect(p.advice.science!.feels).toEqual({ min: Math.min(...each.map((f) => f.min)), max: Math.max(...each.map((f) => f.max)) });
+  });
+});
+
 describe('planDay with effort (US-067)', () => {
   beforeEach(() => {
     vi.useFakeTimers();

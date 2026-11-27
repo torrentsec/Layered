@@ -57,10 +57,15 @@ export function colderThan(a: Advice, b: Advice): boolean {
   return ca !== undefined && cb !== undefined ? ca > cb : a.effective < b.effective;
 }
 
-/** UTCI range across several pieces of science advice, so a merged day reads its whole span. */
+/**
+ * UTCI range across several pieces of science advice, so a merged day reads
+ * its whole span. A leg without a finite UTCI is left out: one NaN would
+ * otherwise send the whole day back to apparent temperature.
+ */
 export function mergedScience(cold: Advice, all: Advice[]): Advice['science'] {
   if (!cold.science) return undefined;
-  const ranges = all.flatMap((a) => (a.science ? [a.science.feels] : []));
+  const ranges = all.flatMap((a) => (a.science && Number.isFinite(a.science.feels.min) && Number.isFinite(a.science.feels.max) ? [a.science.feels] : []));
+  if (!ranges.length) return cold.science;
   return { ...cold.science, feels: { min: Math.min(...ranges.map((r) => r.min)), max: Math.max(...ranges.map((r) => r.max)) } };
 }
 

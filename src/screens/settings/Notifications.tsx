@@ -26,7 +26,7 @@ import {
   type PushDeps,
 } from '../../data/push';
 import type { NotifyPrefs } from '../../data/store';
-import { comfort, inventory, patchSettings, ratings, settings } from '../../data/store';
+import { cloBias, comfort, inventory, patchSettings, ratings, routines, settings } from '../../data/store';
 import { planDay } from '../../state/advice';
 import { currentPlace, forecastState, loadForecast } from '../../state/forecast';
 import { toast } from '../../components/Toast';
@@ -35,6 +35,9 @@ import { toast } from '../../components/Toast';
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
 const EXAMPLE = 'Coat + umbrella today · showers from 16:00';
 const SIG_KEY = 'layered:v1:pushSignature';
+// Same list as the README's Privacy section; say it where people turn notifications on.
+const SENT =
+  'So the note matches the app, the server keeps your place (to about a kilometre), schedule and settings, your routines without their names, and a few numbers learned from your ratings. Never your wardrobe or the ratings themselves. Turning notifications off deletes it.';
 // Without a service worker (blocked, or still installing) `ready` never settles.
 const SW_WAIT_MS = 10_000;
 
@@ -72,6 +75,7 @@ const deps: PushDeps = {
       tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
       settings: settings.peek(),
       comfort: comfort.peek(),
+      learning: { bias: cloBias.peek().mean, biasCount: cloBias.peek().count, ratings: ratings.peek(), routines: routines.peek() },
       id,
     });
   },
@@ -113,6 +117,7 @@ export function watchPushSettings(): () => void {
   return effect(() => {
     const s = settings.value;
     const c = comfort.value;
+    const learning = { bias: cloBias.value.mean, biasCount: cloBias.value.count, ratings: ratings.value, routines: routines.value };
     const place = currentPlace.value;
     const id = s.notify.subscriptionId;
     if (!s.notify.enabled || !id || !place) return;
@@ -122,6 +127,7 @@ export function watchPushSettings(): () => void {
       tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
       settings: s,
       comfort: c,
+      learning,
       id,
     });
     if (requestSignature(probe) !== readSig()) post(id);
@@ -134,7 +140,7 @@ function usePreview(): { text: string; real: boolean } {
   const s = settings.value;
   if (!f) return { text: EXAMPLE, real: false };
   const date = localNow(f.utcOffsetSeconds).slice(0, 10);
-  const plan = planDay(f, date, { settings: s, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value });
+  const plan = planDay(f, date, { settings: s, ratings: ratings.value, inventory: inventory.value, comfort: comfort.value, routines: routines.value });
   return plan ? { text: notificationText(plan.advice, plan.dayHours, timeFmt(s.units.clock)), real: true } : { text: EXAMPLE, real: false };
 }
 
@@ -157,9 +163,9 @@ function footnote(status: NotifyStatus, message: string | null, time: string): s
     case 'disabling':
       return 'Turning off…';
     case 'on':
-      return `Sent at ${time} local time on the days you pick. Your place goes to the server rounded to about a kilometre.`;
+      return `Sent at ${time} local time on the days you pick. ${SENT}`;
     case 'off':
-      return message ?? 'A short note each morning with what to wear. Your place goes to the server rounded to about a kilometre.';
+      return message ?? `A short note each morning with what to wear. ${SENT}`;
   }
 }
 

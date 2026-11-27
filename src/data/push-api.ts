@@ -2,7 +2,9 @@
 // Copyright (c) 2026 torrentsec
 
 import type { ComfortProfile } from '../engine/comfort';
-import type { Activity } from '../engine/types';
+import type { LearnSnapshot } from '../engine/learning';
+import type { Activity, Effort } from '../engine/types';
+import type { EngineChoice } from './engine-choice';
 import type { Units } from './units';
 
 /**
@@ -36,7 +38,35 @@ export interface PushProfile {
   manualOffset: number;
   comfort: ComfortProfile;
   commute: { enabled: boolean; out: string; back: string; legHours: number; days: number[]; mode?: Activity };
+  /*
+   * The rest lets the Worker plan exactly as the app does. Each is optional so
+   * subscriptions saved before them still parse; the Worker then falls back to
+   * the default engine, Settings' default time outside, the bias prior from
+   * comfort and manual offset, no votes and no routines.
+   */
+  engine?: EngineChoice;
+  /** Hours outside, from Settings. */
+  duration?: number;
+  /** The device's learned clo bias. A single number: the votes behind it stay on the device. */
+  bias?: number;
+  /** How many votes `bias` rests on, so "Why this?" can say so. */
+  biasCount?: number;
+  /** The votes' pull as sums, which age exactly without the votes or their dates. */
+  learned?: LearnSnapshot;
+  /** Saved routines without their names, which no notification uses. */
+  routines?: PushRoutine[];
 }
+
+export interface PushRoutine {
+  time: string;
+  hours: number;
+  days: number[];
+  activity: Activity;
+  effort?: Effort;
+}
+
+/** More than anyone keeps; bounds the stored profile. */
+export const MAX_PUSH_ROUTINES = 20;
 
 export interface SubscribeRequest {
   /** Present when updating an existing subscription. */

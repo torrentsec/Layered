@@ -4,8 +4,11 @@
 import type { ComfortProfile } from '../engine/comfort';
 import { isIosSafari } from './installHint';
 import type { Place } from './openmeteo';
-import { PUSH_API, type PushKeyResponse, type PushProfile, type PushSchedule, type SubscribeRequest, type SubscribeResponse } from './push-api';
-import type { NotifyPrefs, Settings } from './store';
+import { MAX_PUSH_ROUTINES, PUSH_API, type PushKeyResponse, type PushProfile, type PushSchedule, type SubscribeRequest, type SubscribeResponse } from './push-api';
+import type { NotifyPrefs, Routine, Settings } from './store';
+import { learnSnapshot } from '../engine/learning';
+import { engineOf } from './engine-choice';
+import type { Rating } from '../engine/types';
 
 export const DEFAULT_MORNING = '07:00';
 export const DEFAULT_EVENING = '20:00';
@@ -33,14 +36,33 @@ export function buildSchedule(n: NotifyPrefs): PushSchedule {
   };
 }
 
-export function buildProfile(s: Settings, comfort: ComfortProfile): PushProfile {
+/** What the device has learned, handed to the Worker so its advice matches the app's. */
+export interface Learning {
+  /** The science engine's clo bias mean. */
+  bias?: number;
+  biasCount?: number;
+  ratings?: Rating[];
+  routines?: Routine[];
+}
+
+export function buildProfile(s: Settings, comfort: ComfortProfile, l: Learning = {}): PushProfile {
   const c = s.commute;
+  const votes = l.ratings ?? [];
+  // Dated at the newest vote, so the snapshot only changes when the votes do, not every day.
+  const at = votes.reduce((d, r) => (r.date > d ? r.date : d), '');
   return {
     units: s.units,
     activity: s.activity,
     manualOffset: s.manualOffset,
     comfort,
     commute: { enabled: c.enabled, out: c.out, back: c.back, legHours: c.legHours, days: c.days, ...(c.mode ? { mode: c.mode } : {}) },
+    engine: engineOf(s),
+    duration: s.duration,
+    ...(l.bias !== undefined && Number.isFinite(l.bias) ? { bias: l.bias, biasCount: l.biasCount ?? 0 } : {}),
+    ...(votes.length ? { learned: learnSnapshot(votes, at) } : {}),
+    ...(l.routines?.length
+      ? { routines: l.routines.slice(0, MAX_PUSH_ROUTINES).map((r) => ({ time: r.time, hours: r.hours, days: r.days, activity: r.activity, ...(r.effort ? { effort: r.effort } : {}) })) }
+      : {}),
   };
 }
 
@@ -57,6 +79,7 @@ export interface RequestInput {
   tz: string;
   settings: Settings;
   comfort: ComfortProfile;
+  learning?: Learning;
   id?: string;
 }
 
@@ -68,7 +91,7 @@ export function buildSubscribeRequest(i: RequestInput): SubscribeRequest {
     lon: roundCoord(i.place.lon),
     tz: i.tz,
     schedule: buildSchedule(i.settings.notify),
-    profile: buildProfile(i.settings, i.comfort),
+    profile: buildProfile(i.settings, i.comfort, i.learning),
   };
 }
 

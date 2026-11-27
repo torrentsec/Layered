@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Daniel Woo
 
+import type { CategoryId, Ownership, Thickness } from './inventory';
+import type { Requirements } from './requirements';
+
 /**
  * One forecast hour. Everything is metric (°C, km/h, mm, cm) so the engine
  * never has to care about display units. `time` is the place's local wall
@@ -39,10 +42,17 @@ export interface WardrobeItem {
 }
 
 export interface LayerAdvice {
-  kind: LayerKind;
+  kind: LayerKind | 'bottoms' | 'footwear';
   label: string;
   optional?: boolean;
+  /** Legacy named item from wardrobe v1. Replaced by the category inventory. */
   item?: WardrobeItem;
+  category?: CategoryId;
+  thickness?: Thickness;
+  /** Outerwear nickname, shown as "your <nickname>". */
+  nickname?: string;
+  /** 'owned' when matched to the inventory; 'unknown' when it's generic advice. */
+  owned?: Ownership;
 }
 
 export type ExtraId =
@@ -90,6 +100,12 @@ export interface Explanation {
 }
 
 export interface Advice {
+  /** Stage 2 output, kept for "Why this?" and for the notification text. */
+  requirements?: Requirements;
+  /** Plain-language gaps, e.g. "No waterproof recorded in your wardrobe". */
+  limitations?: string[];
+  /** Other equally suitable combinations from owned clothes (US-034). */
+  alternatives?: LayerAdvice[][];
   band: BandId;
   verdict: string;
   summary: string;

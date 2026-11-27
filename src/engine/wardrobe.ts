@@ -68,6 +68,7 @@ export function applyWardrobe(
 ): { layers: LayerAdvice[]; extras: Extra[] } {
   if (!items.length) return { layers, extras };
   let out = layers.map((l) => {
+    if (l.kind === 'bottoms' || l.kind === 'footwear') return l;
     const item = bestItem(items, l.kind, targetWarmth(band, l.kind), c);
     return item ? { ...l, item } : l;
   });

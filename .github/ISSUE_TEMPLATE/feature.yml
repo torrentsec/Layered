@@ -1,0 +1,16 @@
+name: Feature
+description: Suggest an improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: story
+    attributes:
+      label: Story
+      placeholder: As a …, I want …, so that …
+    validations:
+      required: true
+  - type: textarea
+    id: criteria
+    attributes:
+      label: Acceptance criteria
+      placeholder: Given … when … then …

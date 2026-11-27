@@ -4,14 +4,24 @@
 import type { ItemKind } from '../engine/types';
 import { tempColor } from './colors';
 
-/** Base = yellow circle, mid = red square, outer = blue triangle, accessory = black quarter. */
-export function LayerMark({ kind, size = 24 }: { kind: ItemKind; size?: number }) {
+/**
+ * Base = yellow circle, mid = red square, outer = blue triangle,
+ * accessory = black quarter, bottoms = black bars, footwear = black half-disc.
+ */
+export function LayerMark({ kind, size = 24 }: { kind: ItemKind | 'bottoms' | 'footwear'; size?: number }) {
   return (
     <svg class="mark" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
       {kind === 'base' && <circle cx="12" cy="12" r="10" fill="var(--yellow)" />}
       {kind === 'mid' && <rect x="3" y="3" width="18" height="18" fill="var(--red)" />}
       {kind === 'outer' && <path d="M12 2 L22.5 21 H1.5 Z" fill="var(--blue)" />}
       {kind === 'accessory' && <path d="M3 21 V3 A18 18 0 0 1 21 21 Z" fill="var(--ink)" />}
+      {kind === 'bottoms' && (
+        <>
+          <rect x="5" y="3" width="6" height="18" fill="var(--ink)" />
+          <rect x="13" y="3" width="6" height="18" fill="var(--ink)" />
+        </>
+      )}
+      {kind === 'footwear' && <path d="M2 18 A10 10 0 0 1 22 18 Z" fill="var(--ink)" />}
     </svg>
   );
 }

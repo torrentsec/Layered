@@ -3,6 +3,8 @@
 
 import { effect, signal, type Signal } from '@preact/signals';
 import type { Activity, Rating, WardrobeItem } from '../engine/types';
+import type { Inventory } from '../engine/inventory';
+import { DEFAULT_COMFORT, type ComfortProfile } from '../engine/comfort';
 import type { Place } from './openmeteo';
 import { DEFAULT_UNITS, type Units } from './units';
 
@@ -96,7 +98,13 @@ function persisted<T>(name: string, fallback: T): Signal<T> {
 
 export const settings = persisted<Settings>('settings', DEFAULT_SETTINGS);
 export const places = persisted<Place[]>('places', []);
+/** Wardrobe v1: named items. Migrated into `inventory` and then retired. */
 export const wardrobe = persisted<WardrobeItem[]>('wardrobe', []);
+/** Category inventory (E02). A missing category means "not set". */
+export const inventory = persisted<Inventory>('inventory', {});
+export const comfort = persisted<ComfortProfile>('comfort', DEFAULT_COMFORT);
+/** First-run flow finished or skipped (US-006). */
+export const onboarded = persisted<boolean>('onboarded', false);
 export const trips = persisted<Trip[]>('trips', []);
 export const ratings = persisted<Rating[]>('ratings', []);
 /** Last device location, kept so "Here" works offline. */
@@ -113,6 +121,8 @@ export interface Bundle {
   settings: Settings;
   places: Place[];
   wardrobe: WardrobeItem[];
+  inventory?: Inventory;
+  comfort?: ComfortProfile;
   trips: Trip[];
   ratings: Rating[];
 }
@@ -124,6 +134,8 @@ export function exportBundle(): Bundle {
     settings: settings.value,
     places: places.value,
     wardrobe: wardrobe.value,
+    inventory: inventory.value,
+    comfort: comfort.value,
     trips: trips.value,
     ratings: ratings.value,
   };
@@ -137,6 +149,8 @@ export function importBundle(b: unknown): void {
   settings.value = { ...DEFAULT_SETTINGS, ...x.settings, notify: keepNotify };
   places.value = Array.isArray(x.places) ? x.places : [];
   wardrobe.value = Array.isArray(x.wardrobe) ? x.wardrobe : [];
+  inventory.value = x.inventory && typeof x.inventory === 'object' ? x.inventory : {};
+  comfort.value = { ...DEFAULT_COMFORT, ...x.comfort };
   trips.value = Array.isArray(x.trips) ? x.trips : [];
   ratings.value = Array.isArray(x.ratings) ? x.ratings : [];
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Daniel Woo
 
-export type Level = 'low' | 'moderate' | 'high' | 'very high';
+export type AirLevel = 'low' | 'moderate' | 'high' | 'very high';
 
 export interface AirSample {
   grass?: number;
@@ -15,7 +15,7 @@ export interface AirSample {
 export interface AirChip {
   id: 'grass' | 'tree' | 'weed' | 'aqi';
   label: string;
-  level: Level;
+  level: AirLevel;
 }
 
 // Grains/m³. Grass follows Met Office bands; tree and weed use the bands
@@ -29,7 +29,7 @@ const POLLEN: Record<'grass' | 'tree' | 'weed', [number, number, number]> = {
 // European AQI: 40 is where "fair" turns to "moderate".
 const AQI: [number, number, number] = [40, 60, 80];
 
-export function level(value: number, [m, h, vh]: [number, number, number]): Level {
+export function level(value: number, [m, h, vh]: [number, number, number]): AirLevel {
   if (value >= vh) return 'very high';
   if (value >= h) return 'high';
   if (value >= m) return 'moderate';

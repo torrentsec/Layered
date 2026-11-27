@@ -39,6 +39,8 @@ const WINDOW: Record<Activity, [string, number]> = {
   running: ['07:00', 2],
   hiking: ['09:00', 8],
   night: ['19:00', 5],
+  office: ['08:00', 2],
+  indoors: ['11:00', 2],
 };
 
 export function datesBetween(start: string, end: string): string[] {

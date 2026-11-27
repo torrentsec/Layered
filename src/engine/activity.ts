@@ -14,6 +14,10 @@ export const ACTIVITY_OFFSET: Record<Activity, number> = {
   hiking: 3,
   // Lighter outerwear and a lot of standing about outside venues.
   night: -1,
+  // The few minutes outside are mostly spent waiting at stops and crossings, not moving.
+  office: -1,
+  // Dressed for a quick trip to the shop: too short to cool down or warm up.
+  indoors: 0,
 };
 
 export const ACTIVITY_LABEL: Record<Activity, string> = {
@@ -24,6 +28,29 @@ export const ACTIVITY_LABEL: Record<Activity, string> = {
   running: 'Running',
   hiking: 'Hiking',
   night: 'Night out',
+  office: 'Office day',
+  indoors: 'Staying in',
 };
 
-export const ACTIVITIES = Object.keys(ACTIVITY_OFFSET) as Activity[];
+// Everyday choices first, so the chips visible before scrolling are the useful ones.
+export const ACTIVITIES: Activity[] = ['walking', 'office', 'transport', 'cycling', 'indoors', 'standing', 'running', 'hiking', 'night'];
+
+/**
+ * Hours outside that a day of this activity usually means. Indoor days only
+ * meet the weather in short stretches, so a long window would dress you for
+ * an afternoon spent at a desk.
+ */
+export const ACTIVITY_EXPOSURE: Partial<Record<Activity, number>> = {
+  office: 2,
+  indoors: 2,
+};
+
+export type CommuteMode = Extract<Activity, 'walking' | 'cycling' | 'transport'>;
+
+export const COMMUTE_MODES: CommuteMode[] = ['walking', 'cycling', 'transport'];
+
+export const COMMUTE_MODE_LABEL: Record<CommuteMode, string> = {
+  walking: 'Walk',
+  cycling: 'Cycle',
+  transport: 'Public transport',
+};

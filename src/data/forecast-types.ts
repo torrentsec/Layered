@@ -26,6 +26,8 @@ export interface Forecast {
   hours: Hour[];
   days: DayInfo[];
   fetchedAt: number;
+  /** Which provider answered; absent on copies saved before the fallback existed. */
+  source?: 'open-meteo' | 'met-norway';
 }
 
 export const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
@@ -127,6 +129,7 @@ export function parseForecast(raw: RawForecast, fetchedAt = Date.now()): Forecas
     hours,
     days,
     fetchedAt,
+    source: 'open-meteo',
   };
 }
 

@@ -14,9 +14,11 @@ import { initTheme } from './theme';
 import { printBanner } from './banner';
 import { runWardrobeMigration } from './data/migrate';
 import { watchPushSettings } from './screens/settings/Notifications';
+import { startHistory } from './state/history';
 
 runWardrobeMigration();
 initTheme();
 printBanner();
 watchPushSettings();
+startHistory();
 render(<App />, document.getElementById('app')!);

@@ -7,7 +7,7 @@
  * personal from the first day the flag is on.
  */
 
-import { SENSITIVITY_OFFSET, type ComfortProfile } from '../comfort';
+import { sensitivityOffset, type ComfortProfile } from '../comfort';
 import type { Activity, Rating } from '../types';
 import { migrateOffsetToClo, updateBias } from './bias';
 import type { BiasState } from './types';
@@ -22,9 +22,7 @@ export const MOSTLY_INDOORS: readonly Activity[] = ['office', 'indoors'];
  * offsets of §8.1, not to this one scalar.
  */
 export function biasPrior(comfort: ComfortProfile, manualOffset: number): BiasState {
-  // Imported or synced profiles may carry a sensitivity from a later version.
-  const sensitivity = SENSITIVITY_OFFSET[comfort.sensitivity] ?? 0;
-  return migrateOffsetToClo(sensitivity + (Number.isFinite(manualOffset) ? manualOffset : 0));
+  return migrateOffsetToClo(sensitivityOffset(comfort) + (Number.isFinite(manualOffset) ? manualOffset : 0));
 }
 
 const isVote = (v: unknown): v is -1 | 0 | 1 => v === -1 || v === 0 || v === 1;

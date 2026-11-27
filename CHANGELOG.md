@@ -2,6 +2,19 @@
 
 All notable changes are listed here, grouped by release (one release per Sprint from 0.3.0). The format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.3.0] — Sprint 1
+
+### Added
+- Category wardrobe inventory: quantities per thickness, "don't own" kept separate from "not set", insulation, water and wind properties, materials, outerwear nicknames, a completeness bar, and migration from v1 named items.
+- Engine stages 2 and 3: requirements (insulation target, wind protection, rain tolerance, footwear, bottoms, removable layers) matched to the clothes you own, with limitations and an alternative.
+- Comfort profile (feel the cold, average, run warm, plus preferences) and a skippable first-run flow.
+- Today shows your own clothes, wardrobe gaps, a Suggested/Alternative switch and a clearer "Why this?".
+- Office day and Staying in activities; commute travel mode.
+- MET Norway fallback through `/api/forecast`; "Updated HH:MM" always shown.
+- Own service worker with push handlers; one-time iOS install hint.
+- Share the day as a 1080×1350 poster.
+- Sync between devices with a code (D1); Delete my data.
+
 ## [0.2.0] — pre-Scrum
 
 ### Added

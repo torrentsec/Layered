@@ -4,6 +4,7 @@
 import { patchSettings, settings } from '../../data/store';
 import { engineOf, type EngineChoice } from '../../data/engine-choice';
 import { Segmented } from '../../components/Segmented';
+import '../../styles/engine.css';
 
 const LABEL = 'Work out what to wear with';
 
@@ -22,7 +23,7 @@ export function EngineSection() {
   return (
     <>
     <h2 class="group-title">Advice</h2>
-    <div class="card">
+    <div class="card engine-choice">
       {/* The segmented control's own legend is hidden, so this is the visible copy of it. */}
       <p aria-hidden="true" style={{ margin: '0 0 8px' }}>{LABEL}</p>
       <Segmented<EngineChoice> label={LABEL} value={engine} options={OPTIONS} onChange={(e) => patchSettings({ engine: e })} />

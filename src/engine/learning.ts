@@ -23,12 +23,21 @@ const round1 = (n: number) => (Math.sign(n) * Math.round(Math.abs(n) * 10)) / 10
  * day it is given and decays from there.
  */
 export function learnOffset(ratings: Rating[], today: string): number {
+  return settle(learnSum(ratings, today));
+}
+
+/** The votes' pull on `today` before the cap and rounding. */
+export function learnSum(ratings: Rating[], today: string): number {
   let sum = 0;
   for (const r of ratings) {
     if (r.rating === 0) continue;
     const weight = 0.5 ** (daysBetween(r.date, today) / LEARN_HALF_LIFE_DAYS);
     sum += r.rating * LEARN_STEP * weight;
   }
+  return sum;
+}
+
+function settle(sum: number): number {
   const capped = Math.max(-LEARN_CAP, Math.min(LEARN_CAP, sum));
   return round1(capped) + 0; // + 0 turns -0 into 0
 }
@@ -42,6 +51,37 @@ export function learnedFor(ratings: Rating[], activity: Activity, today: string)
   const own = ratings.filter((r) => r.activity === activity);
   if (own.length >= ACTIVITY_MIN_RATINGS) return { offset: learnOffset(own, today), from: 'activity' };
   if (ratings.length) return { offset: learnOffset(ratings, today), from: 'all' };
+  return { offset: 0, from: 'none' };
+}
+
+/**
+ * What learnedFor needs, without the votes or their dates: the summed pull of
+ * all votes and of each activity rated often enough to have its own, as of
+ * `at`. Every vote decays at the same rate, so the sums age exactly. This is
+ * how the device hands its learning to the push Worker.
+ */
+export interface LearnSnapshot {
+  at: string;
+  all: number;
+  /** Whether there are any votes, so a zero sum still reads as "learned from all". */
+  any: boolean;
+  by: Partial<Record<Activity, number>>;
+}
+
+export function learnSnapshot(ratings: Rating[], today: string): LearnSnapshot {
+  const by: Partial<Record<Activity, number>> = {};
+  const own = new Map<Activity, Rating[]>();
+  for (const r of ratings) own.set(r.activity, [...(own.get(r.activity) ?? []), r]);
+  for (const [a, rs] of own) if (rs.length >= ACTIVITY_MIN_RATINGS) by[a] = learnSum(rs, today);
+  return { at: today, all: learnSum(ratings, today), any: ratings.length > 0, by };
+}
+
+/** learnedFor from a snapshot, aged to `today`. */
+export function learnedFromSnapshot(s: LearnSnapshot, activity: Activity, today: string): Learned {
+  const age = 0.5 ** (daysBetween(s.at, today) / LEARN_HALF_LIFE_DAYS);
+  const own = s.by[activity];
+  if (own !== undefined) return { offset: settle(own * age), from: 'activity' };
+  if (s.any) return { offset: settle(s.all * age), from: 'all' };
   return { offset: 0, from: 'none' };
 }
 

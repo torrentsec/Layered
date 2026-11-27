@@ -25,7 +25,7 @@ export function AboutSection() {
         <span class="meta num">{__APP_VERSION__}</span>
       </div>
     </div>
-    <p class="group-foot" style={{ textAlign: 'center', marginTop: '24px' }}>Made in Woolwich by torrentsec</p>
+    <p class="group-foot" style={{ textAlign: 'center', marginTop: '24px' }}>Made in London by torrentsec</p>
     </>
   );
 }

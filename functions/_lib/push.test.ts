@@ -65,10 +65,10 @@ describe('subscribe validation', () => {
 
   it('strips fields the Worker does not need', () => {
     const extra = request();
-    (extra.profile as unknown as Record<string, unknown>).name = 'Daniel';
+    (extra.profile as unknown as Record<string, unknown>).name = 'Alex';
     (extra as unknown as Record<string, unknown>).email = 'x@example.com';
     const r = parse(extra);
-    expect(r.ok && JSON.stringify(r.body)).not.toMatch(/Daniel|example/);
+    expect(r.ok && JSON.stringify(r.body)).not.toMatch(/Alex|example/);
   });
 
   it('checks sizes: 8 KB by body and by header', async () => {

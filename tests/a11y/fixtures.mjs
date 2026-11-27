@@ -46,7 +46,7 @@ export function forecast() {
     daily.wind_gusts_10m_max.push(35);
     daily.weather_code.push(wet ? 80 : 2);
   }
-  return { latitude: 51.49, longitude: 0.07, timezone: 'Europe/London', utc_offset_seconds: 0, hourly, daily };
+  return { latitude: 51.51, longitude: -0.13, timezone: 'Europe/London', utc_offset_seconds: 0, hourly, daily };
 }
 
 export function airQuality() {
@@ -55,5 +55,5 @@ export function airQuality() {
 }
 
 export function geocoding() {
-  return { results: [{ id: 1, name: 'Woolwich', admin1: 'England', country: 'United Kingdom', latitude: 51.49, longitude: 0.07 }] };
+  return { results: [{ id: 1, name: 'London', admin1: 'England', country: 'United Kingdom', latitude: 51.51, longitude: -0.13 }] };
 }

@@ -66,7 +66,7 @@ Only one seam, a single line in Settings. That's the lowest yet.
 **Inspected in production:**
 - The page, the service worker, `humans.txt` and the HTML signature.
 - `/api/push/key`, `/api/forecast` (MET Norway), and a full `/api/sync` round trip.
-- The live site in a browser with **real weather**: Woolwich, feels −2° to −1° (actual 2° to 3°), "Bundle up", no console errors.
+- The live site in a browser with **real weather**: London, feels −2° to −1° (actual 2° to 3°), "Bundle up", no console errors.
 
 **Hygiene before release:**
 - All 45 commits are authored by torrentsec.

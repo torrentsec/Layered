@@ -9,7 +9,7 @@ const measure: Measure = (t, f) => t.length * Number(/(\d+)px/.exec(f)![1]) * 0.
 const at = (size: number) => `500 ${size}px Jost`;
 
 const day: PosterData = {
-  place: 'Woolwich',
+  place: 'London',
   dateLabel: 'Thu 26 Nov',
   feelsLabel: 'Feels 3° / 9°',
   verdict: 'Coat weather',
@@ -92,7 +92,7 @@ describe('layoutPoster', () => {
 
   it('includes the place, date, feels range, verdict and wordmark', () => {
     const all = layoutPoster(day, measure).text.map((t) => t.text);
-    expect(all).toEqual(expect.arrayContaining(['Woolwich', 'Thu 26 Nov', 'Feels 3° / 9°', 'layered']));
+    expect(all).toEqual(expect.arrayContaining(['London', 'Thu 26 Nov', 'Feels 3° / 9°', 'layered']));
     expect(all.join(' ')).toContain('Coat weather');
   });
 });

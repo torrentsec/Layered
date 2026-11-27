@@ -5,7 +5,7 @@ Layered turns your local forecast into what to wear, from the clothes you actual
 **Live:** https://layered-a9i.pages.dev
 
 <p align="center">
-  <img src="docs/images/today.png" width="260" alt="Today in Woolwich: feels 1°, Bundle up. Thermal base, thick jumper and a heavy coat, with your navy wool coat named in the list.">
+  <img src="docs/images/today.png" width="260" alt="Today in London: feels 1°, Bundle up. Thermal base, thick jumper and a heavy coat, with your navy wool coat named in the list.">
   <img src="docs/images/week.png" width="260" alt="Week: tomorrow's outfit, then each of the next 16 days with its verdict, rain chance and feels-like range.">
   <img src="docs/images/wardrobe.png" width="260" alt="Wardrobe: 10 of 23 categories set, with quantities per thickness for each category.">
 </p>

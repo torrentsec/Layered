@@ -6,8 +6,8 @@ import { expect, RETURNING, seed, test } from './fixtures';
 test('first run: pick a place, skip the rest, and Today gives a verdict', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Where are you?' })).toBeVisible();
-  await page.getByRole('searchbox').fill('Woolwich');
-  await page.getByRole('button', { name: /Woolwich/ }).click();
+  await page.getByRole('searchbox').fill('London');
+  await page.getByRole('button', { name: /London/ }).click();
   await expect(page.getByRole('heading', { name: 'How do you feel the cold?' })).toBeVisible();
   await page.getByRole('button', { name: 'Skip setup' }).click();
 

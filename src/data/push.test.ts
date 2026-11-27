@@ -81,7 +81,7 @@ function deps(server: ReturnType<typeof fakeServer>, over: Partial<PushDeps> & {
     requestPermission: vi.fn(async () => 'granted' as NotificationPermission),
     registration: async () => ({ pushManager }) as unknown as ServiceWorkerRegistration,
     request: (subscription, id) =>
-      buildSubscribeRequest({ subscription, place: { lat: 51.4934, lon: 0.0098 }, tz: 'Europe/London', settings: settingsWith(), comfort: DEFAULT_COMFORT, id }),
+      buildSubscribeRequest({ subscription, place: { lat: 51.5072, lon: -0.1276 }, tz: 'Europe/London', settings: settingsWith(), comfort: DEFAULT_COMFORT, id }),
     ...over,
   };
   return { d, pushManager, sub };
@@ -109,7 +109,7 @@ describe('base64UrlToBytes', () => {
 
 describe('request building', () => {
   it('rounds coordinates to two decimals', () => {
-    expect(roundCoord(51.4934)).toBe(51.49);
+    expect(roundCoord(51.5072)).toBe(51.51);
     expect(roundCoord(-0.1278)).toBe(-0.13);
     expect(roundCoord(0.005)).toBe(0.01);
   });
@@ -146,10 +146,10 @@ describe('request building', () => {
   });
 
   it('builds a full subscribe request, with the id only when updating', () => {
-    const base = { subscription: SUB, place: { lat: 51.4934, lon: 0.0098 }, tz: 'Europe/London', settings: settingsWith(), comfort: DEFAULT_COMFORT };
+    const base = { subscription: SUB, place: { lat: 51.5072, lon: -0.1276 }, tz: 'Europe/London', settings: settingsWith(), comfort: DEFAULT_COMFORT };
     const fresh = buildSubscribeRequest(base);
     expect(fresh).not.toHaveProperty('id');
-    expect(fresh).toMatchObject({ subscription: SUB, lat: 51.49, lon: 0.01, tz: 'Europe/London', schedule: { morning: '07:00' } });
+    expect(fresh).toMatchObject({ subscription: SUB, lat: 51.51, lon: -0.13, tz: 'Europe/London', schedule: { morning: '07:00' } });
     expect(buildSubscribeRequest({ ...base, id: 's9' }).id).toBe('s9');
   });
 
@@ -159,13 +159,13 @@ describe('request building', () => {
   });
 
   it('signs only what the server uses, so a new endpoint alone does not re-post', () => {
-    const base = { place: { lat: 51.4934, lon: 0.0098 }, tz: 'Europe/London', settings: settingsWith(), comfort: DEFAULT_COMFORT };
+    const base = { place: { lat: 51.5072, lon: -0.1276 }, tz: 'Europe/London', settings: settingsWith(), comfort: DEFAULT_COMFORT };
     const a = requestSignature(buildSubscribeRequest({ ...base, subscription: SUB }));
     const b = requestSignature(buildSubscribeRequest({ ...base, subscription: { endpoint: 'other', keys: { p256dh: '', auth: '' } }, id: 'x' }));
     expect(a).toBe(b);
-    const moved = requestSignature(buildSubscribeRequest({ ...base, place: { lat: 51.52, lon: 0.0098 }, subscription: SUB }));
+    const moved = requestSignature(buildSubscribeRequest({ ...base, place: { lat: 51.52, lon: -0.1276 }, subscription: SUB }));
     expect(moved).not.toBe(a);
-    const nudged = requestSignature(buildSubscribeRequest({ ...base, place: { lat: 51.4912, lon: 0.0098 }, subscription: SUB }));
+    const nudged = requestSignature(buildSubscribeRequest({ ...base, place: { lat: 51.5051, lon: -0.1276 }, subscription: SUB }));
     expect(nudged).toBe(a);
   });
 
@@ -304,7 +304,7 @@ describe('enablePush', () => {
     const opts = (pushManager.subscribe.mock.calls[0] as unknown as [PushSubscriptionOptionsInit])[0];
     expect(opts.userVisibleOnly).toBe(true);
     expect([...(opts.applicationServerKey as Uint8Array)]).toEqual([1, 2, 3]);
-    expect(s.bodies[0]).toMatchObject({ lat: 51.49, lon: 0.01, tz: 'Europe/London', subscription: SUB });
+    expect(s.bodies[0]).toMatchObject({ lat: 51.51, lon: -0.13, tz: 'Europe/London', subscription: SUB });
   });
 
   it('calls requestPermission synchronously, inside the tap', () => {

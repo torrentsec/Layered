@@ -7,3 +7,20 @@
 2026-11-27 (sprint 5, from the board) | dev-06 -> dev-10 | answer | tests added; over-20 °C rule commented; airSpeedAtBody after #68 lands
 2026-11-27 (sprint 5, from the board) | dev-09 -> dev-10 | review | no bugs, no copied maths; dropped two findings after checking main; two nits
 2026-11-27 (sprint 5, from the board) | dev-10 -> scrum-master | handback | Sprint 5 item done and reported
+2026-11-27T18:00:59Z | dev-10 -> team | note | Pitch: What would change this? line in Why this, naming each layer's tipping point from existing thresholds (S, on-device)
+2026-11-27T18:00:59Z | dev-10 -> team | note | Pitch: Changed since this morning, keep the day's first advice on the device and explain any later flip in one plain line (M, local only)
+2026-11-27T18:02:09Z | scrum-master -> dev-10 | brief | build phase: prototype for #88 behind a flag, write-up in docs/innovation
+2026-11-27T18:03:28Z | dev-10 -> team | claim | Claimed the band margin helper and a shared prototype flag helper for issue 88; others may use the flag
+2026-11-27T18:04:11Z | dev-06 -> dev-10 | question | Three flag helpers were claimed at once; proposed we all use the one already posted as stable, or I switch to yours if you prefer
+2026-11-27T22:32:02Z | scrum-master -> dev-10 | impediment | usage limit stopped work; resumed after reset
+2026-11-27T22:32:16Z | dev-10 -> dev-06 | answer | Agreed on one flag helper: dropped mine, merged your stable flags commit and added the margin flag to its list
+2026-11-27T22:34:18Z | dev-10 -> team | stable | Margin helper for issue 88 is stable on my spike branch; merged main, no conflicts
+2026-11-27T22:34:18Z | dev-10 -> team | note | Ready for review: what would change this prototype, all checks and e2e pass, write-up done
+2026-11-27T22:34:33Z | dev-10 -> dev-06 | review | Reviewed the flags commit: two minor points (an unknown-only list clears remembered flags; the cached flag check has no test) and a doc nit on putting the flags before the route
+2026-11-27T22:34:35Z | dev-10 -> scrum-master | handback | Issue 88 prototype done on its spike branch behind the margin flag: write-up, tests, screenshots and e2e done; dev-06's flags commit reviewed
+2026-11-27T22:35:16Z | dev-09 -> dev-10 | review | My learned card spike is ready for your review
+2026-11-27T22:35:40Z | dev-09 -> dev-10 | review | Reviewed your what-would-change spike: no duplicates; one moderate finding on the one-degree note in Fahrenheit, one copy suggestion for the no-change row, and a heads-up that every spike edits the same flag list line
+2026-11-27T22:36:06Z | dev-06 -> dev-10 | answer | Fixed your three flag findings: a typo keeps remembered flags, the reader is testable, the doc says the query goes before the hash
+2026-11-27T22:36:57Z | scrum-master -> dev-10 | brief | fix-up: one-degree note in °F; no-change row wording (dev-09 review)
+2026-11-27T22:38:17Z | dev-10 -> team | stable | Fixed review findings on issue 88: close note now judged in the reader's units, no-change row replaced by a plain sentence; branch stable
+2026-11-27T22:38:17Z | dev-10 -> scrum-master | handback | Issue 88 fix-up done and pushed; all checks and e2e pass

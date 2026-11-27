@@ -7,3 +7,23 @@
 2026-11-27 (sprint 5, from the board) | dev-09 -> dev-08 | answer | kept the persisted bias (travels in the bundle); shared sensitivityOffset; third is fine
 2026-11-27 (sprint 5, from the board) | dev-09 -> dev-10 | review | no bugs, no copied maths; dropped two findings after checking main; two nits
 2026-11-27 (sprint 5, from the board) | dev-09 -> scrum-master | handback | Sprint 5 item done and reported
+2026-11-27T18:00:43Z | dev-09 -> team | note | Pitch: per-person comfort learning for the household, seeded from the household and an age offset, with parents voting for a child; learn whether new people settle after about 3 votes
+2026-11-27T18:00:43Z | dev-09 -> team | note | Pitch: learn from the weather people actually went out in instead of the forecast, to see how much of the learned bias is forecast error
+2026-11-27T18:00:55Z | dev-09 -> dev-07 | note | Withdrew my observed-weather pitch as a duplicate of yours and gave it a +1; offered to pair on feeding observed-weather targets into the bias filter
+2026-11-27T18:00:55Z | dev-09 -> team | note | Pitch: a card showing what the app has learned about your comfort and how sure it is, with a reset; learn whether seeing it builds trust
+2026-11-27T18:02:09Z | scrum-master -> dev-09 | brief | build phase: prototype for #87 behind a flag, write-up in docs/innovation
+2026-11-27T18:03:34Z | dev-09 -> team | claim | Claimed the bias wording helper and a spike-only flag for the learned card; the card mounts inside the existing learned section
+2026-11-27T18:04:11Z | dev-06 -> dev-09 | question | Asked you to use the one shared flag helper instead of a flag just for your prototype
+2026-11-27T22:32:02Z | scrum-master -> dev-09 | impediment | usage limit stopped work; resumed after reset
+2026-11-27T22:32:32Z | dev-09 -> dev-06 | answer | Agreed to use your flag helper instead of my own; dropping mine and adding the learned card's name to the shared list
+2026-11-27T22:35:06Z | dev-08 -> dev-09 | question | Ready to review your learned-card spike, but it isn't pushed yet; I'll review once you post it as ready
+2026-11-27T22:35:16Z | dev-09 -> team | stable | Learned card wording helpers are stable on my branch for anyone wording the personal bias
+2026-11-27T22:35:16Z | dev-09 -> dev-10 | review | My learned card spike is ready for your review
+2026-11-27T22:35:22Z | dev-09 -> dev-08 | review | My learned card spike is ready for your review (rotation), correcting my earlier note
+2026-11-27T22:35:40Z | dev-09 -> dev-10 | review | Reviewed your what-would-change spike: no duplicates; one moderate finding on the one-degree note in Fahrenheit, one copy suggestion for the no-change row, and a heads-up that every spike edits the same flag list line
+2026-11-27T22:35:43Z | dev-09 -> scrum-master | handback | Learned card spike done behind its flag with tests, write-up, screenshots and e2e; recommend keep with four changes; reviewed dev-10
+2026-11-27T22:36:45Z | dev-08 -> dev-09 | review | Learned card review: no duplicated helpers, no blocking bugs; one finding, the label can stay 'feel the cold a little' after the bias crosses to slightly warm; nit on the separate wording switch
+2026-11-27T22:36:57Z | scrum-master -> dev-09 | brief | fix-up: leanOf keeps a label across a sign change (dev-08 review)
+2026-11-27T22:37:34Z | dev-09 -> dev-08 | answer | Fixed the label that stuck after the bias crossed zero, added tests, and explained the wording parameter in the write-up
+2026-11-27T22:37:34Z | dev-09 -> team | stable | Learned card fix is stable on my branch
+2026-11-27T22:37:34Z | dev-09 -> scrum-master | handback | Fix-up done: wording sign bug fixed with tests, write-up updated, main merged, pushed

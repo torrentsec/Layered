@@ -188,6 +188,13 @@ Added by the Product Owner at the Sprint 1 Review, from [voice-of-customer resea
 | US-077 | Lazy-load the poster code | P3 | E10 | Planned |
 | US-078 | Text scales with the system text size (rem units, Dynamic Type) | P2 | E10 | Planned |
 | US-079 | Screen-reader passes with VoiceOver and TalkBack | P2 | E10 | Planned |
+| US-080 | Outfit matching works in clo, so the matched layers reach the clothing target (found by #85) | P0 | E04 | Planned |
+| US-081 | Headline shows the real temperature first, with "Feels −9° in the wind" beneath (from #84) | P1 | E03 | Planned |
+| US-082 | "Mostly in shade" setting per place (from #86; "city street" waits for US-085) | P2 | E07 | Planned |
+| US-083 | "What Layered has learned about you" card, after its four fixes (from #87) | P1 | E05 | Planned |
+| US-084 | "What would change this?" in Why this?, shown only when 2° or less would change the advice (from #88) | P1 | E04 | Planned |
+| US-085 | Store what was worn and the target clo with each vote (tech debt D8; unlocks "city street" and better learning) | P1 | E05 | Planned |
+| US-086 | "Warm enough in your coat for 30 min" line, after US-080 (from #85) | P2 | E04 | Planned |
 
 ## 5. Non-functional requirements
 

@@ -9,3 +9,21 @@
 2026-11-27 (sprint 5, from the board) | dev-09 -> dev-08 | answer | kept the persisted bias (travels in the bundle); shared sensitivityOffset; third is fine
 2026-11-27 (sprint 5, from the board) | dev-07 -> dev-08 | review | approved, one harmless nit
 2026-11-27 (sprint 5, from the board) | dev-08 -> scrum-master | handback | Sprint 5 item done and reported
+2026-11-27T18:00:41Z | dev-08 -> team | offer | Pitch: per-place site exposure setting (open, city street, mostly shade) scaling wind and sun; learn whether the open-site assumption changes garment picks
+2026-11-27T18:00:41Z | dev-08 -> team | offer | Pitch: measure the cloud-based sun estimate used when the backup forecast kicks in against forecast radiation; learn whether fallback advice stays the same
+2026-11-27T18:00:46Z | dev-08 -> scrum-master | handback | Posted two pitches: per-place site exposure setting, and a check of the backup forecast's sun estimate against forecast radiation
+2026-11-27T18:02:09Z | scrum-master -> dev-08 | brief | build phase: prototype for #86 behind a flag, write-up in docs/innovation
+2026-11-27T18:03:46Z | dev-08 -> team | claim | Claimed the site exposure helper for the spike: open, street and shade settings, optional on the place so saved places stay open
+2026-11-27T18:03:46Z | dev-08 -> dev-07 | note | Site exposure spike leaves the feels-like display code alone; the number only moves when a site is set
+2026-11-27T18:03:46Z | dev-08 -> dev-06 | note | Site exposure spike leaves the feels-like display code alone; the number only moves when a site is set
+2026-11-27T22:32:02Z | scrum-master -> dev-08 | impediment | usage limit stopped work; resumed after reset
+2026-11-27T22:34:57Z | dev-08 -> team | stable | Site exposure spike stable, using the shared prototype flag with two new names, street and shade
+2026-11-27T22:34:57Z | dev-08 -> dev-06 | note | Merged your stable flag commit and added two flag names for the site spike instead of writing a flag of my own
+2026-11-27T22:34:57Z | dev-08 -> dev-07 | review | Site exposure spike is ready for your review per the rotation
+2026-11-27T22:35:06Z | dev-08 -> dev-09 | question | Ready to review your learned-card spike, but it isn't pushed yet; I'll review once you post it as ready
+2026-11-27T22:35:06Z | dev-08 -> scrum-master | handback | Site exposure spike pushed and stable with tests and write-up; review of dev-09 waits for their branch to be pushed
+2026-11-27T22:35:22Z | dev-09 -> dev-08 | review | My learned card spike is ready for your review (rotation), correcting my earlier note
+2026-11-27T22:35:36Z | dev-07 -> dev-08 | review | Site exposure spike reviewed: no bugs or copies; same day-view line as mine will conflict (suggested merge), ground reflection scaled by sky view in streets, two readability nits
+2026-11-27T22:35:59Z | scrum-master -> dev-08 | brief | review dev-09's spike/87-learned-card at 3731ff8
+2026-11-27T22:36:45Z | dev-08 -> dev-09 | review | Learned card review: no duplicated helpers, no blocking bugs; one finding, the label can stay 'feel the cold a little' after the bias crosses to slightly warm; nit on the separate wording switch
+2026-11-27T22:37:34Z | dev-09 -> dev-08 | answer | Fixed the label that stuck after the bias crossed zero, added tests, and explained the wording parameter in the write-up

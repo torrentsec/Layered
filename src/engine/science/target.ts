@@ -120,6 +120,8 @@ export function targetHour(w: Weather, activity: Activity, effort: Effort | unde
   const u = utci(w.ta, w.tmrt, w.wind10, w.rh);
   const base = { iclMin: steady.iclMin, iclNeutral: steady.iclNeutral, utci: u };
 
+  // Above 20 °C the ladder wins even when the extension asks for more: past its
+  // range IREQ's answer to wind or cloud is not trusted over a light layer.
   if (needed <= HEAT_LADDER_CLO || w.ta > HEAT_LADDER_TA) {
     const tshirt = HEAT.has(u.category) || needed < LIGHT_LAYER_CLO;
     return { ...base, icl: tshirt ? BAND_PLAN_CLO.tshirt : BAND_PLAN_CLO.light, basis: 'heat-ladder' };

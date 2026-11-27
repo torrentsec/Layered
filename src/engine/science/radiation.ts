@@ -206,3 +206,10 @@ export const meanRadiantTemp: MeanRadiantTempFn = (ta, rh, cloud, sun, rad) => {
 
 /** m/s at 1.1 m from m/s at 10 m. */
 export const windAtBody: WindAtBodyFn = (wind10) => nonNeg(wind10) * WIND_BODY_FACTOR;
+
+/**
+ * Relative air speed at the body, m/s, for IREQ's `va`. A cyclist meets their
+ * own ride speed on top of the wind; head- and tailwind legs are taken to
+ * average out, which overdresses the way back a little (thermal-model §5.2).
+ */
+export const airSpeedAtBody = (wind10: number, ride = 0): number => windAtBody(wind10) + nonNeg(ride);

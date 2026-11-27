@@ -14,8 +14,8 @@ const forecast: Forecast = { lat: 51.5, lon: -0.1, timezone: 'Europe/London', ut
 const DATE = '2026-11-26';
 
 const routine = (over: Partial<Routine>): Routine => ({ id: 'dog', name: 'Dog walk', time: '18:00', hours: 0.5, days: [4], activity: 'walking', ...over });
+// The band cases pin their engine so they keep checking band numbers whatever the default is.
 const ctx = (over: { settings?: Partial<Settings>; routines?: Routine[]; activity?: Settings['activity']; effort?: 'easy' | 'steady' | 'hard' } = {}) => ({
-  // These pin band-engine numbers (effective °C), so they ask for bands now science is the default.
   settings: { ...DEFAULT_SETTINGS, engine: 'bands' as const, ...over.settings },
   ratings: [],
   inventory: {},

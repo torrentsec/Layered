@@ -100,8 +100,10 @@ Tests: 698 → 1,480. Typecheck, lint and build pass. `ireq` runs in about 0.003
 - **Graphify was stale.** The index was built at `e4ea976`, before the contracts, so Developers fell back to `rg`.
 - **External checks came too late.** Open-Meteo's daily quota for this network was spent before anyone confirmed the new variable names live.
 - **Tool connections dropped.** The GitHub connection failed after a session restart and came back only later.
+- **Duplicated code, raised by the stakeholder.** `windAtBody` was written twice, once in `radiation.ts` (dev-05) and once privately in `clothing.ts` (dev-04), then reconciled at integration with a refactor and a test change. That is effort spent three times on one line. **Root cause was the SM's:** Planning landed the function's type but not its body, both stories needed it in the same wave, and dev-04's brief told them to write a local copy. The two copies also disagreed (0.68 against 0.6805). A one-line helper on `main` at Planning would have cost less than any of the three passes.
 
 **Improvements committed for Sprint 5**
 1. Re-index Graphify at `main` at every Sprint Planning, before Developers start.
 2. A spike runs each formula against its acceptance tests before the formula goes into the backlog.
 3. Confirm external API field names with one live request at Planning, before the build wave.
+4. **No duplicate implementations.** At Planning the SM lists every function more than one story in the wave calls. Small ones (a few lines) land on `main` with tests before branching; larger ones get one owner, and the others code against the contract and a test double, never a copy. Briefs never say "implement it locally". The SM checks each hand-back with `rg` for re-implemented contract functions before integrating.

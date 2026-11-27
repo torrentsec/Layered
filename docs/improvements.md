@@ -22,6 +22,7 @@ Every Sprint Retrospective adds at least one improvement here. Each one is plann
 | 16 | Sprint 4 | Re-index Graphify at `main` at every Sprint Planning | Sprint 5 | Pending |
 | 17 | Sprint 4 | A spike runs each formula against its acceptance tests before writing it into the backlog | Sprint 5 | Pending |
 | 18 | Sprint 4 | Confirm external API field names with one live request at Planning | Sprint 5 | Pending |
+| 19 | Sprint 4 (stakeholder) | No duplicate implementations: shared helpers land on `main` at Planning, larger ones get one owner; briefs never ask for local copies | Sprint 5 | Pending |
 
 ## Metrics we watch
 

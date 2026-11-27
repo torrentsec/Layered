@@ -114,8 +114,8 @@ export function planDayFor(f: PlanForecast, date: string, p: PlanInput, now: str
     advice = advise({ ...base, hours, ...(science ? { science: { ...science, exposureHours: p.duration } } : {}) });
     dayLegs.push(
       isToday
-        ? { id: 'day', label: 'Rest of the day', phrase: 'the rest of the day', activity, effort, hours }
-        : { id: 'day', label: 'The day', phrase: 'the day', activity, effort, hours },
+        ? { id: 'day', label: 'Rest of the day', phrase: 'the rest of the day', activity, effort, hours, exposureHours: p.duration }
+        : { id: 'day', label: 'The day', phrase: 'the day', activity, effort, hours, exposureHours: p.duration },
     );
   }
 

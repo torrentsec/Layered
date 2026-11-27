@@ -88,6 +88,12 @@ export interface Leg {
   hours: Hour[];
   /** Local start when it isn't on the hour, for display ("2026-11-26T08:15"). */
   start?: string;
+  /**
+   * Hours actually spent outside, for the science engine. A half-hour walk
+   * across an hour boundary touches two forecast hours but is still half an hour.
+   * Missing means the leg's hours.
+   */
+  exposureHours?: number;
 }
 
 /**
@@ -109,7 +115,7 @@ export function routineLegs<R extends RoutineSpec & { id: string }>(hours: Hour[
   const legs: Leg[] = [];
   for (const r of routinesOn(routines, date)) {
     const h = routineHours(hours, date, r, now);
-    if (h.length) legs.push({ id: r.id, label: r.name, phrase: routinePhrase(r.name), activity: r.activity, effort: r.effort, hours: h, start: `${date}T${r.time}` });
+    if (h.length) legs.push({ id: r.id, label: r.name, phrase: routinePhrase(r.name), activity: r.activity, effort: r.effort, hours: h, start: `${date}T${r.time}`, exposureHours: clampRoutineHours(r.hours) });
   }
   return legs;
 }
@@ -136,12 +142,24 @@ function joinPhrases(p: string[]): string {
   return p.length < 2 ? (p[0] ?? '') : `${p.slice(0, -1).join(', ')} and ${p[p.length - 1]}`;
 }
 
+/**
+ * The leg's coldest reading in the engine that dressed it, so a note agrees
+ * with "Why this?": UTCI at the UTCI-coldest hour under the science engine.
+ */
+function coldestReading(a: Advice): { feels: number; time: string } {
+  const u = a.science?.utci.utci;
+  return a.science && u !== undefined && Number.isFinite(u) ? { feels: u, time: a.science.coldestHour } : { feels: a.minFeels, time: a.why.coldestHour };
+}
+
 function detail(e: Extra, la: LegAdvice, fmt: TimeFormatter, deg: DegreeFormatter): string {
   if (e.tone === 'rain') {
     const wet = firstWet(la.leg.hours);
     return wet ? ` — ${wetWord(la.leg.hours)} from ${fmt(wet.time)}` : '';
   }
-  if (e.tone === 'cold') return ` — feels ${deg(la.advice.minFeels)} at ${fmt(la.advice.why.coldestHour)}`;
+  if (e.tone === 'cold') {
+    const c = coldestReading(la.advice);
+    return ` — feels ${deg(c.feels)} at ${fmt(c.time)}`;
+  }
   return '';
 }
 
@@ -161,7 +179,8 @@ export function adviseLegs(
 ): LegsAdvice | null {
   const judged: LegAdvice[] = [];
   for (const leg of legs) {
-    const a = advise({ ...base, activity: leg.activity, effort: leg.effort, hours: leg.hours });
+    const science = base.science && leg.exposureHours !== undefined ? { science: { ...base.science, exposureHours: leg.exposureHours } } : {};
+    const a = advise({ ...base, activity: leg.activity, effort: leg.effort, hours: leg.hours, ...science });
     if (a) judged.push({ leg, advice: a, coldest: false });
   }
   if (!judged.length) return null;
@@ -192,7 +211,7 @@ export function adviseLegs(
       if (SKIP_IN_NOTES.has(e.id)) continue;
       const needing = judged.filter((j) => j.advice.extras.some((x) => x.id === e.id));
       if (needing.length === judged.length) continue;
-      const worst = needing.reduce((a, b) => (b.advice.minFeels < a.advice.minFeels ? b : a));
+      const worst = needing.reduce((a, b) => (coldestReading(b.advice).feels < coldestReading(a.advice).feels ? b : a));
       notes.push(`${e.label} for ${joinPhrases(needing.map((j) => j.leg.phrase))}${needing.length === 1 ? detail(e, worst, fmt, deg) : ''}`);
     }
     if (bandRank(cold.advice.band) !== bandRank(warm.advice.band)) {

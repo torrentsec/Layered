@@ -38,7 +38,7 @@ export function planInput(p: PushProfile, today: boolean): PlanInput {
     ...(p.learned ? { learned: p.learned } : {}),
     comfort: p.comfort,
     // Without the device's number, the same starting point the device had before any vote.
-    bias: p.bias !== undefined ? { mean: p.bias, count: 0 } : biasPrior(p.comfort, p.manualOffset),
+    bias: p.bias !== undefined ? { mean: p.bias, count: p.biasCount ?? 0 } : biasPrior(p.comfort, p.manualOffset),
     // Today plans with routines, other days without, as Today and the Week do.
     ...(today && p.routines?.length ? { routines: p.routines.map((r, i) => ({ ...r, id: `r${i}`, name: '' })) } : {}),
   };

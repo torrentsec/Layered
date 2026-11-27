@@ -172,7 +172,7 @@ function TripDetail({ trip, onEdit }: { trip: TripT; onEdit: () => void }) {
   const title = trip.name || orderedStops(trip.stops).map((x) => x.place.name).join(' → ') || 'Trip';
   const engine = engineOf(s);
   const bias = cloBias.value;
-  const sig = JSON.stringify([trip.stops, trip.activities, s.manualOffset, engine, bias.mean]);
+  const sig = JSON.stringify([trip.stops, trip.activities, s.manualOffset, engine, bias.mean, bias.count, garmentWarmth.value]);
 
   useEffect(() => {
     let live = true;

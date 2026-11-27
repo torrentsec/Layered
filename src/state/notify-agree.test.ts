@@ -92,7 +92,7 @@ function app(c: Case, date: string) {
   // Today plans with routines; other days without, as DayView does.
   const today = date === '2026-11-26';
   const plan = planDay(forecast, date, { settings, ratings, inventory: {}, comfort, bias, ...(today ? { routines: c.routines } : {}) });
-  const req = buildSubscribeRequest({ subscription: SUB, place: forecast, tz: 'Europe/London', settings, comfort, learning: { bias: bias.mean, ratings, routines: c.routines } });
+  const req = buildSubscribeRequest({ subscription: SUB, place: forecast, tz: 'Europe/London', settings, comfort, learning: { bias: bias.mean, biasCount: bias.count, ratings, routines: c.routines } });
   const parsed = parseSubscribe(new TextEncoder().encode(JSON.stringify(req)).buffer as ArrayBuffer);
   if (!parsed.ok) throw new Error(parsed.message);
   return { plan, profile: parsed.body.profile, settings };
@@ -112,6 +112,8 @@ describe('a notification agrees with the app', () => {
         expect(worker?.advice.effective).toBe(plan?.advice.effective);
         expect(worker?.advice.requirements?.clo?.icl).toBe(plan?.advice.requirements?.clo?.icl);
         expect(worker?.advice.extras.map((e) => e.id)).toEqual(plan?.advice.extras.map((e) => e.id));
+        // "Why this?" too, vote count included.
+        expect(worker?.advice.science).toEqual(plan?.advice.science);
         expect(bodyFor(worker!, profile, 'today')).toBe(notificationText(plan!.advice, plan!.dayHours, timeFmt(settings.units.clock), 'today'));
       });
     }

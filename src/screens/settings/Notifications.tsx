@@ -35,6 +35,9 @@ import { toast } from '../../components/Toast';
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
 const EXAMPLE = 'Coat + umbrella today · showers from 16:00';
 const SIG_KEY = 'layered:v1:pushSignature';
+// Same list as the README's Privacy section; say it where people turn notifications on.
+const SENT =
+  'So the note matches the app, the server keeps your place (to about a kilometre), schedule and settings, your routines without their names, and a few numbers learned from your ratings. Never your wardrobe or the ratings themselves. Turning notifications off deletes it.';
 // Without a service worker (blocked, or still installing) `ready` never settles.
 const SW_WAIT_MS = 10_000;
 
@@ -72,7 +75,7 @@ const deps: PushDeps = {
       tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
       settings: settings.peek(),
       comfort: comfort.peek(),
-      learning: { bias: cloBias.peek().mean, ratings: ratings.peek(), routines: routines.peek() },
+      learning: { bias: cloBias.peek().mean, biasCount: cloBias.peek().count, ratings: ratings.peek(), routines: routines.peek() },
       id,
     });
   },
@@ -114,7 +117,7 @@ export function watchPushSettings(): () => void {
   return effect(() => {
     const s = settings.value;
     const c = comfort.value;
-    const learning = { bias: cloBias.value.mean, ratings: ratings.value, routines: routines.value };
+    const learning = { bias: cloBias.value.mean, biasCount: cloBias.value.count, ratings: ratings.value, routines: routines.value };
     const place = currentPlace.value;
     const id = s.notify.subscriptionId;
     if (!s.notify.enabled || !id || !place) return;
@@ -160,9 +163,9 @@ function footnote(status: NotifyStatus, message: string | null, time: string): s
     case 'disabling':
       return 'Turning off…';
     case 'on':
-      return `Sent at ${time} local time on the days you pick. Your place goes to the server rounded to about a kilometre.`;
+      return `Sent at ${time} local time on the days you pick. ${SENT}`;
     case 'off':
-      return message ?? 'A short note each morning with what to wear. Your place goes to the server rounded to about a kilometre.';
+      return message ?? `A short note each morning with what to wear. ${SENT}`;
   }
 }
 

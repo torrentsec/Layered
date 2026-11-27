@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Daniel Woo
 
 import { describe, expect, it } from 'vitest';
-import { rainSummary } from '../rain';
+import { chanceNote, rainSummary, wetFrom } from '../rain';
 import { adviseCommute } from '../commute';
 import { legWindow, selectWindow } from '../window';
 import { fmt12 } from '../time';
@@ -14,23 +14,55 @@ const wetAt = (wet: number[], start = 8, count = 14) =>
 describe('rain timing', () => {
   it('dry all day', () => expect(rainSummary(wetAt([]))).toBe('Dry all day'));
   it('dry for a short range', () => expect(rainSummary(wetAt([], 8, 4))).toBe('Dry until 11:00'));
-  it('dry until, then rain', () => expect(rainSummary(wetAt([15, 16, 17, 18, 19, 20, 21]))).toBe('Dry until 15:00, then rain'));
-  it('calls short bursts showers', () => expect(rainSummary(wetAt([19, 20, 21]))).toBe('Dry until 19:00, then showers'));
-  it('rain clearing', () => expect(rainSummary(wetAt([8, 9]))).toBe('Showers clearing by 10:00'));
-  it('rain easing and returning', () => expect(rainSummary(wetAt([8, 9, 17]))).toBe('Showers easing by 10:00, back from 17:00'));
-  it('a single spell', () => expect(rainSummary(wetAt([12, 13]))).toBe('Showers 12:00–14:00, otherwise dry'));
-  it('on and off', () => expect(rainSummary(wetAt([10, 14, 18]))).toBe('Dry until 10:00, then on and off showers'));
-  it('wet throughout', () => expect(rainSummary(wetAt([8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]))).toBe('Rain all day'));
+  it('dry until, then rain', () =>
+    expect(rainSummary(wetAt([15, 16, 17, 18, 19, 20, 21]))).toBe('Dry until about 15:00, then rain (80% chance)'));
+  it('short bursts are showers from around a time', () =>
+    expect(rainSummary(wetAt([19, 20, 21]))).toBe('Showers from around 19:00 (80% chance)'));
+  it('rain clearing', () => expect(rainSummary(wetAt([8, 9]))).toBe('Showers clearing by about 10:00'));
+  it('rain easing and returning', () =>
+    expect(rainSummary(wetAt([8, 9, 17]))).toBe('Showers easing by about 10:00, back from around 17:00 (80% chance)'));
+  it('a single spell', () =>
+    expect(rainSummary(wetAt([12, 13]))).toBe('Showers from around 12:00 to 14:00, otherwise dry (80% chance)'));
+  it('on and off', () => expect(rainSummary(wetAt([10, 14, 18]))).toBe('On and off showers from around 10:00 (80% chance)'));
+  it('wet throughout', () =>
+    expect(rainSummary(wetAt([8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]))).toBe('Rain all day (80% chance)'));
+  it('wet for a short range', () => expect(rainSummary(wetAt([8, 9, 10, 11], 8, 4))).toBe('Rain until 11:00 (80% chance)'));
   it('uses shower codes', () => {
     const h = day(14, (i) => (i >= 6 ? { precipProb: 70, precip: 0.5, code: 80 } : {}));
-    expect(rainSummary(h)).toBe('Dry until 14:00, then showers');
+    expect(rainSummary(h)).toBe('Showers from around 14:00 (70% chance)');
+  });
+  it('drizzle', () => {
+    const h = day(14, (i) => (i >= 6 ? { precipProb: 50, precip: 0.1, code: 51 } : {}));
+    expect(rainSummary(h)).toBe('Dry until about 14:00, then drizzle (50% chance)');
   });
   it('snow', () => {
     const h = day(14, (i) => (i >= 6 ? { snow: 1, code: 73 } : {}));
-    expect(rainSummary(h)).toBe('Dry until 14:00, then snow');
+    expect(rainSummary(h)).toBe('Dry until about 14:00, then snow');
   });
-  it('honours the 12-hour clock', () => expect(rainSummary(wetAt([15, 16, 17, 18, 19, 20, 21]), fmt12)).toBe('Dry until 3pm, then rain'));
+  it('honours the 12-hour clock', () =>
+    expect(rainSummary(wetAt([15, 16, 17, 18, 19, 20, 21]), fmt12)).toBe('Dry until about 3pm, then rain (80% chance)'));
+  it('honours the 12-hour clock for spells', () =>
+    expect(rainSummary(wetAt([12, 13]), fmt12)).toBe('Showers from around 12pm to 2pm, otherwise dry (80% chance)'));
   it('empty', () => expect(rainSummary([])).toBe(''));
+});
+
+describe('rain chance', () => {
+  const withProbs = (probs: number[], precip = 1) => day(probs.length, (i) => ({ precipProb: probs[i], precip }));
+  it('uses the peak of the wet hours', () => expect(chanceNote(withProbs([45, 72.4, 60]))).toBe(' (72% chance)'));
+  it('starts at 40%', () => expect(chanceNote(withProbs([40], 0))).toBe(' (40% chance)'));
+  it('is left off when rain is near certain', () => expect(chanceNote(withProbs([60, 95]))).toBe(''));
+  it('is left off when only the measured amount says wet', () => expect(chanceNote(withProbs([20, 30]))).toBe(''));
+  it('is left off when dry', () => expect(chanceNote(day(4))).toBe(''));
+  it('ignores the chance of dry hours', () => {
+    const h = day(3, (i) => (i === 0 ? { precipProb: 35 } : { precipProb: 50, precip: 0.2 }));
+    expect(chanceNote(h)).toBe(' (50% chance)');
+  });
+});
+
+describe('wet from', () => {
+  it('words the first wet hour approximately', () => expect(wetFrom(wetAt([15, 16, 17, 18, 19]))).toBe('rain from around 15:00'));
+  it('honours the 12-hour clock', () => expect(wetFrom(wetAt([15]), fmt12)).toBe('showers from around 3pm'));
+  it('is undefined when dry', () => expect(wetFrom(wetAt([]))).toBeUndefined());
 });
 
 describe('windows', () => {
@@ -67,7 +99,7 @@ describe('commute', () => {
     expect(c.advice.extras.map((e) => e.id)).toContain('umbrella');
   });
   it('flags differences between legs', () => {
-    expect(c.notes).toContain('Umbrella for the way home — showers from 17:00');
+    expect(c.notes).toContain('Umbrella for the way home — showers from around 17:00');
     expect(c.notes.some((n) => n.startsWith('Colder on the way there'))).toBe(true);
   });
   it('picks the return leg when it is colder', () => {

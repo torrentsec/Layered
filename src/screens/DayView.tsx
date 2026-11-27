@@ -11,6 +11,7 @@ import { rainSummary } from '../engine/rain';
 import { localNow } from '../engine/time';
 import type { Activity, Effort } from '../engine/types';
 import { planDay, restOfDay } from '../state/advice';
+import { placeOf } from '../data/day-plan';
 import { feelsRange, heroReading, hourlyFeels } from '../data/why-science';
 import { ExtraChips, FeelsActual, HourlyStrip, LayerList, Limitations, WhyBody } from '../components/AdviceParts';
 import { Hero } from '../components/Hero';
@@ -56,9 +57,8 @@ export function DayView({ forecast, date, activity, duration, commute, effort, r
   const rain = restOfDay(plan.dayHours, date);
   const maxRain = Math.max(0, ...advice.hours.map((h) => h.precipProb));
   const hero = heroReading(advice, units.temp);
-  // The place planDay hands the science engine, so window hours match "Why this?".
-  const place = { lat: forecast.lat, lon: forecast.lon, utcOffsetSeconds: forecast.utcOffsetSeconds };
-  const stripFeels = advice.science ? hourlyFeels(plan.dayHours, advice, place) : undefined;
+  // The same place the planner hands the science engine, so window hours match "Why this?".
+  const stripFeels = advice.science ? hourlyFeels(plan.dayHours, advice, placeOf(forecast)) : undefined;
 
   return (
     <>

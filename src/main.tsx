@@ -6,7 +6,9 @@ import './styles/app.css';
 import { App } from './App';
 import { initTheme } from './theme';
 import { printBanner } from './banner';
+import { runWardrobeMigration } from './data/migrate';
 
+runWardrobeMigration();
 initTheme();
 printBanner();
 render(<App />, document.getElementById('app')!);

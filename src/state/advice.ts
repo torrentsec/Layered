@@ -104,8 +104,8 @@ export function planDay(f: Forecast, date: string, ctx: Ctx): DayPlan | null {
     advice = advise({ ...base, hours, ...(science ? { science: { ...science, exposureHours: duration } } : {}) });
     dayLegs.push(
       isToday
-        ? { id: 'day', label: 'Rest of the day', phrase: 'the rest of the day', activity, effort, hours }
-        : { id: 'day', label: 'The day', phrase: 'the day', activity, effort, hours },
+        ? { id: 'day', label: 'Rest of the day', phrase: 'the rest of the day', activity, effort, hours, exposureHours: duration }
+        : { id: 'day', label: 'The day', phrase: 'the day', activity, effort, hours, exposureHours: duration },
     );
   }
 

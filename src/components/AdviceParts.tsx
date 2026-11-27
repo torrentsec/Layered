@@ -25,7 +25,6 @@ function LayerRows({ layers }: { layers: LayerAdvice[] }) {
               {t.title}
               {t.sub && <span class="sub">{t.sub}</span>}
             </span>
-            {l.item?.color && <span class="swatch" style={{ background: l.item.color }} aria-hidden="true" />}
             {t.general && <span class="optional general">general advice</span>}
             {l.optional && <span class="optional">optional</span>}
           </li>
@@ -69,7 +68,7 @@ export function ExtraChips({ advice, units }: { advice: Advice; units: Units }) 
       {advice.extras.map((e) => (
         <li class={`chip ${e.tone}`} key={e.id}>
           <i aria-hidden="true" />
-          {e.item ? e.item.name : localiseWind(e.label, units.wind)}
+          {localiseWind(e.label, units.wind)}
         </li>
       ))}
     </ul>

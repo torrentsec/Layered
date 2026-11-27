@@ -8,7 +8,7 @@
  * survives reloads and hash navigation; `?flags=` turns them all off. Routes
  * are hash-based, so the query goes before the hash: `/?flags=margin#/today`.
  */
-export const FLAGS = ['feels-in-clothes'] as const;
+export const FLAGS = ['feels-in-clothes', 'feels-familiar', 'feels-actual'] as const;
 export type Flag = (typeof FLAGS)[number];
 
 export const FLAGS_KEY = 'layered:flags';

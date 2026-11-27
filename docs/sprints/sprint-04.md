@@ -59,12 +59,49 @@ The spike couldn't reach the primary sources. The SM allowed `link.springer.com`
 
 ## Daily Scrum
 
-_Recorded per wave._
+One build wave of five Developers, all in their own worktrees. The SM held a stand-up at each hand-back and stacked each branch onto `integration/sprint-4` as it landed.
+
+| Developer | Item | State at hand-back | Decisions and blockers raised |
+|---|---|---|---|
+| dev-01 | #64 forecast variables | Done | Open-Meteo docs blocked; variable names match the spike. Live check refused by the daily quota, so it carries to Sprint 5 Planning |
+| dev-05 | #63 radiation | Done | **PO:** the night cap also applies to estimated (MET Norway) hours. SolarCal cross-check left out: it uses different geometry, 6–38 K apart in strong sun |
+| dev-02 | #60 UTCI and bias | Done | **PO accepted** an optional `BiasState.dayMean`: the backlog's update formula failed its own order-independence test |
+| dev-04 | #62 clothing and metabolic | Done | Four spike errors corrected (Compendium code 17190, walking M 157.5, walk bound capped at 1.2 m/s, umbrella 0 clo). **PO accepted** the estimated wet factors for water-resistant outers |
+| dev-03 | #61 IREQ and DLE | Done | Qlim unit in the docs corrected to 40 W·h/m². "Minimal floor" read as DLE_min for the same exposure |
+
+Integration seam (1): `clothing.ts` carried a private copy of `windAtBody` because `radiation.ts` didn't exist yet. The SM replaced it with the shared function and updated its test.
 
 ## Sprint Review
 
-_After the Increment is deployed._
+**Increment:** `src/engine/science/` now holds UTCI, IREQ/DLE, clothing insulation, metabolic rates, radiation and the personal bias filter, and the forecast carries humidity, cloud and radiation. Nothing user-facing changes yet; S7 puts the model behind a flag in Sprint 5.
+
+**Sprint Goal met.** Every module matches its reference fixtures within tolerance:
+
+| Module | Fixture | Max error | Tolerance |
+|---|---|---|---|
+| `utci.ts` | 1,080 in-range rows | 0.005 °C | 0.05 °C |
+| `ireq.ts` | cases, DLE sweep, extrapolated | 0.0005 clo, 0.005 h | 0.05 clo, 0.1 h |
+| `clothing.ts` | garments, ensembles, 120-row correction grid | within | 0.001–0.05 clo |
+| `radiation.ts` | every `mrt.json` row | within | per row |
+
+Tests: 698 → 1,480. Typecheck, lint and build pass. `ireq` runs in about 0.003 ms a call; 384 hours of UTCI take about 0.5 ms.
+
+**Carried to Sprint 5:** verify the six Open-Meteo variable names with a live request; add cycling ride speed to `ensembleClo` (S7); replay stored ratings into the bias filter (S7).
 
 ## Sprint Retrospective
 
-_After the Review._
+**What went well**
+- **Fixture-first science.** Every module was judged against independent reference values, and every Developer reported a number. No integration debate about whether a formula was right.
+- **Five of five Done, one seam.** The only seam was a helper duplicated across two new files.
+- **Developers caught the plan's mistakes.** Five errors in the spike and backlog were found and fixed by checking against sources, not by guessing.
+
+**What didn't**
+- **The plan was wrong in five places.** The bias formula contradicted its own acceptance test; a Compendium code, a walking rate, a walking-speed rule and a unit were wrong. The spike wrote formulas down without running them against their acceptance tests.
+- **Graphify was stale.** The index was built at `e4ea976`, before the contracts, so Developers fell back to `rg`.
+- **External checks came too late.** Open-Meteo's daily quota for this network was spent before anyone confirmed the new variable names live.
+- **Tool connections dropped.** The GitHub connection failed after a session restart and came back only later.
+
+**Improvements committed for Sprint 5**
+1. Re-index Graphify at `main` at every Sprint Planning, before Developers start.
+2. A spike runs each formula against its acceptance tests before the formula goes into the backlog.
+3. Confirm external API field names with one live request at Planning, before the build wave.

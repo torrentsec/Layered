@@ -49,3 +49,19 @@ export function learnedFor(ratings: Rating[], activity: Activity, today: string)
 export function addRating(ratings: Rating[], next: Rating): Rating[] {
   return [...ratings.filter((r) => !(r.date === next.date && r.activity === next.activity)), next];
 }
+
+export interface ActivityOffset {
+  activity: Activity;
+  offset: number;
+  count: number;
+}
+
+/** Activities with enough ratings of their own to have their own offset, most rated first. */
+export function activityOffsets(ratings: Rating[], today: string): ActivityOffset[] {
+  const by = new Map<Activity, Rating[]>();
+  for (const r of ratings) by.set(r.activity, [...(by.get(r.activity) ?? []), r]);
+  return [...by]
+    .filter(([, own]) => own.length >= ACTIVITY_MIN_RATINGS)
+    .map(([activity, own]) => ({ activity, offset: learnOffset(own, today), count: own.length }))
+    .sort((a, b) => b.count - a.count);
+}

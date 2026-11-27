@@ -10,7 +10,8 @@ import type { Activity, Advice, Effort, Hour } from '../engine/types';
 import type { Forecast } from '../data/forecast-types';
 import { timeFmt, weekday } from '../data/format';
 import { fmtTemp } from '../data/units';
-import type { Routine, Settings } from '../data/store';
+import { garmentWarmth, type Routine, type Settings } from '../data/store';
+import type { GarmentWarmth } from '../engine/garment-learning';
 import type { Rating } from '../engine/types';
 import type { Inventory } from '../engine/inventory';
 import type { ComfortProfile } from '../engine/comfort';
@@ -36,6 +37,8 @@ interface Ctx {
   commute?: boolean;
   /** Saved routines; those scheduled on `date` become extra legs (US-066). */
   routines?: Routine[];
+  /** Defaults to the persisted learned warmth, so every screen dresses you the same way. */
+  garmentWarmth?: GarmentWarmth;
 }
 
 /**
@@ -50,7 +53,7 @@ export function planDay(f: Forecast, date: string, ctx: Ctx): DayPlan | null {
   const now = localNow(f.utcOffsetSeconds);
   const isToday = now.startsWith(date);
   const fmt = timeFmt(s.units.clock);
-  const shared = { manualOffset: s.manualOffset, ratings: ctx.ratings, today: now.slice(0, 10), inventory: ctx.inventory, comfort: ctx.comfort };
+  const shared = { manualOffset: s.manualOffset, ratings: ctx.ratings, today: now.slice(0, 10), inventory: ctx.inventory, comfort: ctx.comfort, garmentWarmth: ctx.garmentWarmth ?? garmentWarmth.value };
   const base = { ...shared, activity, effort };
   const hourNow = now.slice(0, 13);
   const live = (hs: Hour[]) => !isToday || hs.some((h) => h.time.slice(0, 13) >= hourNow);

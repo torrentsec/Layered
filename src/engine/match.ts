@@ -3,6 +3,7 @@
 
 import { BANDS } from './bands';
 import { category, ownership, THICKNESSES, type CategoryId, type Inventory, type Level, type Thickness, type WaterResistance } from './inventory';
+import { garmentKey, LAYERS_KEY, type GarmentWarmth } from './garment-learning';
 import type { Requirements } from './requirements';
 import type { Extra, LayerAdvice, LayerKind } from './types';
 
@@ -18,6 +19,9 @@ export interface Match {
 }
 
 export const POINTS: Record<Thickness, number> = { thin: 1, medium: 2, thick: 3 };
+
+/** Points a garment actually gives: its thickness plus what feedback has taught about it (US-039). */
+export const effectivePoints = (id: CategoryId, t: Thickness, learned: GarmentWarmth = {}): number => POINTS[t] + (learned[garmentKey(id, t)] ?? 0);
 
 /** Missing the insulation target costs more than going over it: cold is worse than warm. */
 export const COST = {
@@ -92,6 +96,11 @@ const LABELS: Partial<Record<CategoryId, Record<Thickness, string>>> = {
   coat: { thin: 'Light coat', medium: 'Coat', thick: 'Heavy coat' },
   'waterproof-jacket': { thin: 'Waterproof shell', medium: 'Waterproof jacket', thick: 'Insulated waterproof' },
 };
+/** Display name for a garment, as the advice would show it. */
+export function garmentLabel(id: CategoryId, t?: Thickness): string {
+  return (t && LABELS[id]?.[t]) ?? PLAIN_LABEL[id] ?? category(id).name;
+}
+
 const PLAIN_LABEL: Partial<Record<CategoryId, string>> = {
   shorts: 'Shorts',
   'light-trousers': 'Light trousers',
@@ -154,23 +163,24 @@ function statusOf(inv: Inventory, prefs: Prefs, options: unknown[]): Slot['statu
   return (Object.keys(prefs) as CategoryId[]).some((id) => ownership(inv, id) === 'unknown') ? 'unknown' : 'none';
 }
 
-function upperOptions(inv: Inventory, prefs: Prefs, planned: Thickness, r: Requirements, kind: LayerKind): Option[] {
+function upperOptions(inv: Inventory, prefs: Prefs, planned: Thickness, r: Requirements, kind: LayerKind, learned: GarmentWarmth): Option[] {
   const out: Option[] = [];
   for (const [id, pref] of Object.entries(prefs) as [CategoryId, number][]) {
     for (const t of THICKNESSES) {
       if (ownership(inv, id, t) !== 'owned') continue;
-      let cost = pref + Math.abs(POINTS[t] - POINTS[planned]) * COST.thickness;
+      const points = effectivePoints(id, t, learned);
+      let cost = pref + Math.abs(points - POINTS[planned]) * COST.thickness;
       if (kind === 'outer') {
         if (wet(r)) cost += WATER_COST[water(inv, id)];
         if (r.wind !== 'none') cost += WIND_COST[wind(inv, id)] * (r.wind === 'high' ? 2 : 1);
       }
-      out.push({ category: id, thickness: t, points: POINTS[t], cost, water: water(inv, id) });
+      out.push({ category: id, thickness: t, points, cost, water: water(inv, id) });
     }
   }
   return out;
 }
 
-function upperSlots(r: Requirements, inv: Inventory): Slot[] {
+function upperSlots(r: Requirements, inv: Inventory, learned: GarmentWarmth): Slot[] {
   const generic = (BANDS.find((b) => b.id === r.band) ?? BANDS[BANDS.length - 1]).layers;
   const genericFor = (kind: LayerKind, fallback: string): LayerAdvice => generic.find((l) => l.kind === kind) ?? { kind, label: fallback };
   const plan: [LayerKind, Thickness | null, Prefs, boolean, string][] = [
@@ -181,7 +191,7 @@ function upperSlots(r: Requirements, inv: Inventory): Slot[] {
   const slots: Slot[] = [];
   for (const [kind, planned, prefs, optional, fallback] of plan) {
     if (!planned) continue;
-    const options = upperOptions(inv, prefs, planned, r, kind);
+    const options = upperOptions(inv, prefs, planned, r, kind, learned);
     const status = statusOf(inv, prefs, options);
     // A light layer you don't own isn't worth mentioning.
     if (optional && status === 'none') continue;
@@ -194,7 +204,7 @@ function layerFor(inv: Inventory, slot: Slot, o: Option | undefined): LayerAdvic
   if (!o?.category) {
     return { ...slot.generic, thickness: slot.planned, owned: slot.status === 'none' ? 'none' : 'unknown' };
   }
-  const label = (o.thickness && LABELS[o.category]?.[o.thickness]) ?? PLAIN_LABEL[o.category] ?? category(o.category).name;
+  const label = garmentLabel(o.category, o.thickness);
   const nickname = slot.kind === 'outer' ? inv[o.category]?.nickname?.trim() : undefined;
   return {
     kind: slot.kind,
@@ -215,7 +225,7 @@ interface Combo {
   waterRank: number;
 }
 
-function combos(slots: Slot[], r: Requirements): Combo[] {
+function combos(slots: Slot[], target: number): Combo[] {
   const choices = slots.map((s) => (s.options.length ? s.options : [undefined]));
   const out: Combo[] = [];
   const walk = (i: number, picks: (Option | undefined)[]) => {
@@ -229,8 +239,8 @@ function combos(slots: Slot[], r: Requirements): Combo[] {
         if (p) cost += p.cost;
         if (s.kind === 'outer' && p) waterRank = WATER_COST[p.water];
       });
-      const shortfall = Math.max(0, r.insulation - total);
-      const over = Math.max(0, total - r.insulation);
+      const shortfall = Math.max(0, target - total);
+      const over = Math.max(0, total - target);
       const insulationCost =
         shortfall * COST.shortfall + Math.max(0, over - COST.tolerance) * COST.overshoot + Math.min(over, COST.tolerance) * COST.slack;
       out.push({ picks, cost: cost + insulationCost, shortfall, insulationCost, waterRank });
@@ -285,10 +295,11 @@ function shellFor(inv: Inventory): LayerAdvice | undefined {
 const OUTER_IDS = Object.keys(OUTER_PREFS.thin) as CategoryId[];
 const sameLayer = (a?: Option, b?: Option) => a?.category === b?.category && a?.thickness === b?.thickness;
 
-export function matchInventory(r: Requirements, inv: Inventory = {}): Match {
+/** `learned` is the persisted garment warmth; its `layers` entry trims the insulation target. */
+export function matchInventory(r: Requirements, inv: Inventory = {}, learned: GarmentWarmth = {}): Match {
   const limitations: string[] = [];
-  const slots = upperSlots(r, inv);
-  const ranked = combos(slots, r);
+  const slots = upperSlots(r, inv, learned);
+  const ranked = combos(slots, r.insulation + (learned[LAYERS_KEY] ?? 0));
   const best = ranked[0];
   const upper = slots.map((s, i) => layerFor(inv, s, best.picks[i]));
 

@@ -289,3 +289,41 @@ describe('advise: redundant chips', () => {
     expect(ids(advise({ hours: gusty, activity: 'walking', inventory: inv }))).toContain('hood');
   });
 });
+
+describe('matchInventory: learned garment warmth (US-039)', () => {
+  const wardrobe: Inventory = { longsleeve: own('medium'), jumper: own('thin', 'medium', 'thick'), coat: own('medium', 'thick') };
+  const picks = (m: ReturnType<typeof matchInventory>) => m.layers.filter((l) => l.thickness).map((l) => `${l.category}:${l.thickness}`);
+
+  it('changes nothing when nothing is learned', () => {
+    for (const b of ['two', 'jacket', 'coat', 'bundle'] as const) {
+      expect(matchInventory(req(b), wardrobe, {})).toEqual(matchInventory(req(b), wardrobe));
+    }
+  });
+  it('reaches for a thicker jumper once the usual one runs cool', () => {
+    expect(picks(matchInventory(req('two'), wardrobe))).toEqual(['longsleeve:medium', 'jumper:medium']);
+    expect(picks(matchInventory(req('two'), wardrobe, { 'jumper:medium': -1 }))).toEqual(['longsleeve:medium', 'jumper:thick']);
+  });
+  it('lets a coat that runs warm stand in for a heavier one', () => {
+    expect(picks(matchInventory(req('bundle'), wardrobe))).toContain('coat:thick');
+    expect(picks(matchInventory(req('bundle'), wardrobe, { 'coat:medium': 1 }))).toContain('coat:medium');
+  });
+  it('stops counting on a heavy coat that runs cool', () => {
+    expect(picks(matchInventory(req('bundle'), wardrobe, { 'coat:thick': -1 }))).toContain('coat:medium');
+  });
+  it('trims layers after "too many layers"', () => {
+    expect(picks(matchInventory(req('jacket'), wardrobe))).toContain('jumper:medium');
+    expect(picks(matchInventory(req('jacket'), wardrobe, { layers: -0.5 }))).toContain('jumper:thin');
+  });
+  it('ignores learned warmth for garments not owned', () => {
+    expect(matchInventory(req('two'), wardrobe, { 'fleece:thick': 1 })).toEqual(matchInventory(req('two'), wardrobe));
+  });
+  it('is passed through advise', () => {
+    const mild = day(3, () => ({ feels: 13 }));
+    const base = advise({ hours: mild, activity: 'walking', inventory: wardrobe })!;
+    const learned = advise({ hours: mild, activity: 'walking', inventory: wardrobe, garmentWarmth: { 'jumper:medium': -1 } })!;
+    expect(base.requirements!.band).toBe('two');
+    expect(learned.effective).toBe(base.effective);
+    expect(base.layers.find((l) => l.kind === 'mid')?.thickness).toBe('medium');
+    expect(learned.layers.find((l) => l.kind === 'mid')?.thickness).toBe('thick');
+  });
+});

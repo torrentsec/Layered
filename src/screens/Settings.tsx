@@ -7,6 +7,7 @@ import { AppearanceSection } from './settings/Appearance';
 import { ComfortSection } from './settings/Comfort';
 import { DataSection } from './settings/Data';
 import { DefaultsSection } from './settings/Defaults';
+import { LearnedSection } from './settings/Learned';
 import { NotificationsSection } from './settings/Notifications';
 import { PlacesSection } from './settings/Places';
 import { RecordSection } from './settings/Record';
@@ -27,6 +28,7 @@ export function Settings() {
         <NotificationsSection />
         <RoutinesSection />
         <ComfortSection />
+        <LearnedSection />
         <RecordSection />
         <AppearanceSection />
         <SyncSection />

@@ -14,10 +14,10 @@
 | Item | Stories | Team | Developer | Reviewer |
 |---|---|---|---|---|
 | #14 Push backend: Worker, subscriptions, VAPID | US-042, US-043, US-061 | ■ | dev-10 | dev-07 |
-| #35 Notification settings and subscribe flow | US-042, US-061 | ■ | dev-07 | dev-10 |
-| #36 Routines and effort level | US-065, US-066, US-067 | ● | dev-01 | dev-03 |
-| #37 Honest rain timing, real temperature, certainty | US-068, US-069, US-025 | ● | dev-05 | dev-01 |
-| #38 Sprint 1 follow-ups and "missing for today" | US-015 + review findings | ● | dev-03 | dev-05 |
+| #36 Notification settings and subscribe flow | US-042, US-061 | ■ | dev-07 | dev-10 |
+| #37 Routines and effort level | US-065, US-066, US-067 | ● | dev-01 | dev-03 |
+| #38 Honest rain timing, real temperature, certainty | US-068, US-069, US-025 | ● | dev-05 | dev-01 |
+| #39 Sprint 1 follow-ups and "missing for today" | US-015 + review findings | ● | dev-03 | dev-05 |
 
 Five Developers, not ten (retro improvement 4). The other five carry no Sprint work and are free for refinement.
 

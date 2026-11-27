@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (c) 2026 Daniel Woo
+// Copyright (c) 2026 torrentsec
 
 // Sprint 5 golden days (docs/sprints/sprint-05.md), written by the PO before
 // the science engine existed. Each runs an Open-Meteo answer through

@@ -13,6 +13,7 @@ import {
   sunForHourMean,
   sunPosition,
   windAtBody,
+  airSpeedAtBody,
 } from '../radiation';
 import type { Radiation, SunPosition } from '../types';
 
@@ -181,5 +182,18 @@ describe('windAtBody', () => {
   it('never returns a negative speed', () => {
     expect(windAtBody(-2)).toBe(0);
     expect(windAtBody(Number.NaN)).toBe(0);
+  });
+});
+
+describe('airSpeedAtBody', () => {
+  it('adds ride speed to the wind at 1.1 m', () => {
+    expect(airSpeedAtBody(10, 5)).toBeCloseTo(windAtBody(10) + 5, 9);
+    expect(airSpeedAtBody(0, 5)).toBe(5);
+  });
+
+  it('is the body-height wind when not riding', () => {
+    expect(airSpeedAtBody(7)).toBe(windAtBody(7));
+    expect(airSpeedAtBody(7, -1)).toBe(windAtBody(7));
+    expect(airSpeedAtBody(7, Number.NaN)).toBe(windAtBody(7));
   });
 });

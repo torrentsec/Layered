@@ -31,6 +31,28 @@ test('simple bands keep the dress-for number on the hero', async ({ page }) => {
   await expect(page.locator('.hourly .a')).toHaveCount(0);
 });
 
+test('the learned card resets temperature learning and keeps garment marks', async ({ page }) => {
+  const mark = [{ category: 'jumper', thickness: 'medium', verdict: 'too-warm' }];
+  const vote = (date: string, extra = {}) => ({ date, rating: -1, effective: 6, activity: 'walking', ...extra });
+  await seed(page, {
+    ...RETURNING,
+    ratings: [vote('2026-11-20'), vote('2026-11-21', { corrections: mark }), vote('2026-11-22', { corrections: mark }), vote('2026-11-23'), vote('2026-11-24')],
+  });
+  await page.goto('/#/settings');
+  const card = page.locator('.learned-card');
+  await expect(card).toContainText('You feel the cold');
+  await expect(card).toContainText('from 5 ratings');
+  // The bands' °C row is not shown next to the card under the thermal model.
+  await expect(page.getByText('Learned from your feedback')).toHaveCount(0);
+  const garmentReset = page.locator('li.learned-row').getByRole('button', { name: /^Reset / });
+  await expect(garmentReset).toBeVisible();
+
+  await page.getByRole('button', { name: 'Reset temperature learning' }).click();
+  await expect(card).toContainText('From your comfort settings');
+  await expect(page.getByRole('button', { name: 'Reset temperature learning' })).toBeDisabled();
+  await expect(garmentReset).toBeVisible();
+});
+
 test.describe('returning user', () => {
   test.beforeEach(async ({ page }) => {
     await seed(page, RETURNING);

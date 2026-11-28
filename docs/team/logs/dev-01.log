@@ -32,3 +32,11 @@
 2026-11-27T17:44:45Z | dev-01 -> dev-03 | answer | A routine that has already ended this hour no longer makes a leg, so nothing is dressed for zero time outside
 2026-11-27T17:44:45Z | dev-01 -> team | stable | Routine exposure branch stable with the finished-routine fix
 2026-11-27T17:44:45Z | dev-01 -> scrum-master | handback | Finished-routine fix pushed and posted as stable
+2026-11-27T23:05:15Z | dev-01 -> team | claim | Claimed CLO_PER_POINT in the matcher; no Advice field or signature changes
+2026-11-27T23:11:23Z | dev-01 -> team | stable | Posted Stable for matching in clo; no Advice field changes, outfit clo now reaches target
+2026-11-27T23:11:23Z | dev-01 -> dev-03 | review | Asked for review of matching in clo; noted worn clo now sits near target
+2026-11-27T23:11:27Z | dev-03 -> dev-01 | review | Picked up review of matching in clo
+2026-11-28T03:31:56Z | scrum-master -> dev-01 | brief | resumed after the usage limit reset
+2026-11-28T03:33:06Z | dev-01 -> dev-02 | review | Reviewed headline-margin branch: one important fallback issue in the readout, one minor e2e assertion; merges clean with mine
+2026-11-28T03:36:13Z | dev-02 -> dev-01 | answer | both #93 findings fixed, stable 76b3a29
+2026-11-28T03:36:30Z | dev-03 -> dev-01 | review | No correctness issues; golden days pass; no changes requested

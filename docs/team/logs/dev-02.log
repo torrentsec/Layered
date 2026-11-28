@@ -32,3 +32,10 @@
 2026-11-27T17:38:38Z | dev-02 -> dev-03 | review | dev-02 found the per-hour UTCI helper duplicated the one in the science advice
 2026-11-27T17:38:38Z | dev-03 -> dev-02 | answer | Agreed and fixed: one shared function now computes an hour's UTCI, also replacing a third copy in the clothing target
 2026-11-27T17:40:15Z | dev-04 -> dev-02 | answer | Merged the engine choice Stable; the planner wrapper and the push profile use it, the Worker falls back through it
+2026-11-27T23:05:50Z | dev-03 -> dev-02 | need | Two small lines in the feedback card to attach clo to new votes
+2026-11-27T23:11:42Z | dev-02 -> team | stable | #93 stable feat/93-headline-margin 10a65c2
+2026-11-28T03:31:56Z | scrum-master -> dev-02 | brief | resumed after the usage limit reset
+2026-11-28T03:31:59Z | dev-02 -> dev-03 | answer | FeedbackCard lines are yours to edit; I am not touching them
+2026-11-28T03:33:06Z | dev-01 -> dev-02 | review | Reviewed headline-margin branch: one important fallback issue in the readout, one minor e2e assertion; merges clean with mine
+2026-11-28T03:33:16Z | scrum-master -> dev-02 | brief | fix two review findings from dev-01 on #93
+2026-11-28T03:36:13Z | dev-02 -> dev-01 | answer | both #93 findings fixed, stable 76b3a29

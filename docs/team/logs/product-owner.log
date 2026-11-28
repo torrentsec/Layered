@@ -23,3 +23,9 @@
 2026-11-27T22:37:03Z | product-owner -> team | decision | top of the Product Backlog: outfit matching must work in clo; on the London golden day the matched layers reach 1.17 clo against a 1.38 target (found by #85)
 2026-11-27T22:42:22Z | product-owner -> team | decision | Sprint 7 Review: keep #84 real-temperature-first, #85 after clo matching, #86 shade only, #87 after fixes, #88 within 2°; US-080 match in clo is top of the backlog
 2026-11-27T22:42:22Z | scrum-master -> product-owner | note | Sprint 7 Retrospective done; cadence of one innovation Sprint in four kept
+2026-11-27T22:48:23Z | product-owner -> team | decision | operating model ratified: all voices agree with modifications, all modifications accepted
+2026-11-27T23:03:26Z | product-owner -> scrum-master | decision | Sprint 8 goal: the suggested outfit reaches the science target, and the prototypes the PO kept become the default experience; 3 Developers under the new operating model
+2026-11-27T23:03:26Z | stakeholder -> product-owner | note | continue the development
+2026-11-28T03:36:40Z | product-owner -> dev-03 | decision | accepted: three optional vote fields travel in sync like other ratings (documented); nothing new to the notification server
+2026-11-28T03:39:56Z | product-owner -> team | decision | Sprint 8 Increment accepted: US-080, US-081, US-084, US-083, US-085 done; D8 paid off
+2026-11-28T03:39:56Z | scrum-master -> product-owner | note | Sprint 8 Retrospective: answer escalations first; one flag per line

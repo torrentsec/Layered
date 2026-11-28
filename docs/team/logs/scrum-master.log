@@ -83,3 +83,12 @@
 2026-11-27T22:47:26Z | reviewer -> scrum-master | note | Agree with modifications
 2026-11-27T22:47:30Z | dev-07 -> scrum-master | note | Agree with modifications: fix the screenshot script's query handling and add a worktree recovery step
 2026-11-27T22:47:32Z | team-circle -> scrum-master | note | Agree with modifications
+2026-11-27T22:48:23Z | scrum-master -> team | note | brief (1,380 words) replaced by a 282-word stable rules file and a one-page task spec template
+2026-11-27T22:53:10Z | scrum-master -> team | note | operating model merged to main (#91); team paused until the stakeholder resumes
+2026-11-27T23:03:26Z | product-owner -> scrum-master | decision | Sprint 8 goal: the suggested outfit reaches the science target, and the prototypes the PO kept become the default experience; 3 Developers under the new operating model
+2026-11-28T03:31:46Z | scrum-master -> team | impediment | usage limit stopped all three Developers; resume after reset
+2026-11-28T03:31:56Z | scrum-master -> dev-01 | brief | resumed after the usage limit reset
+2026-11-28T03:31:56Z | scrum-master -> dev-02 | brief | resumed after the usage limit reset
+2026-11-28T03:31:56Z | scrum-master -> dev-03 | brief | resumed after the usage limit reset
+2026-11-28T03:33:16Z | scrum-master -> dev-02 | brief | fix two review findings from dev-01 on #93
+2026-11-28T03:39:56Z | scrum-master -> product-owner | note | Sprint 8 Retrospective: answer escalations first; one flag per line

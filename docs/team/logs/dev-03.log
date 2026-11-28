@@ -42,3 +42,13 @@
 2026-11-27T17:46:04Z | scrum-master -> dev-03 | brief | fix-up: e2e smoke expects 'Dress for', hero now says 'Feels like' under the default engine
 2026-11-27T17:46:54Z | dev-03 -> team | stable | Posted a stable commit fixing the hero end-to-end check for both engines, with dev-02's and dev-04's branches merged
 2026-11-27T17:46:54Z | dev-03 -> scrum-master | handback | Hero end-to-end check updated for science and bands; all checks pass and the branch is pushed
+2026-11-27T23:05:50Z | dev-03 -> team | question | Privacy escalation for new rating fields in sync bundle; asked lead before building
+2026-11-27T23:05:50Z | dev-03 -> team | claim | Claimed clo-on-vote, temperature-only reset and one-pass card wording helpers
+2026-11-27T23:05:50Z | dev-03 -> dev-02 | need | Two small lines in the feedback card to attach clo to new votes
+2026-11-27T23:11:23Z | dev-01 -> dev-03 | review | Asked for review of matching in clo; noted worn clo now sits near target
+2026-11-27T23:11:27Z | dev-03 -> dev-01 | review | Picked up review of matching in clo
+2026-11-28T03:31:56Z | scrum-master -> dev-03 | brief | resumed after the usage limit reset
+2026-11-28T03:31:59Z | dev-02 -> dev-03 | answer | FeedbackCard lines are yours to edit; I am not touching them
+2026-11-28T03:36:30Z | dev-03 -> team | stable | Votes record clo and the learned card are stable
+2026-11-28T03:36:30Z | dev-03 -> dev-01 | review | No correctness issues; golden days pass; no changes requested
+2026-11-28T03:36:40Z | product-owner -> dev-03 | decision | accepted: three optional vote fields travel in sync like other ratings (documented); nothing new to the notification server

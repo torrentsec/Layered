@@ -12,15 +12,16 @@ test('first run: pick a place, skip the rest, and Today gives a verdict', async 
   await page.getByRole('button', { name: 'Skip setup' }).click();
 
   await expect(page.getByRole('navigation', { name: 'Sections' })).toBeVisible();
-  // Science is the default: the hero is the coldest hour's UTCI, the real temperature sits beside it,
-  // and "Why this?" opens with the same number.
-  const hero = page.locator('.readout .feels');
-  await expect(hero).toHaveText(/^Feels like -?\d+°$/);
-  await expect(page.locator('.readout .feels-label')).toContainText(/actual -?\d+° to -?\d+°/);
+  // Science is the default: the hero is the real temperature, with how it feels (UTCI) beneath,
+  // and "Why this?" opens with that same feels-like number.
+  await expect(page.locator('.readout .feels')).toHaveText(/^Actual -?\d+°$/);
+  await expect(page.locator('.readout .feels-label')).toContainText(/Air -?\d+° to -?\d+°/);
   await expect(page.locator('main')).toContainText(/coat|jacket|jumper/i);
-  const number = (await hero.textContent())!.replace('Feels like ', '');
+  const note = page.locator('.readout .feels-note');
+  await expect(note).toHaveText(/^Feels -?\d+°( in the (wind|sun))?$/);
+  const feels = (await note.textContent())!.match(/-?\d+°/)![0];
   await page.getByRole('button', { name: 'Why this?' }).click();
-  await expect(page.locator('.why-lead')).toContainText(`it will feel like ${number}`);
+  await expect(page.locator('.why-lead')).toContainText(`it will feel like ${feels}`);
 });
 
 test('simple bands keep the dress-for number on the hero', async ({ page }) => {
@@ -28,6 +29,28 @@ test('simple bands keep the dress-for number on the hero', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.readout .feels')).toHaveText(/^Dress for -?\d+°$/);
   await expect(page.locator('.hourly .a')).toHaveCount(0);
+});
+
+test('the learned card resets temperature learning and keeps garment marks', async ({ page }) => {
+  const mark = [{ category: 'jumper', thickness: 'medium', verdict: 'too-warm' }];
+  const vote = (date: string, extra = {}) => ({ date, rating: -1, effective: 6, activity: 'walking', ...extra });
+  await seed(page, {
+    ...RETURNING,
+    ratings: [vote('2026-11-20'), vote('2026-11-21', { corrections: mark }), vote('2026-11-22', { corrections: mark }), vote('2026-11-23'), vote('2026-11-24')],
+  });
+  await page.goto('/#/settings');
+  const card = page.locator('.learned-card');
+  await expect(card).toContainText('You feel the cold');
+  await expect(card).toContainText('from 5 ratings');
+  // The bands' °C row is not shown next to the card under the thermal model.
+  await expect(page.getByText('Learned from your feedback')).toHaveCount(0);
+  const garmentReset = page.locator('li.learned-row').getByRole('button', { name: /^Reset / });
+  await expect(garmentReset).toBeVisible();
+
+  await page.getByRole('button', { name: 'Reset temperature learning' }).click();
+  await expect(card).toContainText('From your comfort settings');
+  await expect(page.getByRole('button', { name: 'Reset temperature learning' })).toBeDisabled();
+  await expect(garmentReset).toBeVisible();
 });
 
 test.describe('returning user', () => {

@@ -105,6 +105,15 @@ export interface Rating {
   /** Finer feedback beyond warm or cold (US-036). */
   detail?: 'too-many-layers' | 'not-enough-protection';
   corrections?: GarmentCorrection[];
+  /**
+   * Basic clo (ISO 9920) of the outfit advised that day, when the thermal model
+   * gave the advice (tech debt D8). Older votes lack it and learn at a fixed step.
+   */
+  wornClo?: number;
+  /** The thermal model's clothing target that day before the personal bias, clo (§8.3 model_target). */
+  targetClo?: number;
+  /** The temperature vote was reset; the record stays only for its garment marks. */
+  voteCleared?: true;
 }
 
 export interface Explanation {

@@ -3,7 +3,7 @@
 
 /**
  * Puts the personal clo bias into plain words, with how sure Layered is,
- * for the "What Layered has learned" card (spike, issue #87).
+ * for the "What Layered has learned" card (#87, shipped in #94).
  */
 
 import type { BiasState } from './types';
@@ -11,8 +11,6 @@ import type { BiasState } from './types';
 export type Lean = 'cold' | 'warm' | 'average';
 export type Strength = 'a little' | 'clearly' | 'a lot';
 export type Certainty = 'settings' | 'early' | 'fair' | 'sure';
-/** Two wordings for the blind read: about the person, or about what the advice does. */
-export type Wording = 'person' | 'advice';
 
 /**
  * Below this the bias is smaller than the gap between two neighbouring
@@ -90,16 +88,14 @@ export function certaintyOf(state: Pick<BiasState, 'variance' | 'count'>): Certa
   return spread >= SURE_SPREAD ? 'fair' : 'sure';
 }
 
+/**
+ * Worded about the person, not the advice: it is how people describe
+ * themselves, and "dressing you warmer" would only repeat what Today does.
+ */
 const PERSON: Record<Lean, Record<Strength, string> | string> = {
   cold: { 'a little': 'You feel the cold a little', clearly: 'You feel the cold', 'a lot': 'You feel the cold a lot' },
   warm: { 'a little': 'You run a little warm', clearly: 'You run warm', 'a lot': 'You run very warm' },
   average: 'You’re about average',
-};
-
-const ADVICE: Record<Lean, Record<Strength, string> | string> = {
-  cold: { 'a little': 'Dressing you a little warmer', clearly: 'Dressing you warmer', 'a lot': 'Dressing you much warmer' },
-  warm: { 'a little': 'Dressing you a little lighter', clearly: 'Dressing you lighter', 'a lot': 'Dressing you much lighter' },
-  average: 'Dressing you as for most people',
 };
 
 const ratingsText = (n: number) => `${n} rating${n === 1 ? '' : 's'}`;
@@ -117,24 +113,12 @@ function detailOf(certainty: Certainty, count: number): string {
   }
 }
 
-export function describeBias(state: BiasState, opts: { wording?: Wording; previous?: LeanLabel } = {}): LearnedSummary {
+export function describeBias(state: BiasState, opts: { previous?: LeanLabel } = {}): LearnedSummary {
   const { lean, strength } = leanOf(Number.isFinite(state.mean) ? state.mean : 0, opts.previous);
-  const table = opts.wording === 'advice' ? ADVICE : PERSON;
-  const entry = table[lean];
+  const entry = PERSON[lean];
   const headline = typeof entry === 'string' ? entry : entry[strength ?? 'a little'];
   const certainty = certaintyOf(state);
   return { lean, strength, certainty, headline, detail: detailOf(certainty, state.count) };
-}
-
-/**
- * The words for the latest of a run of daily states, with the hysteresis
- * carried through the run. Replaying the run each time needs no stored label.
- */
-export function describeHistory(states: readonly BiasState[], wording?: Wording): LearnedSummary | undefined {
-  if (!states.length) return undefined;
-  let prev: LeanLabel | undefined;
-  for (let i = 0; i < states.length - 1; i++) prev = leanOf(states[i].mean, prev);
-  return describeBias(states[states.length - 1], { wording, previous: prev });
 }
 
 /**

@@ -37,7 +37,7 @@ const EXAMPLE = 'Coat + umbrella today · showers from 16:00';
 const SIG_KEY = 'layered:v1:pushSignature';
 // Same list as the README's Privacy section; say it where people turn notifications on.
 const SENT =
-  'So the note matches the app, the server keeps your place (to about a kilometre), schedule and settings, your routines without their names, and a few numbers learned from your ratings. Never your wardrobe or the ratings themselves. Turning notifications off deletes it.';
+  'So the note matches the app, the server keeps your place (to about a kilometre), schedule and settings, your routines without their names, and a few numbers learned from your ratings. Never your wardrobe, the ratings themselves or what you wore on rated days. Turning notifications off deletes it.';
 // Without a service worker (blocked, or still installing) `ready` never settles.
 const SW_WAIT_MS = 10_000;
 

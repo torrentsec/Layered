@@ -590,19 +590,45 @@ The plan values are each band's layer plan from `requirements.ts` summed with
 ISO 9920 (base allowance, bottoms and footwear included; `clothing.json →
 bandPlans`). Edges are the midpoints between
 neighbouring plans, rounded to 0.05, so the verdict names the plan nearest the
-target; the matcher still has to reach the target itself. `insulationPoints`
-retires once matching works in clo; during the migration, map clo to points
-through the band (the band's plan points), not by a formula.
+target; the matcher still has to reach the target itself, and does (section
+9.2). `insulationPoints` now serves only the simple-bands path; with the
+science engine, `Requirements.insulation` is the band's plan points and the
+matcher works from `Requirements.clo` instead.
 
 The band edge hedge (`EDGE_HEDGE`, ±1 °C) becomes ±0.08 clo, widened to ±0.15 clo
 when radiation is estimated or UTCI was clamped.
 
 ### 9.2 Layer plans
 
-The matcher fills base → mid → outer from the wardrobe until `ensembleClo ≥
-target`, preferring the fewest layers, then the outer layer with the needed wind
-and water properties. Bottoms and footwear keep their own rules but contribute to
-the sum.
+The band's plan sets which upper slots are filled (base, mid, outer) and their
+planned thickness. The matcher fills them from the wardrobe so that the basic
+insulation of the whole outfit, `0.835·(0.06 + ΣIclu) + 0.161` with the base
+allowance, reaches the target `Icl`. Bottoms and footwear keep their own rules
+but contribute to the sum, as does a shell worn over a band with no outer
+layer; generic advice counts as the slot's first-choice garment.
+
+Ranking (`src/engine/match.ts`, #92):
+
+1. Any outfit within 0.1 clo of the target, or over it, ranks ahead of every
+   outfit further short. 0.1 clo is under one thickness step of one garment
+   and the precision "Why this?" shows.
+2. Among those, the Sprint 5 costs decide, with clo converted to warmth points
+   at `CLO_PER_POINT` (about 0.13 clo, the T-shirt-to-bundle step spread over
+   its 8 points): shortfall costs more than overshoot, so cold loses to warm;
+   then category fit, thickness close to the plan, and the wind and water
+   properties of the outer layer.
+3. When no outfit gets that close, the cheapest of the rest is the closest one,
+   and a shortfall of 2 points (about 0.27 clo) or more adds the "warmest
+   clothes fall short" limitation.
+
+Learned garment warmth and the "too many layers" trim are kept in points and
+count at `CLO_PER_POINT` each. An alternative outfit must reach the target as
+well as the first choice and fall no further short.
+
+On the golden days with a complete wardrobe, the matched outfit now reaches the
+target within 0.1 clo (London, 26 November: 1.38 against 1.38, where matching in
+points gave 1.17). With `engine: 'bands'` there is no `clo` and matching is
+unchanged.
 
 ### 9.3 "Why this?"
 

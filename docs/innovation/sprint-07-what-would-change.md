@@ -1,6 +1,8 @@
 # What would change this? (Sprint 7, issue #88)
 
-**Status:** prototype on `spike/88-what-would-change`, off by default. Turn it on with `?flags=margin` in the address (remembered on the device; `?flags=` turns it off).
+**Shipped in Sprint 8 (#93):** "What would change this" is on by default in "Why this?" under the science engine, narrowed to when 2° or less (in the reader's unit) would change the advice. The `margin` flag is removed. Simple bands are unchanged.
+
+**Status (Sprint 7):** prototype on `spike/88-what-would-change`, off by default. Turn it on with `?flags=margin` in the address (remembered on the device; `?flags=` turns it off).
 
 ## Question
 

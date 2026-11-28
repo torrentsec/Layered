@@ -30,7 +30,7 @@ export function learnOffset(ratings: Rating[], today: string): number {
 export function learnSum(ratings: Rating[], today: string): number {
   let sum = 0;
   for (const r of ratings) {
-    if (r.rating === 0) continue;
+    if (r.rating === 0 || r.voteCleared) continue;
     const weight = 0.5 ** (daysBetween(r.date, today) / LEARN_HALF_LIFE_DAYS);
     sum += r.rating * LEARN_STEP * weight;
   }
@@ -47,7 +47,30 @@ export interface Learned {
   from: 'activity' | 'all' | 'none';
 }
 
-export function learnedFor(ratings: Rating[], activity: Activity, today: string): Learned {
+/**
+ * Ratings whose temperature vote still counts. A reset vote stays on its
+ * record only for the garment marks, so temperature learning skips it.
+ */
+export function temperatureVotes<T extends Rating>(ratings: readonly T[]): T[] {
+  return ratings.filter((r) => r && !r.voteCleared);
+}
+
+/**
+ * Forgets temperature learning only: records with nothing else on them go,
+ * and records with garment marks or finer feedback keep it and lose the vote's say.
+ */
+export function forgetTemperature(ratings: Rating[]): Rating[] {
+  const out: Rating[] = [];
+  for (const r of ratings) {
+    if (!r) continue;
+    if (!r.corrections?.length && !r.detail) continue;
+    out.push({ ...r, voteCleared: true });
+  }
+  return out;
+}
+
+export function learnedFor(all: Rating[], activity: Activity, today: string): Learned {
+  const ratings = temperatureVotes(all);
   const own = ratings.filter((r) => r.activity === activity);
   if (own.length >= ACTIVITY_MIN_RATINGS) return { offset: learnOffset(own, today), from: 'activity' };
   if (ratings.length) return { offset: learnOffset(ratings, today), from: 'all' };
@@ -68,7 +91,8 @@ export interface LearnSnapshot {
   by: Partial<Record<Activity, number>>;
 }
 
-export function learnSnapshot(ratings: Rating[], today: string): LearnSnapshot {
+export function learnSnapshot(all: Rating[], today: string): LearnSnapshot {
+  const ratings = temperatureVotes(all);
   const by: Partial<Record<Activity, number>> = {};
   const own = new Map<Activity, Rating[]>();
   for (const r of ratings) own.set(r.activity, [...(own.get(r.activity) ?? []), r]);
@@ -99,7 +123,7 @@ export interface ActivityOffset {
 /** Activities with enough ratings of their own to have their own offset, most rated first. */
 export function activityOffsets(ratings: Rating[], today: string): ActivityOffset[] {
   const by = new Map<Activity, Rating[]>();
-  for (const r of ratings) by.set(r.activity, [...(by.get(r.activity) ?? []), r]);
+  for (const r of temperatureVotes(ratings)) by.set(r.activity, [...(by.get(r.activity) ?? []), r]);
   return [...by]
     .filter(([, own]) => own.length >= ACTIVITY_MIN_RATINGS)
     .map(([activity, own]) => ({ activity, offset: learnOffset(own, today), count: own.length }))

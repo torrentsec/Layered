@@ -2,7 +2,7 @@
 // Copyright (c) 2026 torrentsec
 
 import { describe, expect, it } from 'vitest';
-import { activityOffsets, addRating, learnedFor, learnedFromSnapshot, learnOffset, learnSnapshot, LEARN_CAP } from '../learning';
+import { activityOffsets, addRating, forgetTemperature, learnedFor, learnedFromSnapshot, learnOffset, learnSnapshot, LEARN_CAP, temperatureVotes } from '../learning';
 import { advise } from '../advise';
 import type { Rating } from '../types';
 import { day } from './fixtures';
@@ -95,5 +95,31 @@ describe('addRating with detail and corrections (US-036, US-037)', () => {
       const near = votes.map((v) => ({ ...v, date: today }));
       expect(advise({ hours, activity: 'walking', learned: learnSnapshot(near, today), today })).toEqual(advise({ hours, activity: 'walking', ratings: near, today }));
     });
+  });
+});
+
+describe('temperature-only reset (#94)', () => {
+  const mark = { category: 'jacket', thickness: 'medium', verdict: 'too-warm' } as unknown as NonNullable<Rating['corrections']>[number];
+  const marked: Rating = { ...r('2026-11-25', -1), corrections: [mark] };
+  const layers: Rating = { ...r('2026-11-24', 1), detail: 'too-many-layers' };
+  const plain = r('2026-11-26', -1);
+
+  it('drops plain votes and keeps garment marks and finer feedback', () => {
+    const out = forgetTemperature([plain, marked, layers]);
+    expect(out).toEqual([{ ...marked, voteCleared: true }, { ...layers, voteCleared: true }]);
+    expect(temperatureVotes(out)).toEqual([]);
+  });
+
+  it('leaves no temperature learning behind', () => {
+    const out = forgetTemperature([plain, marked, layers, r('2026-11-23', -1, 'cycling'), r('2026-11-22', -1, 'cycling'), r('2026-11-21', -1, 'cycling')]);
+    expect(learnOffset(out, '2026-11-26')).toBe(0);
+    expect(learnedFor(out, 'walking', '2026-11-26')).toEqual({ offset: 0, from: 'none' });
+    expect(activityOffsets(out, '2026-11-26')).toEqual([]);
+    expect(learnSnapshot(out, '2026-11-26')).toEqual({ at: '2026-11-26', all: 0, any: false, by: {} });
+  });
+
+  it('a new vote that day replaces the cleared one whole', () => {
+    const out = addRating(forgetTemperature([marked]), r('2026-11-25', 1));
+    expect(temperatureVotes(out)).toEqual([r('2026-11-25', 1)]);
   });
 });

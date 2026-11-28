@@ -46,3 +46,4 @@ Every Sprint Retrospective adds at least one improvement here. Each one is plann
 
 | 6 | 5 | 5 | 1 Sprint PR | 1 (import order) | 1,585 → 1,688 + 6 e2e | Usage limit mid-wave; a permission check blocked one guidance lookup |
 | 7 (innovation) | 5 | 5 prototypes | 1 Sprint PR | 2 (`FLAGS` line, hourly strip) | 1,688 → 1,793 + 6 e2e | Usage limit stopped all five; two worktrees lost |
+| 8 | 3 | 3 | 1 Sprint PR | 1 (`FLAGS`) | 1,793 → 1,803 + 7 e2e | Usage limit stopped all three; privacy escalation unanswered |

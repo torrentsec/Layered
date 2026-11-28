@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 torrentsec
 
-import { LEARN_CAP, learnOffset } from '../../engine/learning';
+import { LEARN_CAP, learnOffset, temperatureVotes } from '../../engine/learning';
 import type { ComfortProfile, Sensitivity } from '../../engine/comfort';
 import type { Level } from '../../engine/inventory';
 import { comfort, patchSettings, ratings, settings } from '../../data/store';
 import { tempDelta } from '../../data/units';
+import { engineOf } from '../../data/engine-choice';
 import { Segmented } from '../../components/Segmented';
 import { toast } from '../../components/Toast';
 
@@ -74,6 +75,9 @@ export function ComfortSection() {
   const u = s.units;
   const today = new Date().toISOString().slice(0, 10);
   const learned = learnOffset(ratings.value, today);
+  const votes = temperatureVotes(ratings.value).length;
+  // Only the bands read this °C number; under the thermal model the learned card says it in words.
+  const bands = engineOf(s) !== 'science';
   const signed = (c: number) => {
     const v = tempDelta(c, u.temp);
     return `${v > 0 ? '+' : v < 0 ? '−' : '±'}${Math.abs(v)}°`;
@@ -99,21 +103,24 @@ export function ComfortSection() {
         />
       </label>
       <p class="small-print" style={{ margin: '0 0 12px' }}>Slide left if you feel the cold, right if you run warm.</p>
-      <div class="row-item plain" style={{ padding: 0 }}>
-        <span class="grow">Learned from your feedback<span class="sub">{ratings.value.length} rating{ratings.value.length === 1 ? '' : 's'}</span></span>
-        <span class="num">{signed(learned)}</span>
-        <button
-          type="button"
-          class="text-btn"
-          disabled={!ratings.value.length}
-          onClick={() => {
-            ratings.value = [];
-            toast('Learning reset');
-          }}
-        >
-          Reset
-        </button>
-      </div>
+      {bands ? (
+        <div class="row-item plain" style={{ padding: 0 }}>
+          <span class="grow">Learned from your feedback<span class="sub">{votes} rating{votes === 1 ? '' : 's'}</span></span>
+          <span class="num">{signed(learned)}</span>
+          <button
+            type="button"
+            class="text-btn"
+            disabled={!ratings.value.length}
+            onClick={() => {
+              // Simple bands keep their Sprint 3 behaviour: this clears every rating.
+              ratings.value = [];
+              toast('Learning reset');
+            }}
+          >
+            Reset
+          </button>
+        </div>
+      ) : null}
     </div>
     </>
   );

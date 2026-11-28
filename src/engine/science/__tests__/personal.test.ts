@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { BIAS_PRIOR_VARIANCE, CLO_PER_CELSIUS, migrateOffsetToClo, updateBias } from '../bias';
-import { biasPrior, MOSTLY_INDOORS, replayBias } from '../personal';
+import { biasPrior, MOSTLY_INDOORS, ratingClo, replayBias } from '../personal';
 import type { Rating } from '../../types';
 
 const r = (date: string, rating: -1 | 0 | 1, activity: Rating['activity'] = 'walking'): Rating => ({ date, rating, effective: 8, activity });
@@ -67,5 +67,52 @@ describe('replayBias', () => {
     const b = replayBias(prior, [r('2026-11-01', 1, 'cycling'), r('2026-11-01', -1, 'walking')]);
     expect(a.mean).toBeCloseTo(b.mean, 12);
     expect(a.variance).toBeCloseTo(b.variance, 12);
+  });
+});
+
+describe('votes that record what was worn (D8)', () => {
+  const prior = biasPrior({ sensitivity: 'average' }, 0);
+  const withClo = (date: string, rating: -1 | 0 | 1, wornClo: number, targetClo: number): Rating => ({ ...r(date, rating), wornClo, targetClo });
+
+  it('learns from the real gap when both clo values are stored', () => {
+    // Wore 0.3 clo more than the model asked and was still too cold.
+    const got = replayBias(prior, [withClo('2026-11-01', -1, 1.3, 1.0)]);
+    expect(got).toEqual(updateBias(prior, -1, '2026-11-01', { wornIcl: 1.3, modelIcl: 1.0 }));
+    expect(got.mean).toBeGreaterThan(replayBias(prior, [r('2026-11-01', -1)]).mean);
+  });
+
+  it('falls back to the plain step for old votes or half-recorded ones', () => {
+    const partial: Rating = { ...r('2026-11-01', -1), wornClo: 1.3 };
+    const broken: Rating = { ...r('2026-11-01', -1), wornClo: Number.NaN, targetClo: 1 };
+    const plain = replayBias(prior, [r('2026-11-01', -1)]);
+    expect(replayBias(prior, [partial])).toEqual(plain);
+    expect(replayBias(prior, [broken])).toEqual(plain);
+  });
+
+  it('skips votes whose temperature learning was reset', () => {
+    expect(replayBias(prior, [{ ...r('2026-11-01', -1), voteCleared: true }])).toEqual(prior);
+  });
+
+  it('reports the state at the end of each rated day, once per day', () => {
+    const votes = [r('2026-11-03', -1), r('2026-11-01', -1), r('2026-11-03', 0, 'cycling')];
+    const days: number[] = [];
+    const final = replayBias(prior, votes, (s) => days.push(s.count));
+    expect(days).toEqual([1, 3]);
+    expect(final.count).toBe(3);
+  });
+});
+
+describe('ratingClo', () => {
+  const target = { icl: 1.25, floor: 1, neutral: 1.2, bias: 0.1, exposureHours: 1, basis: 'ireq' as const };
+  const sci = (outfit?: { basic: number; windLoss: number }) => ({ science: { target, outfit } as never });
+
+  it('keeps the advised outfit and the target before the personal bias', () => {
+    expect(ratingClo(sci({ basic: 1.2345, windLoss: 0.1 }))).toEqual({ wornClo: 1.23, targetClo: 1.15 });
+  });
+
+  it('is empty for band advice or an outfit that could not be summed', () => {
+    expect(ratingClo({})).toEqual({});
+    expect(ratingClo(undefined)).toEqual({});
+    expect(ratingClo(sci())).toEqual({});
   });
 });

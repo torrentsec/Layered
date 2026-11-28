@@ -189,7 +189,7 @@ describe('site exposure on the golden days', () => {
           },
           "street": {
             "add": [
-              "base tshirt medium",
+              "base longsleeve thick",
               "mid jumper thin",
             ],
             "drop": [
@@ -216,12 +216,12 @@ describe('site exposure on the golden days', () => {
           "street": {
             "add": [
               "base longsleeve medium",
-              "mid jumper medium",
+              "mid fleece medium",
               "outer coat medium",
             ],
             "drop": [
               "base thermal thick",
-              "mid jumper thick",
+              "mid fleece thick",
               "outer coat thick",
             ],
           },
@@ -307,8 +307,8 @@ describe('site exposure on the recorded London forecasts', () => {
           ],
         },
         "outfitChanged": {
-          "shade": 10,
-          "street": 5,
+          "shade": 12,
+          "street": 11,
         },
         "walks": 107,
       }
@@ -351,8 +351,8 @@ describe('site exposure on the recorded London forecasts', () => {
           ],
         },
         "outfitChanged": {
-          "shade": 13,
-          "street": 28,
+          "shade": 23,
+          "street": 59,
         },
         "walks": 107,
       }
@@ -377,8 +377,8 @@ describe('site exposure on the recorded London forecasts', () => {
             ],
           },
           "outfitChanged": {
-            "shade": 10,
-            "street": 16,
+            "shade": 12,
+            "street": 26,
           },
           "walks": 107,
         },
@@ -394,8 +394,8 @@ describe('site exposure on the recorded London forecasts', () => {
             ],
           },
           "outfitChanged": {
-            "shade": 10,
-            "street": 11,
+            "shade": 12,
+            "street": 15,
           },
           "walks": 107,
         },

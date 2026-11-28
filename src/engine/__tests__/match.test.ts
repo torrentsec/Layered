@@ -4,8 +4,10 @@
 import { describe, expect, it } from 'vitest';
 import { advise } from '../advise';
 import { BANDS } from '../bands';
-import type { Inventory } from '../inventory';
-import { LIMITATION, matchInventory, withoutCovered } from '../match';
+import { CATALOGUE, type Inventory } from '../inventory';
+import { CLO_PER_POINT, LIMITATION, matchInventory, withoutCovered } from '../match';
+import { ensembleClo } from '../science/clothing';
+import type { ClothingTarget } from '../science/types';
 import { insulationPoints, layerPlan, type Requirements } from '../requirements';
 import type { BandId, Extra, LayerAdvice } from '../types';
 import { day } from './fixtures';
@@ -325,5 +327,72 @@ describe('matchInventory: learned garment warmth (US-039)', () => {
     expect(learned.effective).toBe(base.effective);
     expect(base.layers.find((l) => l.kind === 'mid')?.thickness).toBe('medium');
     expect(learned.layers.find((l) => l.kind === 'mid')?.thickness).toBe('thick');
+  });
+});
+
+// #92: with the thermal model on, the matched outfit adds up to the target in clo (thermal-model §9.2).
+describe('matchInventory: matching in clo', () => {
+  // Everything in the catalogue in every thickness, as the golden days use.
+  const COMPLETE: Inventory = Object.fromEntries(CATALOGUE.map((c) => [c.id, { counts: c.thickness ? { thin: 1, medium: 1, thick: 1 } : { medium: 1 } }]));
+  const target = (icl: number): ClothingTarget => ({ icl, floor: icl, neutral: icl, bias: 0, exposureHours: 0.5, basis: 'ireq' });
+  const inClo = (band: BandId, icl: number, over: Partial<Requirements> = {}) => req(band, { clo: target(icl), ...over });
+  const basic = (ls: LayerAdvice[]) =>
+    ensembleClo(ls.filter((l) => l.category && !l.optional).map((l) => ({ category: l.category!, thickness: l.thickness })), 0, { walk: 0, ride: 0 }, 'dry').basic;
+  const picks = (m: ReturnType<typeof matchInventory>) => m.layers.filter((l) => l.thickness).map((l) => `${l.category}:${l.thickness}`);
+  const ranges: [BandId, number[]][] = [
+    ['tshirt', [0.36, 0.45]],
+    ['light', [0.55, 0.65]],
+    ['two', [0.75, 0.9]],
+    ['jacket', [1, 1.2]],
+    ['coat', [1.3, 1.45]],
+    ['bundle', [1.55, 1.65]],
+  ];
+
+  it('reaches the target from a complete wardrobe, less 0.1 clo at most, without going far over', () => {
+    for (const [band, icls] of ranges) for (const icl of icls) {
+      const sum = basic(matchInventory(inClo(band, icl), COMPLETE).layers);
+      expect(sum, `${band} ${icl}`).toBeGreaterThanOrEqual(icl - 0.1);
+      expect(sum, `${band} ${icl}`).toBeLessThanOrEqual(icl + 0.25);
+    }
+  });
+
+  it('dresses warmer for a higher target in the same band', () => {
+    expect(basic(matchInventory(inClo('coat', 1.45), COMPLETE).layers)).toBeGreaterThan(basic(matchInventory(inClo('coat', 1.3), COMPLETE).layers));
+  });
+
+  it('picks the closest outfit from a partial wardrobe and says when it falls short', () => {
+    const wardrobe: Inventory = { longsleeve: own('medium'), jumper: own('thin', 'medium'), coat: own('thin', 'medium'), jeans: plain, trainers: plain };
+    // The warmest of these sums to about 1.38 clo.
+    const m = matchInventory(inClo('coat', 1.7), wardrobe);
+    expect(picks(m)).toEqual(['longsleeve:medium', 'jumper:medium', 'coat:medium']);
+    expect(m.limitations).toContain(LIMITATION.shortfall);
+    expect(matchInventory(inClo('coat', 1.3), wardrobe).limitations).not.toContain(LIMITATION.shortfall);
+  });
+
+  it('still prefers a waterproof outer and carries its nickname', () => {
+    const wardrobe: Inventory = { ...COMPLETE, 'waterproof-jacket': { counts: { thin: 0, medium: 0, thick: 1 }, nickname: 'Blue mac' } };
+    const outer = find(matchInventory(inClo('coat', 1.38, { rain: 'waterproof', footwear: 'waterproof' }), wardrobe).layers, 'outer');
+    expect(outer).toMatchObject({ category: 'waterproof-jacket', thickness: 'thick', nickname: 'Blue mac' });
+  });
+
+  it('offers alternatives that reach the target too', () => {
+    const wardrobe: Inventory = { longsleeve: own('medium'), jumper: own('medium'), fleece: own('medium'), coat: own('medium'), jeans: plain, trainers: plain };
+    const m = matchInventory(inClo('coat', 1.38), wardrobe);
+    expect(m.alternatives).toHaveLength(1);
+    expect(basic(m.alternatives[0])).toBeGreaterThanOrEqual(1.28);
+  });
+
+  it('uses learned garment warmth and the "too many layers" trim', () => {
+    const wardrobe: Inventory = { longsleeve: own('medium'), jumper: own('thin', 'medium', 'thick'), coat: own('medium'), jeans: plain, trainers: plain };
+    expect(picks(matchInventory(inClo('coat', 1.38), wardrobe))).toContain('jumper:medium');
+    expect(picks(matchInventory(inClo('coat', 1.38), wardrobe, { 'jumper:medium': -1 }))).toContain('jumper:thick');
+    // A medium jumper falls a little short of 1.42; the trim brings the target down to it.
+    expect(picks(matchInventory(inClo('coat', 1.42), wardrobe))).toContain('jumper:thick');
+    expect(picks(matchInventory(inClo('coat', 1.42), wardrobe, { layers: -0.5 }))).toContain('jumper:medium');
+  });
+
+  it('turns a point of learned warmth into about one thickness step', () => {
+    expect(CLO_PER_POINT).toBeGreaterThan(0.1);
+    expect(CLO_PER_POINT).toBeLessThan(0.15);
   });
 });

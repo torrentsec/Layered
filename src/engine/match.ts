@@ -5,6 +5,7 @@ import { BANDS } from './bands';
 import { category, ownership, THICKNESSES, type CategoryId, type Inventory, type Level, type Thickness, type WaterResistance } from './inventory';
 import { garmentKey, LAYERS_KEY, type GarmentWarmth } from './garment-learning';
 import type { Requirements } from './requirements';
+import { BASE_ALLOWANCE_CLO, garmentClo, iclFromGarments } from './science/clothing';
 import type { Extra, LayerAdvice, LayerKind } from './types';
 
 /**
@@ -38,6 +39,25 @@ export const COST = {
   /** Shortfall (points) at which the user is told their clothes aren't warm enough. */
   shortfallLimitation: 2,
 } as const;
+
+const ICL_PER_ICLU = iclFromGarments(1) - iclFromGarments(0);
+const iclu = (id: CategoryId, t?: Thickness) => garmentClo({ category: id, thickness: t });
+
+/**
+ * Basic clo (ensemble Icl) per warmth point: the step from the T-shirt plan to
+ * the bundle plan, in each band's first-choice garments, spread over its 8
+ * points. Learned garment warmth and the "too many layers" trim are kept in
+ * points, and this is how they count when matching in clo.
+ */
+export const CLO_PER_POINT = (ICL_PER_ICLU * (iclu('thermal', 'thick') + iclu('jumper', 'thick') + iclu('coat', 'thick') - iclu('tshirt', 'thin'))) / 8;
+
+/**
+ * Matching in clo may fall this far short of the target before an outfit
+ * counts as missing it. It is under one thickness step of a single garment,
+ * and "Why this?" shows clo to 0.1, so closing a smaller gap would mostly
+ * swap in a warmer piece than the day needs.
+ */
+const CLO_SHORT_ALLOWANCE = 0.1;
 
 /** Penalty for poorer water resistance when the day calls for a waterproof. */
 export const WATER_COST: Record<WaterResistance, number> = { waterproof: 0, resistant: 1, none: 2 };
@@ -136,6 +156,8 @@ interface Option {
   category?: CategoryId;
   thickness?: Thickness;
   points: number;
+  /** Garment insulation Iclu, clo, with learned warmth. */
+  clo: number;
   cost: number;
   water: WaterResistance;
 }
@@ -147,6 +169,8 @@ interface Slot {
   optional: boolean;
   /** Owned options; empty means generic advice. */
   options: Option[];
+  /** Iclu of the generic advice: the first-choice garment at the planned thickness. */
+  genericClo: number;
   status: 'owned' | 'unknown' | 'none';
 }
 
@@ -174,7 +198,8 @@ function upperOptions(inv: Inventory, prefs: Prefs, planned: Thickness, r: Requi
         if (wet(r)) cost += WATER_COST[water(inv, id)];
         if (r.wind !== 'none') cost += WIND_COST[wind(inv, id)] * (r.wind === 'high' ? 2 : 1);
       }
-      out.push({ category: id, thickness: t, points, cost, water: water(inv, id) });
+      const clo = Math.max(0, iclu(id, t) + ((points - POINTS[t]) * CLO_PER_POINT) / ICL_PER_ICLU);
+      out.push({ category: id, thickness: t, points, clo, cost, water: water(inv, id) });
     }
   }
   return out;
@@ -195,7 +220,7 @@ function upperSlots(r: Requirements, inv: Inventory, learned: GarmentWarmth): Sl
     const status = statusOf(inv, prefs, options);
     // A light layer you don't own isn't worth mentioning.
     if (optional && status === 'none') continue;
-    slots.push({ kind, generic: genericFor(kind, fallback), planned, optional, options, status });
+    slots.push({ kind, generic: genericFor(kind, fallback), planned, optional, options, genericClo: iclu(byPref(prefs)[0], planned), status });
   }
   return slots;
 }
@@ -220,36 +245,53 @@ function layerFor(inv: Inventory, slot: Slot, o: Option | undefined): LayerAdvic
 interface Combo {
   picks: (Option | undefined)[];
   cost: number;
+  /** In warmth points, or point-equivalents of clo when matching in clo. */
   shortfall: number;
+  /** Misses the clo target by more than the allowance; always false in points. */
+  short: boolean;
   insulationCost: number;
   waterRank: number;
 }
 
-function combos(slots: Slot[], target: number): Combo[] {
+/**
+ * The insulation target. In points it is summed over the upper layers. In clo
+ * it is the target basic insulation of the whole outfit, and `fixedClo` is the
+ * Iclu of what is worn whatever the upper picks (base allowance, bottoms,
+ * footwear, a shell over a band with no outer layer), per ISO 9920 §4.3.
+ */
+type Target = { points: number } | { icl: number; fixedClo: number };
+
+function combos(slots: Slot[], target: Target): Combo[] {
   const choices = slots.map((s) => (s.options.length ? s.options : [undefined]));
   const out: Combo[] = [];
   const walk = (i: number, picks: (Option | undefined)[]) => {
     if (i === choices.length) {
       let total = 0;
+      let clo = 0;
       let cost = 0;
       let waterRank = 0;
       slots.forEach((s, j) => {
         const p = picks[j];
         if (!s.optional) total += p ? p.points : POINTS[s.planned];
+        if (!s.optional) clo += p ? p.clo : s.genericClo;
         if (p) cost += p.cost;
         if (s.kind === 'outer' && p) waterRank = WATER_COST[p.water];
       });
-      const shortfall = Math.max(0, target - total);
-      const over = Math.max(0, total - target);
+      // Clo differences become point-equivalents so the same costs weigh them.
+      const gap = 'icl' in target ? (target.icl - iclFromGarments(target.fixedClo + clo)) / CLO_PER_POINT : target.points - total;
+      const short = 'icl' in target && gap * CLO_PER_POINT > CLO_SHORT_ALLOWANCE + 1e-9;
+      const shortfall = Math.max(0, gap);
+      const over = Math.max(0, -gap);
       const insulationCost =
         shortfall * COST.shortfall + Math.max(0, over - COST.tolerance) * COST.overshoot + Math.min(over, COST.tolerance) * COST.slack;
-      out.push({ picks, cost: cost + insulationCost, shortfall, insulationCost, waterRank });
+      out.push({ picks, cost: cost + insulationCost, shortfall, short, insulationCost, waterRank });
       return;
     }
     for (const c of choices[i]) walk(i + 1, [...picks, c]);
   };
   walk(0, []);
-  return out.sort((a, b) => a.cost - b.cost);
+  // Reaching the clo target comes first; among outfits that do, or that all fall short, the cost decides.
+  return out.sort((a, b) => Number(a.short) - Number(b.short) || a.cost - b.cost);
 }
 
 function lowerLayer(
@@ -295,33 +337,50 @@ function shellFor(inv: Inventory): LayerAdvice | undefined {
 const OUTER_IDS = Object.keys(OUTER_PREFS.thin) as CategoryId[];
 const sameLayer = (a?: Option, b?: Option) => a?.category === b?.category && a?.thickness === b?.thickness;
 
-/** `learned` is the persisted garment warmth; its `layers` entry trims the insulation target. */
+/**
+ * `learned` is the persisted garment warmth; its `layers` entry trims the
+ * insulation target. With `r.clo` set the upper layers are chosen so the whole
+ * outfit reaches the target basic insulation (thermal-model §9.2); without it
+ * they are matched in warmth points, as the simple bands always were.
+ */
 export function matchInventory(r: Requirements, inv: Inventory = {}, learned: GarmentWarmth = {}): Match {
   const limitations: string[] = [];
   const slots = upperSlots(r, inv, learned);
-  const ranked = combos(slots, r.insulation + (learned[LAYERS_KEY] ?? 0));
+
+  // Bottoms, footwear and a shell don't depend on the upper picks, and in clo they count towards the target.
+  const lower: LayerAdvice[] = [];
+  const bottomPrefs = BOTTOM_PREFS[r.bottoms];
+  const footPrefs = FOOT_PREFS[r.footwear];
+  const bottoms = lowerLayer(inv, 'bottoms', bottomPrefs, GENERIC_BOTTOMS[r.bottoms], r);
+  if (bottoms.layer) lower.push(bottoms.layer);
+  const feet = lowerLayer(inv, 'footwear', footPrefs, GENERIC_FOOTWEAR[r.footwear], r);
+  if (feet.layer) lower.push(feet.layer);
+  const hasOuterSlot = slots.some((s) => s.kind === 'outer');
+  const shell = wet(r) ? shellFor(inv) : undefined;
+  const extra: LayerAdvice[] = !hasOuterSlot && shell ? [shell] : [];
+
+  const trim = learned[LAYERS_KEY] ?? 0;
+  // Generic bottoms and shoes count as the first choice for the day.
+  const fixedClo =
+    BASE_ALLOWANCE_CLO +
+    iclu(bottoms.layer?.category ?? byPref(bottomPrefs)[0]) +
+    iclu(feet.layer?.category ?? byPref(footPrefs)[0]) +
+    extra.reduce((n, l) => n + iclu(l.category!, l.thickness), 0);
+  const target: Target = r.clo ? { icl: r.clo.icl + trim * CLO_PER_POINT, fixedClo } : { points: r.insulation + trim };
+  const ranked = combos(slots, target);
   const best = ranked[0];
   const upper = slots.map((s, i) => layerFor(inv, s, best.picks[i]));
 
   for (const s of slots) if (s.status === 'none' && !s.optional) limitations.push(LIMITATION[s.kind]);
   if (best.shortfall >= COST.shortfallLimitation) limitations.push(LIMITATION.shortfall);
 
-  const extra: LayerAdvice[] = [];
   if (wet(r)) {
     const outerPick = best.picks[slots.findIndex((s) => s.kind === 'outer')];
-    const hasOuterSlot = slots.some((s) => s.kind === 'outer');
-    const shell = shellFor(inv);
-    if (!hasOuterSlot && shell) extra.push(shell);
     const covered = outerPick ? outerPick.water !== 'none' : !!shell;
     if (!covered && !shell && anyKnown(inv, OUTER_IDS)) limitations.push(LIMITATION.waterproof);
   }
 
-  const lower: LayerAdvice[] = [];
-  const bottoms = lowerLayer(inv, 'bottoms', BOTTOM_PREFS[r.bottoms], GENERIC_BOTTOMS[r.bottoms], r);
-  if (bottoms.layer) lower.push(bottoms.layer);
   if (bottoms.status === 'none') limitations.push(LIMITATION.bottoms);
-  const feet = lowerLayer(inv, 'footwear', FOOT_PREFS[r.footwear], GENERIC_FOOTWEAR[r.footwear], r);
-  if (feet.layer) lower.push(feet.layer);
   if (feet.status === 'none') limitations.push(LIMITATION.footwear);
   if (feet.layer?.category && (r.footwear === 'waterproof' || r.footwear === 'boots') && water(inv, feet.layer.category) === 'none') {
     limitations.push(LIMITATION.waterproofFeet);
@@ -334,7 +393,9 @@ export function matchInventory(r: Requirements, inv: Inventory = {}, learned: Ga
       (c) =>
         c !== best &&
         c.picks.some((p, i) => !sameLayer(p, best.picks[i])) &&
-        c.insulationCost <= best.insulationCost &&
+        // Clo is continuous, so two outfits rarely tie on insulation: one that is no colder will do, and the margin caps how much warmer.
+        (r.clo ? !c.short || best.short : true) &&
+        (r.clo ? c.shortfall <= best.shortfall + 1e-9 : c.insulationCost <= best.insulationCost) &&
         c.waterRank <= best.waterRank &&
         c.cost <= best.cost + COST.alternativeMargin,
     );

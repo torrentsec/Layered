@@ -6,6 +6,7 @@ import { airChips, type AirChip } from '../engine/air';
 import { headsUps } from '../engine/headsups';
 import { correctablePieces, type Piece } from '../engine/garment-learning';
 import { addRating } from '../engine/learning';
+import { ratingClo } from '../engine/science/personal';
 import { hourOf } from '../engine/time';
 import type { Activity, Advice, GarmentCorrection, Hour, Rating } from '../engine/types';
 import '../state/garment-warmth';
@@ -105,6 +106,9 @@ export function FeedbackCard({ now, advice, activity }: { now: string; advice: A
   // The rating for the day is replaced whole, so clearing a choice really clears it.
   const save = (next: Rating) => {
     const clean: Rating = { date: next.date, rating: next.rating, effective: next.effective, activity: next.activity };
+    // A vote reset in Settings stays reset while its garment marks change; a live vote remembers the day's clo (D8).
+    if (next.voteCleared) clean.voteCleared = true;
+    else Object.assign(clean, ratingClo(advice));
     if (next.detail) clean.detail = next.detail;
     if (next.corrections?.length) clean.corrections = next.corrections;
     ratings.value = addRating(ratings.value, clean);
@@ -119,10 +123,10 @@ export function FeedbackCard({ now, advice, activity }: { now: string; advice: A
           <button
             type="button"
             key={c.rating}
-            aria-pressed={given?.rating === c.rating}
+            aria-pressed={!given?.voteCleared && given?.rating === c.rating}
             onClick={() => {
               haptic(12);
-              save({ ...given, date, rating: c.rating, effective: advice.effective, activity });
+              save({ ...given, voteCleared: undefined, date, rating: c.rating, effective: advice.effective, activity });
               toast(c.rating === 0 ? 'Noted. Same again.' : c.rating < 0 ? 'Noted. Warmer next time.' : 'Noted. Lighter next time.');
             }}
           >

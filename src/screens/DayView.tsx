@@ -74,7 +74,7 @@ export function DayView({ forecast, date, activity, duration, commute, effort, r
     <>
       <Hero feels={hero.value} rain={maxRain} onCircleTap={onCircleTap} />
       <div class="readout">
-        {advice.science ? (
+        {hero.feelsFirst ? (
           <CalibratedFeels advice={advice} reading={hero} units={units} context={feelsContext} />
         ) : (
           <div>

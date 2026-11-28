@@ -73,7 +73,7 @@ describe('calibratedReading', () => {
     ({ effective: 2.7, science: londonWhy(over), hours: [hour('2026-11-26T08:00', h)] }) as unknown as Advice;
 
   it('puts the real temperature first and names the wind', () => {
-    expect(calibratedReading(at(), 'c')).toEqual({ value: londonWhy().utci.utci, text: '3°', label: 'Actual', note: 'Feels -3° in the wind' });
+    expect(calibratedReading(at(), 'c')).toEqual({ feelsFirst: true, value: londonWhy().utci.utci, text: '3°', label: 'Actual', note: 'Feels -3° in the wind' });
     expect(calibratedReading(at(), 'f')).toMatchObject({ text: '37°', note: 'Feels 26° in the wind' });
   });
 
@@ -87,9 +87,9 @@ describe('calibratedReading', () => {
 
   it('never invents a number when UTCI has none, or without the science engine', () => {
     const hot = at({ utci: { utci: NaN, category: 'extreme-heat', clamped: false, outOfRange: true } });
-    expect(calibratedReading(hot, 'c')).toEqual({ ...heroReading(hot, 'c'), note: '' });
+    expect(calibratedReading(hot, 'c')).toEqual({ ...heroReading(hot, 'c'), note: '', feelsFirst: false });
     const bands = advise({ hours: day(3, () => ({ temp: 3, wind: 25, feels: -1 })), activity: 'walking' })!;
-    expect(calibratedReading(bands, 'c')).toMatchObject({ label: 'Dress for', note: '' });
+    expect(calibratedReading(bands, 'c')).toMatchObject({ label: 'Dress for', note: '', feelsFirst: false });
   });
 
   it('only changes the words: the advice it is given is untouched', () => {

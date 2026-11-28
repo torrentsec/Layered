@@ -17,9 +17,11 @@ test('first run: pick a place, skip the rest, and Today gives a verdict', async 
   await expect(page.locator('.readout .feels')).toHaveText(/^Actual -?\d+°$/);
   await expect(page.locator('.readout .feels-label')).toContainText(/Air -?\d+° to -?\d+°/);
   await expect(page.locator('main')).toContainText(/coat|jacket|jumper/i);
-  const note = await page.locator('.readout .feels-note').textContent();
+  const note = page.locator('.readout .feels-note');
+  await expect(note).toHaveText(/^Feels -?\d+°( in the (wind|sun))?$/);
+  const feels = (await note.textContent())!.match(/-?\d+°/)![0];
   await page.getByRole('button', { name: 'Why this?' }).click();
-  if (note) await expect(page.locator('.why-lead')).toContainText(`it will feel like ${note.replace(/^Feels /, '').replace(/ in the (wind|sun)$/, '')}`);
+  await expect(page.locator('.why-lead')).toContainText(`it will feel like ${feels}`);
 });
 
 test('simple bands keep the dress-for number on the hero', async ({ page }) => {

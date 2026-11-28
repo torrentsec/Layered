@@ -21,6 +21,8 @@ export interface CalibratedReading {
   label: string;
   /** One short line under the number; empty when there is nothing to add. */
   note: string;
+  /** False when today's reading stands because UTCI has no number; the screen then keeps its old readout. */
+  feelsFirst: boolean;
 }
 
 /**
@@ -32,12 +34,12 @@ export function calibratedReading(a: Advice, u: TempUnit): CalibratedReading {
   const plain = heroReading(a, u);
   const s = a.science;
   const r = s?.utci;
-  if (!s || !r || r.outOfRange || !Number.isFinite(r.utci)) return { ...plain, note: '' };
+  if (!s || !r || r.outOfRange || !Number.isFinite(r.utci)) return { ...plain, note: '', feelsFirst: false };
   const hour = a.hours.find((h) => h.time === s.coldestHour);
   const colder = r.utci < s.ta;
   const cause = colder
     ? (hour && hour.wind >= WIND_CAUSE ? ' in the wind' : '')
     : s.tmrtDelta >= RADIANT_MENTION ? ' in the sun' : '';
   const same = fmtTemp(r.utci, u) === fmtTemp(s.ta, u);
-  return { value: r.utci, text: fmtTemp(s.ta, u), label: 'Actual', note: same ? '' : `Feels ${fmtTemp(r.utci, u)}${cause}` };
+  return { value: r.utci, text: fmtTemp(s.ta, u), label: 'Actual', note: same ? '' : `Feels ${fmtTemp(r.utci, u)}${cause}`, feelsFirst: true };
 }
